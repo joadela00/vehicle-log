@@ -81,5 +81,5 @@ export async function POST(req: Request) {
     },
   });
 
-  return NextResponse.redirect(new URL("/", req.url));
+  return NextResponse.redirect(new URL("/?saved=1", req.url));
 }
