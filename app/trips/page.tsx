@@ -1,28 +1,24 @@
+import Link from "next/link";
+import { Prisma } from "@prisma/client";
+
 import { prisma } from "@/lib/prisma";
+
+const PAGE_SIZE = 50;
 
 export default async function TripsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string }>;
+  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string; page?: string }>;
 }) {
   const params = await searchParams;
 
   const vehicleId = params?.vehicleId || "";
+  const page = Math.max(1, Number(params?.page || "1") || 1);
 
-  const from = params?.from
-    ? new Date(params.from + "T00:00:00")
-    : undefined;
+  const from = params?.from ? new Date(params.from + "T00:00:00") : undefined;
+  const to = params?.to ? new Date(params.to + "T23:59:59") : undefined;
 
-  const to = params?.to
-    ? new Date(params.to + "T23:59:59")
-    : undefined;
-
-  const vehicles = await prisma.vehicle.findMany({
-    orderBy: { plate: "asc" },
-  });
-
-  // 필터 조건 만들기
-  const where: any = {};
+  const where: Prisma.TripWhereInput = {};
 
   if (vehicleId) {
     where.vehicleId = vehicleId;
@@ -34,14 +30,38 @@ export default async function TripsPage({
     if (to) where.date.lte = to;
   }
 
-  const trips = await prisma.trip.findMany({
-    where,
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    include: { vehicle: true, driver: true },
-  });
+  const [vehicles, tripsRaw] = await Promise.all([
+    prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
+    prisma.trip.findMany({
+      where,
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE + 1,
+      select: {
+        id: true,
+        date: true,
+        distance: true,
+        tollCost: true,
+        evRemainPct: true,
+        hipassBalance: true,
+        note: true,
+        vehicle: { select: { model: true, plate: true } },
+        driver: { select: { name: true } },
+      },
+    }),
+  ]);
 
-  const totalDistance = trips.reduce((sum, t) => sum + t.distance, 0);
-  const totalToll = trips.reduce((sum, t) => sum + t.tollCost, 0);
+  const hasNextPage = tripsRaw.length > PAGE_SIZE;
+  const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
+
+  const makePageHref = (nextPage: number) => {
+    const query = new URLSearchParams();
+    if (vehicleId) query.set("vehicleId", vehicleId);
+    if (params?.from) query.set("from", params.from);
+    if (params?.to) query.set("to", params.to);
+    query.set("page", String(nextPage));
+    return `/trips?${query.toString()}`;
+  };
 
   return (
     <main className="max-w-5xl mx-auto p-6">
@@ -75,14 +95,27 @@ export default async function TripsPage({
           className="border rounded px-3 py-2"
         />
 
-        <button className="bg-black text-white rounded px-4 py-2">
-          검색
-        </button>
+        <button className="bg-black text-white rounded px-4 py-2">검색</button>
       </form>
 
-      <div className="mt-4">
-        <div>총 주행거리: <b>{totalDistance}</b> km</div>
-        <div>총 통행료: <b>{totalToll}</b> 원</div>
+      <div className="mt-4 flex items-center gap-3 text-sm">
+        <span>
+          페이지 <b>{page}</b>
+        </span>
+        {page > 1 ? (
+          <Link className="underline" href={makePageHref(page - 1)}>
+            이전
+          </Link>
+        ) : (
+          <span className="opacity-40">이전</span>
+        )}
+        {hasNextPage ? (
+          <Link className="underline" href={makePageHref(page + 1)}>
+            다음
+          </Link>
+        ) : (
+          <span className="opacity-40">다음</span>
+        )}
       </div>
 
       <div className="overflow-x-auto mt-6">
@@ -106,7 +139,9 @@ export default async function TripsPage({
             {trips.map((t) => (
               <tr key={t.id} className="border-b">
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">{t.vehicle.model} / {t.vehicle.plate}</td>
+                <td className="p-2">
+                  {t.vehicle.model} / {t.vehicle.plate}
+                </td>
                 <td className="p-2">{t.driver.name}</td>
                 <td className="p-2 text-right">{t.distance}</td>
                 <td className="p-2 text-right">{t.tollCost}</td>
@@ -115,17 +150,15 @@ export default async function TripsPage({
                 <td className="p-2">{t.note ?? ""}</td>
 
                 <td className="p-2 text-right">
-                  <a href={`/trips/${t.id}`} className="text-blue-600 underline">
+                  <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
                     수정
-                  </a>
+                  </Link>
                 </td>
 
                 <td className="p-2 text-right">
                   <form method="POST" action="/api/trips/delete">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-600 underline">
-                      삭제
-                    </button>
+                    <button className="text-red-600 underline">삭제</button>
                   </form>
                 </td>
               </tr>
