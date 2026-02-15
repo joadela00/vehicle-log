@@ -4,7 +4,6 @@ export const revalidate = 0;
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
-  const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
   const today = new Date().toISOString().slice(0, 10);
 
   return (
