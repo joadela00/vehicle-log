@@ -79,5 +79,5 @@ export async function POST(req: Request) {
     prevHipass = t.hipassBalance;
   }
 
-  return NextResponse.redirect(new URL("/trips", req.url));
+  return NextResponse.redirect(new URL("/trips?saved=1", req.url));
 }

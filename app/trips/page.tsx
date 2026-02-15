@@ -4,10 +4,11 @@ import { prisma } from "@/lib/prisma";
 export default async function TripsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string }>;
+  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string; saved?: string }>;
 }) {
   const params = await searchParams;
 
+  const saved = params?.saved === "1";
   const vehicleId = params?.vehicleId || "";
 
   const from = params?.from
@@ -47,6 +48,13 @@ export default async function TripsPage({
   return (
     <main className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold">운행일지 전체 목록</h1>
+
+
+      {saved ? (
+        <p className="mt-4 rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700">
+          수정 저장이 완료되었습니다.
+        </p>
+      ) : null}
 
       <form method="GET" className="mt-4 flex flex-wrap gap-3">
         <select

@@ -4,7 +4,14 @@ export const revalidate = 0;
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ saved?: string }>;
+}) {
+  const params = await searchParams;
+  const saved = params?.saved === "1";
+
   const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
   const today = new Date().toISOString().slice(0, 10);
 
@@ -16,6 +23,12 @@ export default async function Home() {
         <Link className="underline" href="/admin">관리자</Link>
         <Link className="underline" href="/trips">운행일지 목록</Link>
       </div>
+
+      {saved ? (
+        <p className="mt-4 rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-700">
+          저장이 완료되었습니다.
+        </p>
+      ) : null}
 
       <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
         {/* ✅ 날짜: 오늘로 기본 세팅 */}
@@ -81,23 +94,21 @@ peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outli
           />
         </label>
 
-<label className="grid gap-1">
-  <span>전기 잔여(%)</span>
-  <select
-    name="evRemainPct"
-    required
-    defaultValue="80"
-    className="border rounded px-3 py-2"
-  >
-    {[20, 40, 60, 80, 100].map((v) => (
-      <option key={v} value={v}>
-        {v}%
-      </option>
-    ))}
-  </select>
-</label>
-
-
+        <label className="grid gap-1">
+          <span>전기 잔여(%)</span>
+          <select
+            name="evRemainPct"
+            required
+            defaultValue="80"
+            className="border rounded px-3 py-2"
+          >
+            {[20, 40, 60, 80, 100].map((v) => (
+              <option key={v} value={v}>
+                {v}%
+              </option>
+            ))}
+          </select>
+        </label>
 
         {/* ✅ 하이패스/통행료: 스피너(화살표) 없게 text+numeric */}
         <div className="grid grid-cols-2 gap-3">
