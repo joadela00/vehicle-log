@@ -43,8 +43,10 @@ export default async function Home() {
                   className="peer sr-only"
                   required
                 />
-                <span className="block w-full text-center px-3 py-3 border rounded
-peer-checked:bg-black peer-checked:text-white peer-checked:border-yellow">
+                <span className="relative block w-full rounded border-2 border-gray-300 bg-white px-3 py-3 text-center font-medium text-gray-800 shadow-sm transition
+peer-checked:border-blue-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:ring-4 peer-checked:ring-blue-200
+after:hidden peer-checked:after:block peer-checked:after:content-['✓_선택됨'] peer-checked:after:mt-1 peer-checked:after:text-xs peer-checked:after:font-bold peer-checked:after:tracking-wide
+peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
                   {v.model} / {v.plate}
                 </span>
               </label>
