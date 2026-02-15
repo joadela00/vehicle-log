@@ -77,9 +77,23 @@ export default async function Home() {
           />
         </label>
 
-        {/* ✅ 전기 잔여: 80% 고정 */}
-        <input type="hidden" name="evRemainPct" value="80" />
-        <div className="text-sm opacity-70">전기 잔여: 80% (고정)</div>
+<label className="grid gap-1">
+  <span>전기 잔여(%)</span>
+  <select
+    name="evRemainPct"
+    required
+    defaultValue="80"
+    className="border rounded px-3 py-2"
+  >
+    {[20, 40, 60, 80, 100].map((v) => (
+      <option key={v} value={v}>
+        {v}%
+      </option>
+    ))}
+  </select>
+</label>
+
+
 
         {/* ✅ 하이패스/통행료: 스피너(화살표) 없게 text+numeric */}
         <div className="grid grid-cols-2 gap-3">
