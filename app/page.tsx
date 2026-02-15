@@ -109,19 +109,6 @@ export default async function Home() {
               className="border rounded px-3 py-2"
             />
           </label>
-
-          <label className="grid gap-1">
-            <span>통행료 지출(원)</span>
-            <input
-              name="tollCost"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              required
-              placeholder="예: 1200"
-              className="border rounded px-3 py-2"
-            />
-          </label>
         </div>
 
         <label className="grid gap-1">
