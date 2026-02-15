@@ -1,30 +1,57 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
   const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
+  const today = new Date().toISOString().slice(0, 10);
 
   return (
     <main className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold">차량 운행일지 입력</h1>
 
+      <div className="mt-3 flex gap-4 text-sm">
+        <a className="underline" href="/admin">관리자</a>
+        <a className="underline" href="/trips">운행일지 목록</a>
+      </div>
+
       <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
+        {/* ✅ 날짜: 오늘로 기본 세팅 */}
         <label className="grid gap-1">
           <span>날짜</span>
-          <input name="date" type="date" required className="border rounded px-3 py-2" />
+          <input
+            name="date"
+            type="date"
+            required
+            defaultValue={today}
+            className="border rounded px-3 py-2"
+          />
         </label>
 
-        <label className="grid gap-1">
+        {/* ✅ 차량: 드롭다운 대신 버튼형(라디오) 선택 */}
+        <div className="grid gap-2">
           <span>차량</span>
-          <select name="vehicleId" required className="border rounded px-3 py-2">
-            {vehicles.map((v) => (
-              <option key={v.id} value={v.id}>
-                {v.model} / {v.plate}
-              </option>
+          <div className="flex flex-wrap gap-2">
+            {vehicles.map((v, idx) => (
+              <label key={v.id} className="cursor-pointer">
+                <input
+                  type="radio"
+                  name="vehicleId"
+                  value={v.id}
+                  defaultChecked={idx === 0}
+                  className="peer sr-only"
+                  required
+                />
+                <span className="px-3 py-2 border rounded peer-checked:bg-black peer-checked:text-white">
+                  {v.model} / {v.plate}
+                </span>
+              </label>
             ))}
-          </select>
-        </label>
+          </div>
+        </div>
 
-        {/* ✅ 운전자는 주관식 */}
+        {/* ✅ 운전자: 주관식 */}
         <label className="grid gap-1">
           <span>운전자</span>
           <input
@@ -36,7 +63,7 @@ export default async function Home() {
           />
         </label>
 
-        {/* ✅ 시작/종료 제거 → 최종 계기판만 */}
+        {/* ✅ 최종 계기판만 입력 */}
         <label className="grid gap-1">
           <span>계기판 최종 주행거리(누적 km)</span>
           <input
@@ -50,19 +77,11 @@ export default async function Home() {
           />
         </label>
 
-        {/* ✅ 전기 잔여는 선택 */}
-        <label className="grid gap-1">
-          <span>전기 잔여(%)</span>
-          <select name="evRemainPct" required className="border rounded px-3 py-2">
-            {[20, 40, 60, 80, 100].map((v) => (
-              <option key={v} value={v}>
-                {v}%
-              </option>
-            ))}
-          </select>
-        </label>
+        {/* ✅ 전기 잔여: 80% 고정 */}
+        <input type="hidden" name="evRemainPct" value="80" />
+        <div className="text-sm opacity-70">전기 잔여: 80% (고정)</div>
 
-        {/* ✅ 화살표(스피너) 없애기 위해 number 대신 text+numeric 키패드 */}
+        {/* ✅ 하이패스/통행료: 스피너(화살표) 없게 text+numeric */}
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1">
             <span>하이패스 잔액(원)</span>
@@ -96,10 +115,9 @@ export default async function Home() {
           <input name="note" type="text" className="border rounded px-3 py-2" />
         </label>
 
-        <div className="flex gap-3">
-          <button className="bg-black text-white rounded px-4 py-2">저장</button>
-          <a className="underline self-center" href="/admin">관리자(누적)</a>
-        </div>
+        <button className="bg-black text-white rounded px-4 py-2">
+          저장
+        </button>
       </form>
     </main>
   );
