@@ -1,0 +1,44 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Vehicle {
+  id     String @id @default(cuid())
+  model  String
+  plate  String @unique
+  trips  Trip[]
+}
+
+model Driver {
+  id    String @id @default(cuid())
+  name  String @unique
+  trips Trip[]
+}
+
+model Trip {
+  id            String   @id @default(cuid())
+  date          DateTime
+
+  vehicleId     String
+  driverId      String
+
+  odoStart      Int?
+  odoEnd        Int
+  distance      Int
+
+  evRemainPct   Int
+  hipassBalance Int
+  tollCost      Int
+
+  note          String?
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  driver  Driver  @relation(fields: [driverId], references: [id])
+
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,106 @@
+import { prisma } from "@/lib/prisma";
+
+export default async function Home() {
+  const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
+
+  return (
+    <main className="max-w-3xl mx-auto p-6">
+      <h1 className="text-2xl font-bold">차량 운행일지 입력</h1>
+
+      <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
+        <label className="grid gap-1">
+          <span>날짜</span>
+          <input name="date" type="date" required className="border rounded px-3 py-2" />
+        </label>
+
+        <label className="grid gap-1">
+          <span>차량</span>
+          <select name="vehicleId" required className="border rounded px-3 py-2">
+            {vehicles.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.model} / {v.plate}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* ✅ 운전자는 주관식 */}
+        <label className="grid gap-1">
+          <span>운전자</span>
+          <input
+            name="driverName"
+            type="text"
+            required
+            placeholder="예: 홍길동"
+            className="border rounded px-3 py-2"
+          />
+        </label>
+
+        {/* ✅ 시작/종료 제거 → 최종 계기판만 */}
+        <label className="grid gap-1">
+          <span>계기판 최종 주행거리(누적 km)</span>
+          <input
+            name="odoEnd"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            required
+            placeholder="예: 12345"
+            className="border rounded px-3 py-2"
+          />
+        </label>
+
+        {/* ✅ 전기 잔여는 선택 */}
+        <label className="grid gap-1">
+          <span>전기 잔여(%)</span>
+          <select name="evRemainPct" required className="border rounded px-3 py-2">
+            {[20, 40, 60, 80, 100].map((v) => (
+              <option key={v} value={v}>
+                {v}%
+              </option>
+            ))}
+          </select>
+        </label>
+
+        {/* ✅ 화살표(스피너) 없애기 위해 number 대신 text+numeric 키패드 */}
+        <div className="grid grid-cols-2 gap-3">
+          <label className="grid gap-1">
+            <span>하이패스 잔액(원)</span>
+            <input
+              name="hipassBalance"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              required
+              placeholder="예: 35000"
+              className="border rounded px-3 py-2"
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span>통행료 지출(원)</span>
+            <input
+              name="tollCost"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              required
+              placeholder="예: 1200"
+              className="border rounded px-3 py-2"
+            />
+          </label>
+        </div>
+
+        <label className="grid gap-1">
+          <span>메모(선택)</span>
+          <input name="note" type="text" className="border rounded px-3 py-2" />
+        </label>
+
+        <div className="flex gap-3">
+          <button className="bg-black text-white rounded px-4 py-2">저장</button>
+          <a className="underline self-center" href="/admin">관리자(누적)</a>
+        </div>
+      </form>
+    </main>
+  );
+}
