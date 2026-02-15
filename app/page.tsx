@@ -32,7 +32,7 @@ export default async function Home() {
         {/* ✅ 차량: 드롭다운 대신 버튼형(라디오) 선택 */}
         <div className="grid gap-2">
           <span>차량</span>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {vehicles.map((v, idx) => (
               <label key={v.id} className="cursor-pointer">
                 <input
@@ -43,7 +43,7 @@ export default async function Home() {
                   className="peer sr-only"
                   required
                 />
-                <span className="px-3 py-2 border rounded peer-checked:bg-black peer-checked:text-white">
+                <span className="block w-full text-center px-3 py-3 border rounded peer-checked:bg-black peer-checked:text-white">
                   {v.model} / {v.plate}
                 </span>
               </label>
