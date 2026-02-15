@@ -13,7 +13,8 @@ export default async function TripsPage({
   const params = await searchParams;
 
   const vehicleId = params?.vehicleId || "";
-  const page = Math.max(1, Number(params?.page || "1") || 1);
+  const parsedPage = Number(params?.page || "1");
+  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
 
   const from = params?.from ? new Date(params.from + "T00:00:00") : undefined;
   const to = params?.to ? new Date(params.to + "T23:59:59") : undefined;
