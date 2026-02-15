@@ -43,8 +43,8 @@ export default async function Home() {
                   className="peer sr-only"
                   required
                 />
-                <span className="block w-full text-center px-3 py-5 border rounded
-peer-checked:bg-black peer-checked:text-white peer-checked:border-black">
+                <span className="block w-full text-center px-3 py-3 border rounded
+peer-checked:bg-black peer-checked:text-white peer-checked:border-yellow">
                   {v.model} / {v.plate}
                 </span>
               </label>
