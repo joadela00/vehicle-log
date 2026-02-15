@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function TripsPage({
@@ -22,7 +23,7 @@ export default async function TripsPage({
   });
 
   // 필터 조건 만들기
-  const where: any = {};
+  const where: { vehicleId?: string; date?: { gte?: Date; lte?: Date } } = {};
 
   if (vehicleId) {
     where.vehicleId = vehicleId;
@@ -115,9 +116,9 @@ export default async function TripsPage({
                 <td className="p-2">{t.note ?? ""}</td>
 
                 <td className="p-2 text-right">
-                  <a href={`/trips/${t.id}`} className="text-blue-600 underline">
+                  <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
                     수정
-                  </a>
+                  </Link>
                 </td>
 
                 <td className="p-2 text-right">

@@ -6,11 +6,11 @@ export async function POST(req: Request) {
 
   const admin = process.env.ADMIN_PASSWORD;
   if (!admin) {
-    return NextResponse.json({ error: "ADMIN_PASSWORD not set" }, { status: 500 });
+    return NextResponse.redirect(new URL("/admin-login?error=config", req.url));
   }
 
   if (password !== admin) {
-    return NextResponse.json({ error: "비밀번호가 틀렸습니다." }, { status: 401 });
+    return NextResponse.redirect(new URL("/admin-login?error=invalid", req.url));
   }
 
   const res = NextResponse.redirect(new URL("/admin", req.url));

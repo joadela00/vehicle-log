@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 function monthRange(base = new Date()) {
@@ -11,37 +12,33 @@ function monthRange(base = new Date()) {
 export default async function AdminPage() {
   const { start, end } = monthRange();
 
-  const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
+  const [vehicles, totals, monthlyByVehicle, latestByVehicle, recentTrips] = await Promise.all([
+    prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
+    prisma.trip.aggregate({
+      where: { date: { gte: start, lt: end } },
+      _sum: { distance: true, tollCost: true },
+      _count: true,
+    }),
+    prisma.trip.groupBy({
+      by: ["vehicleId"],
+      where: { date: { gte: start, lt: end } },
+      _sum: { distance: true, tollCost: true },
+      _count: true,
+    }),
+    prisma.trip.findMany({
+      distinct: ["vehicleId"],
+      orderBy: [{ vehicleId: "asc" }, { date: "desc" }, { createdAt: "desc" }],
+      select: { vehicleId: true, date: true, evRemainPct: true, hipassBalance: true, odoEnd: true },
+    }),
+    prisma.trip.findMany({
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      take: 20,
+      include: { vehicle: true, driver: true },
+    }),
+  ]);
 
-  const totals = await prisma.trip.aggregate({
-    where: { date: { gte: start, lt: end } },
-    _sum: { distance: true, tollCost: true },
-    _count: true,
-  });
-
-  const byVehicle = await Promise.all(
-    vehicles.map(async (v) => {
-      const agg = await prisma.trip.aggregate({
-        where: { vehicleId: v.id, date: { gte: start, lt: end } },
-        _sum: { distance: true, tollCost: true },
-        _count: true,
-      });
-
-      const latest = await prisma.trip.findFirst({
-        where: { vehicleId: v.id },
-        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-        select: { date: true, evRemainPct: true, hipassBalance: true, odoEnd: true },
-      });
-
-      return { v, agg, latest };
-    })
-  );
-
-  const recentTrips = await prisma.trip.findMany({
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    take: 20,
-    include: { vehicle: true, driver: true },
-  });
+  const monthlyByVehicleMap = new Map(monthlyByVehicle.map((item) => [item.vehicleId, item]));
+  const latestByVehicleMap = new Map(latestByVehicle.map((item) => [item.vehicleId, item]));
 
   return (
     <main className="max-w-5xl mx-auto p-6">
@@ -71,24 +68,29 @@ export default async function AdminPage() {
             </tr>
           </thead>
           <tbody>
-            {byVehicle.map(({ v, agg, latest }) => (
-              <tr key={v.id} className="border-b">
-                <td className="p-2">
-                  <b>{v.model}</b> / {v.plate}
-                  {latest?.date ? (
-                    <div className="text-xs opacity-70">최근기록: {latest.date.toISOString().slice(0, 10)}</div>
-                  ) : (
-                    <div className="text-xs opacity-70">기록 없음</div>
-                  )}
-                </td>
-                <td className="p-2 text-right">{agg._count ?? 0}</td>
-                <td className="p-2 text-right">{agg._sum.distance ?? 0}</td>
-                <td className="p-2 text-right">{agg._sum.tollCost ?? 0}</td>
-                <td className="p-2 text-right">{latest?.evRemainPct ?? 0}</td>
-                <td className="p-2 text-right">{latest?.hipassBalance ?? 0}</td>
-                <td className="p-2 text-right">{latest?.odoEnd ?? 0}</td>
-              </tr>
-            ))}
+            {vehicles.map((v) => {
+              const agg = monthlyByVehicleMap.get(v.id);
+              const latest = latestByVehicleMap.get(v.id);
+
+              return (
+                <tr key={v.id} className="border-b">
+                  <td className="p-2">
+                    <b>{v.model}</b> / {v.plate}
+                    {latest?.date ? (
+                      <div className="text-xs opacity-70">최근기록: {latest.date.toISOString().slice(0, 10)}</div>
+                    ) : (
+                      <div className="text-xs opacity-70">기록 없음</div>
+                    )}
+                  </td>
+                  <td className="p-2 text-right">{agg?._count ?? 0}</td>
+                  <td className="p-2 text-right">{agg?._sum.distance ?? 0}</td>
+                  <td className="p-2 text-right">{agg?._sum.tollCost ?? 0}</td>
+                  <td className="p-2 text-right">{latest?.evRemainPct ?? 0}</td>
+                  <td className="p-2 text-right">{latest?.hipassBalance ?? 0}</td>
+                  <td className="p-2 text-right">{latest?.odoEnd ?? 0}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -126,7 +128,7 @@ export default async function AdminPage() {
       </div>
 
       <p className="mt-6">
-        <a className="underline" href="/">입력으로</a>
+        <Link className="underline" href="/">입력으로</Link>
       </p>
     </main>
   );

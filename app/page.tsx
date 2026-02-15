@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
@@ -12,8 +13,8 @@ export default async function Home() {
       <h1 className="text-2xl font-bold">차량 운행일지 입력</h1>
 
       <div className="mt-3 flex gap-4 text-sm">
-        <a className="underline" href="/admin">관리자</a>
-        <a className="underline" href="/trips">운행일지 목록</a>
+        <Link className="underline" href="/admin">관리자</Link>
+        <Link className="underline" href="/trips">운행일지 목록</Link>
       </div>
 
       <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
