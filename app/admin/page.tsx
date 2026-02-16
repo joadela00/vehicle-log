@@ -1,3 +1,5 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
 function monthRange(base = new Date()) {
@@ -9,6 +11,9 @@ function monthRange(base = new Date()) {
 }
 
 export default async function AdminPage() {
+  const authed = cookies().get("admin_ok")?.value === "1";
+  if (!authed) redirect("/admin-login");
+
   const { start, end } = monthRange();
 
   const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
@@ -21,17 +26,18 @@ export default async function AdminPage() {
 
   const byVehicle = await Promise.all(
     vehicles.map(async (v) => {
-      const agg = await prisma.trip.aggregate({
-        where: { vehicleId: v.id, date: { gte: start, lt: end } },
-        _sum: { distance: true, tollCost: true },
-        _count: true,
-      });
-
-      const latest = await prisma.trip.findFirst({
-        where: { vehicleId: v.id },
-        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-        select: { date: true, evRemainPct: true, hipassBalance: true, odoEnd: true },
-      });
+      const [agg, latest] = await Promise.all([
+        prisma.trip.aggregate({
+          where: { vehicleId: v.id, date: { gte: start, lt: end } },
+          _sum: { distance: true, tollCost: true },
+          _count: true,
+        }),
+        prisma.trip.findFirst({
+          where: { vehicleId: v.id },
+          orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+          select: { date: true, evRemainPct: true, hipassBalance: true, odoEnd: true },
+        }),
+      ]);
 
       return { v, agg, latest };
     })
@@ -47,13 +53,20 @@ export default async function AdminPage() {
     <main className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold">관리자 누적 (이번달)</h1>
       <p className="text-sm opacity-70 mt-1">
-        기간: {start.toISOString().slice(0, 10)} ~ {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
+        기간: {start.toISOString().slice(0, 10)} ~{" "}
+        {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
       </p>
 
       <div className="mt-5 grid gap-2">
-        <div>이번달 운행 건수: <b>{totals._count}</b></div>
-        <div>이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km</div>
-        <div>이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원</div>
+        <div>
+          이번달 운행 건수: <b>{totals._count}</b>
+        </div>
+        <div>
+          이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
+        </div>
+        <div>
+          이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
+        </div>
       </div>
 
       <h2 className="text-xl font-semibold mt-8">차량별</h2>
@@ -76,7 +89,9 @@ export default async function AdminPage() {
                 <td className="p-2">
                   <b>{v.model}</b> / {v.plate}
                   {latest?.date ? (
-                    <div className="text-xs opacity-70">최근기록: {latest.date.toISOString().slice(0, 10)}</div>
+                    <div className="text-xs opacity-70">
+                      최근기록: {latest.date.toISOString().slice(0, 10)}
+                    </div>
                   ) : (
                     <div className="text-xs opacity-70">기록 없음</div>
                   )}
@@ -112,7 +127,9 @@ export default async function AdminPage() {
             {recentTrips.map((t) => (
               <tr key={t.id} className="border-b">
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">{t.vehicle.model} / {t.vehicle.plate}</td>
+                <td className="p-2">
+                  {t.vehicle.model} / {t.vehicle.plate}
+                </td>
                 <td className="p-2">{t.driver.name}</td>
                 <td className="p-2 text-right">{t.distance}</td>
                 <td className="p-2 text-right">{t.tollCost}</td>
@@ -126,7 +143,9 @@ export default async function AdminPage() {
       </div>
 
       <p className="mt-6">
-        <a className="underline" href="/">입력으로</a>
+        <a className="underline" href="/">
+          입력으로
+        </a>
       </p>
     </main>
   );
