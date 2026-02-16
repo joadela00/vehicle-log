@@ -1,14 +1,9 @@
 import Link from "next/link";
-
 import { unstable_cache } from "next/cache";
-
-
 import { Prisma } from "@prisma/client";
-
 import { prisma } from "@/lib/prisma";
 
 const PAGE_SIZE = 50;
-
 
 const getVehicles = unstable_cache(
   () => prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
@@ -30,7 +25,12 @@ function getCurrentMonthDateRange() {
 export default async function TripsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string; page?: string }>;
+  searchParams: Promise<{
+    vehicleId?: string;
+    from?: string;
+    to?: string;
+    page?: string;
+  }>;
 }) {
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
@@ -39,7 +39,9 @@ export default async function TripsPage({
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
   const parsedPage = Number(params?.page || "1");
-  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
+  const page = Number.isFinite(parsedPage)
+    ? Math.max(1, Math.trunc(parsedPage))
+    : 1;
 
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
@@ -53,11 +55,7 @@ export default async function TripsPage({
   where.date = { gte: from, lte: to };
 
   const [vehicles, tripsRaw] = await Promise.all([
-
     getVehicles(),
-
-    prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
-
     prisma.trip.findMany({
       where,
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
@@ -75,16 +73,21 @@ export default async function TripsPage({
     }),
   ]);
 
-  const driverIds = [...new Set(tripsRaw.map((t) => t.driverId))];
+  const driverIds = [
+    ...new Set(tripsRaw.map((t) => t.driverId).filter(Boolean)),
+  ];
+
   const drivers = driverIds.length
     ? await prisma.driver.findMany({
-        where: { id: { in: driverIds } },
+        where: { id: { in: driverIds as string[] } },
         select: { id: true, name: true },
       })
     : [];
 
   const driverById = new Map(drivers.map((d) => [d.id, d.name]));
-  const vehicleById = new Map(vehicles.map((v) => [v.id, `${v.model} / ${v.plate}`]));
+  const vehicleById = new Map(
+    vehicles.map((v) => [v.id, `${v.model} / ${v.plate}`])
+  );
 
   const hasNextPage = tripsRaw.length > PAGE_SIZE;
   const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
@@ -130,13 +133,16 @@ export default async function TripsPage({
           className="border rounded px-3 py-2"
         />
 
-        <button className="bg-black text-white rounded px-4 py-2">검색</button>
+        <button className="bg-black text-white rounded px-4 py-2">
+          검색
+        </button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm">
         <span>
           페이지 <b>{page}</b>
         </span>
+
         {page > 1 ? (
           <Link className="underline" href={makePageHref(page - 1)}>
             이전
@@ -144,6 +150,7 @@ export default async function TripsPage({
         ) : (
           <span className="opacity-40">이전</span>
         )}
+
         {hasNextPage ? (
           <Link className="underline" href={makePageHref(page + 1)}>
             다음
@@ -171,15 +178,24 @@ export default async function TripsPage({
           <tbody>
             {trips.map((t) => (
               <tr key={t.id} className="border-b">
-                <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">{vehicleById.get(t.vehicleId) ?? "-"}</td>
-                <td className="p-2">{driverById.get(t.driverId) ?? "-"}</td>
+                <td className="p-2">
+                  {t.date.toISOString().slice(0, 10)}
+                </td>
+                <td className="p-2">
+                  {vehicleById.get(t.vehicleId) ?? "-"}
+                </td>
+                <td className="p-2">
+                  {driverById.get(t.driverId ?? "") ?? "-"}
+                </td>
                 <td className="p-2 text-right">{t.distance}</td>
                 <td className="p-2 text-right">{t.tollCost}</td>
                 <td className="p-2 text-right">{t.hipassBalance}</td>
 
                 <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
+                  <Link
+                    href={`/trips/${t.id}`}
+                    className="text-blue-600 underline"
+                  >
                     수정
                   </Link>
                 </td>
@@ -187,7 +203,9 @@ export default async function TripsPage({
                 <td className="p-2 text-right">
                   <form method="POST" action="/api/trips/delete">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-600 underline">삭제</button>
+                    <button className="text-red-600 underline">
+                      삭제
+                    </button>
                   </form>
                 </td>
               </tr>
