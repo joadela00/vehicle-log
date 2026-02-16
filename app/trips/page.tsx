@@ -5,19 +5,33 @@ import { prisma } from "@/lib/prisma";
 
 const PAGE_SIZE = 50;
 
+function getCurrentMonthDateRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    from: start.toISOString().slice(0, 10),
+    to: end.toISOString().slice(0, 10),
+  };
+}
+
 export default async function TripsPage({
   searchParams,
 }: {
   searchParams: Promise<{ vehicleId?: string; from?: string; to?: string; page?: string }>;
 }) {
   const params = await searchParams;
+  const currentMonth = getCurrentMonthDateRange();
 
   const vehicleId = params?.vehicleId || "";
+  const fromParam = params?.from || currentMonth.from;
+  const toParam = params?.to || currentMonth.to;
   const parsedPage = Number(params?.page || "1");
   const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
 
-  const from = params?.from ? new Date(params.from + "T00:00:00") : undefined;
-  const to = params?.to ? new Date(params.to + "T23:59:59") : undefined;
+  const from = new Date(fromParam + "T00:00:00");
+  const to = new Date(toParam + "T23:59:59");
 
   const where: Prisma.TripWhereInput = {};
 
@@ -25,11 +39,7 @@ export default async function TripsPage({
     where.vehicleId = vehicleId;
   }
 
-  if (from || to) {
-    where.date = {};
-    if (from) where.date.gte = from;
-    if (to) where.date.lte = to;
-  }
+  where.date = { gte: from, lte: to };
 
   const [vehicles, tripsRaw] = await Promise.all([
     prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
@@ -41,15 +51,25 @@ export default async function TripsPage({
       select: {
         id: true,
         date: true,
-        odoEnd: true,
-        evRemainPct: true,
+        vehicleId: true,
+        driverId: true,
+        distance: true,
+        tollCost: true,
         hipassBalance: true,
-        note: true,
-        vehicle: { select: { model: true, plate: true } },
-        driver: { select: { name: true } },
       },
     }),
   ]);
+
+  const driverIds = [...new Set(tripsRaw.map((t) => t.driverId))];
+  const drivers = driverIds.length
+    ? await prisma.driver.findMany({
+        where: { id: { in: driverIds } },
+        select: { id: true, name: true },
+      })
+    : [];
+
+  const driverById = new Map(drivers.map((d) => [d.id, d.name]));
+  const vehicleById = new Map(vehicles.map((v) => [v.id, `${v.model} / ${v.plate}`]));
 
   const hasNextPage = tripsRaw.length > PAGE_SIZE;
   const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
@@ -57,8 +77,8 @@ export default async function TripsPage({
   const makePageHref = (nextPage: number) => {
     const query = new URLSearchParams();
     if (vehicleId) query.set("vehicleId", vehicleId);
-    if (params?.from) query.set("from", params.from);
-    if (params?.to) query.set("to", params.to);
+    query.set("from", fromParam);
+    query.set("to", toParam);
     query.set("page", String(nextPage));
     return `/trips?${query.toString()}`;
   };
@@ -84,14 +104,14 @@ export default async function TripsPage({
         <input
           type="date"
           name="from"
-          defaultValue={params?.from}
+          defaultValue={fromParam}
           className="border rounded px-3 py-2"
         />
 
         <input
           type="date"
           name="to"
-          defaultValue={params?.to}
+          defaultValue={toParam}
           className="border rounded px-3 py-2"
         />
 
@@ -125,10 +145,9 @@ export default async function TripsPage({
               <th className="p-2 text-left">날짜</th>
               <th className="p-2 text-left">차량</th>
               <th className="p-2 text-left">운전자</th>
-              <th className="p-2 text-right">누적주행거리(km)</th>
-              <th className="p-2 text-right">전기(%)</th>
+              <th className="p-2 text-right">실제주행거리(km)</th>
+              <th className="p-2 text-right">통행료(원)</th>
               <th className="p-2 text-right">하이패스 잔액</th>
-              <th className="p-2 text-left">메모</th>
               <th className="p-2 text-right">수정</th>
               <th className="p-2 text-right">삭제</th>
             </tr>
@@ -138,14 +157,11 @@ export default async function TripsPage({
             {trips.map((t) => (
               <tr key={t.id} className="border-b">
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">
-                  {t.vehicle.model} / {t.vehicle.plate}
-                </td>
-                <td className="p-2">{t.driver.name}</td>
-                <td className="p-2 text-right">{t.odoEnd}</td>
-                <td className="p-2 text-right">{t.evRemainPct}</td>
+                <td className="p-2">{vehicleById.get(t.vehicleId) ?? "-"}</td>
+                <td className="p-2">{driverById.get(t.driverId) ?? "-"}</td>
+                <td className="p-2 text-right">{t.distance}</td>
+                <td className="p-2 text-right">{t.tollCost}</td>
                 <td className="p-2 text-right">{t.hipassBalance}</td>
-                <td className="p-2">{t.note ?? ""}</td>
 
                 <td className="p-2 text-right">
                   <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
