@@ -1,10 +1,21 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 30;
 
 const PAGE_SIZE = 50;
+
+const getVehicles = unstable_cache(
+  () =>
+    prisma.vehicle.findMany({
+      orderBy: { plate: "asc" },
+      select: { id: true, model: true, plate: true },
+    }),
+  ["vehicles-list"],
+  { revalidate: 60 * 60 }
+);
 
 function getCurrentMonthDateRange() {
   const now = new Date();
@@ -20,7 +31,12 @@ function getCurrentMonthDateRange() {
 export default async function TripsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ vehicleId?: string; from?: string; to?: string; page?: string }>;
+  searchParams: Promise<{
+    vehicleId?: string;
+    from?: string;
+    to?: string;
+    page?: string;
+  }>;
 }) {
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
@@ -28,27 +44,32 @@ export default async function TripsPage({
   const vehicleId = params?.vehicleId || "";
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
+
   const parsedPage = Number(params?.page || "1");
   const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
 
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
 
-  const where: Prisma.TripWhereInput = {};
-  if (vehicleId) where.vehicleId = vehicleId;
-  where.date = { gte: from, lte: to };
+  const where: Prisma.TripWhereInput = {
+    date: { gte: from, lte: to },
+    ...(vehicleId ? { vehicleId } : {}),
+  };
 
   const [vehicles, tripsRaw] = await Promise.all([
-    prisma.vehicle.findMany({
-      orderBy: { plate: "asc" },
-      select: { id: true, model: true, plate: true },
-    }),
+    getVehicles(),
     prisma.trip.findMany({
       where,
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       skip: (page - 1) * PAGE_SIZE,
       take: PAGE_SIZE + 1,
-      include: {
+      select: {
+        id: true,
+        date: true,
+        vehicleId: true,
+        distance: true,
+        tollCost: true,
+        hipassBalance: true,
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
@@ -72,11 +93,7 @@ export default async function TripsPage({
       <h1 className="text-2xl font-bold">운행일지 전체 목록</h1>
 
       <form method="GET" className="mt-4 flex flex-wrap gap-3">
-        <select
-          name="vehicleId"
-          defaultValue={vehicleId}
-          className="border rounded px-3 py-2"
-        >
+        <select name="vehicleId" defaultValue={vehicleId} className="border rounded px-3 py-2">
           <option value="">전체 차량</option>
           {vehicles.map((v) => (
             <option key={v.id} value={v.id}>
@@ -85,19 +102,8 @@ export default async function TripsPage({
           ))}
         </select>
 
-        <input
-          type="date"
-          name="from"
-          defaultValue={fromParam}
-          className="border rounded px-3 py-2"
-        />
-
-        <input
-          type="date"
-          name="to"
-          defaultValue={toParam}
-          className="border rounded px-3 py-2"
-        />
+        <input type="date" name="from" defaultValue={fromParam} className="border rounded px-3 py-2" />
+        <input type="date" name="to" defaultValue={toParam} className="border rounded px-3 py-2" />
 
         <button className="bg-black text-white rounded px-4 py-2">검색</button>
       </form>
@@ -141,9 +147,7 @@ export default async function TripsPage({
             {trips.map((t) => (
               <tr key={t.id} className="border-b">
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">
-                  {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
-                </td>
+                <td className="p-2">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
                 <td className="p-2">{t.driver?.name ?? "-"}</td>
                 <td className="p-2 text-right">{t.distance}</td>
                 <td className="p-2 text-right">{t.tollCost}</td>
