@@ -42,4 +42,7 @@ model Trip {
   driver  Driver  @relation(fields: [driverId], references: [id])
 
   createdAt DateTime @default(now())
+
+  @@index([date, createdAt])
+  @@index([vehicleId, date, createdAt])
 }
