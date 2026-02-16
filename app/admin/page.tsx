@@ -11,7 +11,9 @@ function monthRange(base = new Date()) {
 }
 
 export default async function AdminPage() {
-  const authed = cookies().get("admin_ok")?.value === "1";
+  // ✅ Next.js 16 환경에서 cookies()가 Promise로 잡히는 케이스 대응
+  const cookieStore = await cookies();
+  const authed = cookieStore.get("admin_ok")?.value === "1";
   if (!authed) redirect("/admin-login");
 
   const { start, end } = monthRange();
@@ -35,7 +37,12 @@ export default async function AdminPage() {
         prisma.trip.findFirst({
           where: { vehicleId: v.id },
           orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-          select: { date: true, evRemainPct: true, hipassBalance: true, odoEnd: true },
+          select: {
+            date: true,
+            evRemainPct: true,
+            hipassBalance: true,
+            odoEnd: true,
+          },
         }),
       ]);
 
