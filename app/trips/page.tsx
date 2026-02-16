@@ -1,10 +1,14 @@
 import Link from "next/link";
+
 import { unstable_cache } from "next/cache";
+
+
 import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 
 const PAGE_SIZE = 50;
+
 
 const getVehicles = unstable_cache(
   () => prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
@@ -49,7 +53,11 @@ export default async function TripsPage({
   where.date = { gte: from, lte: to };
 
   const [vehicles, tripsRaw] = await Promise.all([
+
     getVehicles(),
+
+    prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
+
     prisma.trip.findMany({
       where,
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
