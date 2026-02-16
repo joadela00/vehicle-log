@@ -28,7 +28,6 @@ export default async function TripDetailPage({
       tollCost: true,
       hipassBalance: true,
       createdAt: true,
-      updatedAt: true,
     },
   });
 
