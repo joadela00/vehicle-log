@@ -53,10 +53,9 @@ export default async function TripsPage({
         date: true,
         vehicleId: true,
         driverId: true,
-        odoEnd: true,
-        evRemainPct: true,
+        distance: true,
+        tollCost: true,
         hipassBalance: true,
-        note: true,
       },
     }),
   ]);
@@ -146,10 +145,9 @@ export default async function TripsPage({
               <th className="p-2 text-left">날짜</th>
               <th className="p-2 text-left">차량</th>
               <th className="p-2 text-left">운전자</th>
-              <th className="p-2 text-right">누적주행거리(km)</th>
-              <th className="p-2 text-right">전기(%)</th>
+              <th className="p-2 text-right">실제주행거리(km)</th>
+              <th className="p-2 text-right">통행료(원)</th>
               <th className="p-2 text-right">하이패스 잔액</th>
-              <th className="p-2 text-left">메모</th>
               <th className="p-2 text-right">수정</th>
               <th className="p-2 text-right">삭제</th>
             </tr>
@@ -161,10 +159,9 @@ export default async function TripsPage({
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
                 <td className="p-2">{vehicleById.get(t.vehicleId) ?? "-"}</td>
                 <td className="p-2">{driverById.get(t.driverId) ?? "-"}</td>
-                <td className="p-2 text-right">{t.odoEnd}</td>
-                <td className="p-2 text-right">{t.evRemainPct}</td>
+                <td className="p-2 text-right">{t.distance}</td>
+                <td className="p-2 text-right">{t.tollCost}</td>
                 <td className="p-2 text-right">{t.hipassBalance}</td>
-                <td className="p-2">{t.note ?? ""}</td>
 
                 <td className="p-2 text-right">
                   <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
