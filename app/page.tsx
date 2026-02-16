@@ -63,14 +63,29 @@ export default async function Home({
 <span
   className="relative block w-full rounded border border-gray-300 bg-white px-3 py-3 text-center font-medium text-gray-800 transition
 
+  hover:border-gray-400
+
   peer-checked:border-black
   peer-checked:bg-gray-100
   peer-checked:text-black
 
   peer-focus-visible:outline
   peer-focus-visible:outline-2
-  peer-focus-visible:outline-black"
+  peer-focus-visible:outline-black
+
+  dark:border-white/20
+  dark:bg-black
+  dark:text-white
+
+  dark:hover:border-white/30
+
+  dark:peer-checked:border-white
+  dark:peer-checked:bg-white/10
+  dark:peer-checked:text-white
+
+  dark:peer-focus-visible:outline-white"
 >
+
 
                   <span className="hidden text-xs font-bold tracking-wide peer-checked:block">
                     선택됨
