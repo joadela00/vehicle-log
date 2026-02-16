@@ -64,4 +64,13 @@ export default async function EditPage({
       </form>
     </main>
   );
+export async function generateStaticParams() {
+  const trips = await prisma.trip.findMany({
+    select: { id: true },
+  });
+
+  return trips.map((t) => ({
+    id: t.id,
+  }));
 }
+
