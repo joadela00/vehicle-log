@@ -60,9 +60,18 @@ export default async function Home({
                   className="peer sr-only"
                   required
                 />
-                <span className="relative block w-full rounded border-2 border-gray-300 bg-white px-3 py-3 text-center font-medium text-gray-800 transition
-peer-checked:border-blue-700 peer-checked:bg-blue-600 peer-checked:text-white peer-checked:ring-4 peer-checked:ring-blue-200
-peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-blue-500">
+<span
+  className="relative block w-full rounded border border-gray-300 bg-white px-3 py-3 text-center font-medium text-gray-800 transition
+
+  peer-checked:border-black
+  peer-checked:bg-gray-100
+  peer-checked:text-black
+
+  peer-focus-visible:outline
+  peer-focus-visible:outline-2
+  peer-focus-visible:outline-black"
+>
+
                   <span className="hidden text-xs font-bold tracking-wide peer-checked:block">
                     선택됨
                   </span>
