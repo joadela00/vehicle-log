@@ -13,5 +13,5 @@ export async function POST(req: Request) {
     where: { id },
   });
 
-  return NextResponse.redirect(new URL("/trips", req.url));
+  return NextResponse.redirect(new URL("/trips?deleted=1", req.url));
 }
