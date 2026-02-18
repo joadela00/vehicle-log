@@ -90,7 +90,7 @@ export default async function Home({
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
+          <span className="text-sm sm:text-base">계기 최종 주행거리(누적 km)</span>
           <input
             name="odoEnd"
             type="text"
