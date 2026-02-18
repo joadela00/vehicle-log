@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default async function AdminLoginPage({
   searchParams,
 }: {
@@ -33,9 +35,9 @@ export default async function AdminLoginPage({
       </form>
 
       <p className="mt-6">
-        <a className="underline" href="/">
+        <Link className="underline" href="/">
           입력으로
-        </a>
+        </Link>
       </p>
     </main>
   );
