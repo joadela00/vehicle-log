@@ -22,7 +22,7 @@ export default async function Home({
 
   return (
     <main className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold">차량 운행일지 입력</h1>
+      <h1 className="text-2xl font-bold">인천경기 차량 운행일지</h1>
 
       {saved ? (
         <p className="mt-3 rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
