@@ -47,15 +47,15 @@ export default async function TripDetailPage({
   ]);
 
   return (
-    <main className="max-w-3xl mx-auto p-6">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">운행일지 상세</h1>
-        <Link href="/trips" className="underline">
+    <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-bold sm:text-2xl">운행일지 상세</h1>
+        <Link href="/trips" className="rounded border px-3 py-2 text-sm">
           목록으로
         </Link>
       </div>
 
-      <div className="mt-6 border rounded p-4 space-y-2">
+      <div className="mt-5 space-y-2 rounded border p-4 text-sm sm:text-base">
         <div>
           <b>날짜</b>: {trip.date.toISOString().slice(0, 10)}
         </div>

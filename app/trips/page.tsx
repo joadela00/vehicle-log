@@ -89,11 +89,11 @@ export default async function TripsPage({
   };
 
   return (
-    <main className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold">운행일지 전체 목록</h1>
+    <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
+      <h1 className="text-xl font-bold sm:text-2xl">운행일지 전체 목록</h1>
 
-      <form method="GET" className="mt-4 flex flex-wrap gap-3">
-        <select name="vehicleId" defaultValue={vehicleId} className="border rounded px-3 py-2">
+      <form method="GET" className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+        <select name="vehicleId" defaultValue={vehicleId} className="rounded border px-3 py-3 text-base">
           <option value="">전체 차량</option>
           {vehicles.map((v) => (
             <option key={v.id} value={v.id}>
@@ -102,13 +102,13 @@ export default async function TripsPage({
           ))}
         </select>
 
-        <input type="date" name="from" defaultValue={fromParam} className="border rounded px-3 py-2" />
-        <input type="date" name="to" defaultValue={toParam} className="border rounded px-3 py-2" />
+        <input type="date" name="from" defaultValue={fromParam} className="rounded border px-3 py-3 text-base" />
+        <input type="date" name="to" defaultValue={toParam} className="rounded border px-3 py-3 text-base" />
 
-        <button className="bg-black text-white rounded px-4 py-2">검색</button>
+        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">검색</button>
       </form>
 
-      <div className="mt-4 flex items-center gap-3 text-sm">
+      <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
         <span>
           페이지 <b>{page}</b>
         </span>
@@ -128,7 +128,29 @@ export default async function TripsPage({
         )}
       </div>
 
-      <div className="overflow-x-auto mt-6">
+      <div className="mt-5 grid gap-3 sm:hidden">
+        {trips.map((t) => (
+          <article key={t.id} className="rounded-lg border p-3 text-sm">
+            <div className="font-semibold">{t.date.toISOString().slice(0, 10)}</div>
+            <div className="mt-1">차량: {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</div>
+            <div>운전자: {t.driver?.name ?? "-"}</div>
+            <div>실제주행거리: {t.distance} km</div>
+            <div>통행료: {t.tollCost} 원</div>
+            <div>하이패스 잔액: {t.hipassBalance} 원</div>
+            <div className="mt-2 flex gap-3">
+              <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
+                수정
+              </Link>
+              <form method="POST" action="/api/trips/delete">
+                <input type="hidden" name="id" value={t.id} />
+                <button className="text-red-600 underline">삭제</button>
+              </form>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="mt-6 hidden overflow-x-auto sm:block">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">

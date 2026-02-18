@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
@@ -150,9 +151,9 @@ export default async function AdminPage() {
       </div>
 
       <p className="mt-6">
-        <a className="underline" href="/">
+        <Link className="underline" href="/">
           입력으로
-        </a>
+        </Link>
       </p>
     </main>
   );
