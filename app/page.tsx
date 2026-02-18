@@ -90,7 +90,7 @@ export default async function Home({
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
+          <span className="text-sm sm:text-base">계기 최종 주행거리(누적 km)</span>
           <input
             name="odoEnd"
             type="text"
@@ -136,7 +136,9 @@ export default async function Home({
           <input name="note" type="text" className="rounded border px-3 py-3 text-base" />
         </label>
 
-        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">저장</button>
+        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">
+          저장
+        </button>
       </form>
     </main>
   );
