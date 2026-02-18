@@ -2,14 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 
-export async function generateStaticParams() {
-  const trips = await prisma.trip.findMany({
-    select: { id: true },
-  });
-
-  return trips.map((t) => ({ id: t.id }));
-}
-
 export default async function TripDetailPage({
   params,
 }: {
