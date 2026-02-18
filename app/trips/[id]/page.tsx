@@ -16,9 +16,11 @@ export default async function TripDetailPage({
       date: true,
       vehicleId: true,
       driverId: true,
+      odoEnd: true,
+      evRemainPct: true,
+      hipassBalance: true,
       distance: true,
       tollCost: true,
-      hipassBalance: true,
       createdAt: true,
     },
   });
@@ -66,6 +68,56 @@ export default async function TripDetailPage({
         <div>
           <b>하이패스 잔액</b>: {trip.hipassBalance}
         </div>
+
+        <form method="POST" action="/api/trips/update" className="mt-5 grid gap-4">
+          <input type="hidden" name="id" value={trip.id} />
+
+          <label className="grid gap-1">
+            <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
+            <input
+              name="odoEnd"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              required
+              defaultValue={trip.odoEnd}
+              className="rounded border px-3 py-3 text-base"
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm sm:text-base">전기 잔여(%)</span>
+            <select
+              name="evRemainPct"
+              required
+              defaultValue={String(trip.evRemainPct)}
+              className="rounded border px-3 py-3 text-base"
+            >
+              {[20, 40, 60, 80, 100].map((v) => (
+                <option key={v} value={v}>
+                  {v}%
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm sm:text-base">하이패스 잔액(원)</span>
+            <input
+              name="hipassBalance"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              required
+              defaultValue={trip.hipassBalance}
+              className="rounded border px-3 py-3 text-base"
+            />
+          </label>
+
+          <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">
+            수정 저장
+          </button>
+        </form>
       </div>
     </main>
   );
