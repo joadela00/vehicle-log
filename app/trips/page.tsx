@@ -19,7 +19,6 @@ export default async function TripsPage({
   const toParam = params?.to ?? "";
   const page = Math.max(1, Number(params?.page ?? "1") || 1);
 
-  // 날짜 파싱: 입력이 없으면 넓게 검색되도록 처리
   const fromDate = fromParam ? new Date(`${fromParam}T00:00:00.000Z`) : null;
   const toDate = toParam ? new Date(`${toParam}T23:59:59.999Z`) : null;
 
@@ -168,7 +167,9 @@ export default async function TripsPage({
             {trips.map((t) => (
               <tr key={t.id} className="border-b">
                 <td className="p-2">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
+                <td className="p-2">
+                  {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
+                </td>
                 <td className="p-2">{t.driver?.name ?? "-"}</td>
                 <td className="p-2 text-right">{t.distance}</td>
                 <td className="p-2 text-right">{t.tollCost}</td>
