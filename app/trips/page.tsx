@@ -95,7 +95,7 @@ export default async function TripsPage({
       <h1 className="text-xl font-bold sm:text-2xl">운행일지 전체 목록</h1>
 
       {deleted ? (
-        <p className="mt-3 rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
+        <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
           삭제되었습니다.
         </p>
       ) : null}
