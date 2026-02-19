@@ -22,8 +22,8 @@ export default async function Home({
   const vehicles = await getVehicles();
 
   return (
-    <main className="mx-auto w-full max-w-full p-4 sm:max-w-3xl sm:p-6">
-      <section className="max-w-full overflow-hidden rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
+    <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
+      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div>
           <p className="text-sm font-semibold tracking-wide text-red-500">
             🚘 DAILY LOG
@@ -57,7 +57,7 @@ export default async function Home({
         <form
           method="POST"
           action="/api/trips/create"
-          className="mt-6 grid w-full max-w-full gap-4 overflow-hidden rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
+          className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
           <label className="grid gap-1">
             <span className="text-sm sm:text-base">날짜</span>
@@ -83,7 +83,7 @@ export default async function Home({
                     className="peer sr-only"
                     required
                   />
-                  <span className="relative block w-full max-w-full overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
+                  <span className="relative block w-full overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
                     <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-xs peer-checked:grid">
                       ✔
                     </span>
