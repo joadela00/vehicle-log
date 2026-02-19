@@ -73,7 +73,6 @@ export default async function TripsPage({
         vehicleId: true,
         distance: true,
         tollCost: true,
-        hipassBalance: true,
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
@@ -115,7 +114,7 @@ export default async function TripsPage({
         <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
         <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
-        <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
+        <button className="rounded border border-red-200 bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
@@ -123,14 +122,14 @@ export default async function TripsPage({
           페이지 <b>{page}</b>
         </span>
         {page > 1 ? (
-          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page - 1)}>
+          <Link className="rounded-lg border border-red-200 px-2 py-1 underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page - 1)}>
             이전
           </Link>
         ) : (
           <span className="opacity-40">이전</span>
         )}
         {hasNextPage ? (
-          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page + 1)}>
+          <Link className="rounded-lg border border-red-200 px-2 py-1 underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page + 1)}>
             다음
           </Link>
         ) : (
@@ -163,13 +162,9 @@ export default async function TripsPage({
                 <dt className="text-gray-500">통행료</dt>
                 <dd>{formatNumber(t.tollCost)} 원</dd>
               </div>
-              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                <dt className="text-gray-500">하이패스</dt>
-                <dd>{formatNumber(t.hipassBalance)} 원</dd>
-              </div>
             </dl>
 
-            <div className="mt-2 flex gap-3">
+            <div className="mt-3 flex justify-end gap-3">
               <Link href={`/trips/${t.id}`} className="text-red-700 underline">
                 ✏️
               </Link>
@@ -191,7 +186,6 @@ export default async function TripsPage({
               <th className="p-2 text-left">운전자</th>
               <th className="p-2 text-right">실제주행거리(km)</th>
               <th className="p-2 text-right">통행료(원)</th>
-              <th className="p-2 text-right">하이패스 잔액</th>
               <th className="p-2 text-right">✏️ 수정</th>
               <th className="p-2 text-right">🗑️ 삭제</th>
             </tr>
@@ -205,8 +199,6 @@ export default async function TripsPage({
                 <td className="p-2 whitespace-nowrap">{t.driver?.name ?? "-"}</td>
                 <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                 <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
-                <td className="p-2 text-right">{formatNumber(t.hipassBalance)}</td>
-
                 <td className="p-2 text-right">
                   <Link href={`/trips/${t.id}`} className="text-red-700 underline">
                     ✏️ 수정
@@ -226,7 +218,7 @@ export default async function TripsPage({
       </div>
 
       <p className="mt-6">
-        <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+        <Link className="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
           ⬅️ 입력으로
         </Link>
       </p>
