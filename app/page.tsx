@@ -40,7 +40,7 @@ export default async function Home({
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">인천경기 차량 운행일지</h1>
             <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
           </div>
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-50 text-xl">❤️</span>
+       // <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-50 text-xl">❤️</span> 
         </div>
 
 
