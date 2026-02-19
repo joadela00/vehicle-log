@@ -75,7 +75,11 @@ export default async function Home({
               type="date"
               required
               defaultValue={today}
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+              className="block w-full max-w-full box-border min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+              style={{
+                webkitapperance: "none",
+                apperance: "none",
+              }}
             />
           </label>
 
