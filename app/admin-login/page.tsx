@@ -13,7 +13,7 @@ export default async function AdminLoginPage({
       <h1 className="text-2xl font-bold">🔐 관리자 🔑 로그인</h1>
 
       {error ? (
-        <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+        <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
           {error === "1" ? "비밀번호가 틀렸습니다." : "서버 설정 오류(ADMIN_PASSWORD)."}
         </p>
       ) : null}
