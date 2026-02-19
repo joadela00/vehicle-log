@@ -92,11 +92,11 @@ export default async function TripsPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
-      <h1 className="text-xl font-bold sm:text-2xl">운행일지 전체 목록</h1>
+      <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
 
       {deleted ? (
         <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-          삭제되었습니다.
+          🗑️ 삭제되었습니다.
         </p>
       ) : null}
 
@@ -113,7 +113,7 @@ export default async function TripsPage({
         <input type="date" name="from" defaultValue={fromParam} className="rounded border px-3 py-3 text-base" />
         <input type="date" name="to" defaultValue={toParam} className="rounded border px-3 py-3 text-base" />
 
-        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">검색</button>
+        <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
@@ -121,14 +121,14 @@ export default async function TripsPage({
           페이지 <b>{page}</b>
         </span>
         {page > 1 ? (
-          <Link className="underline" href={makePageHref(page - 1)}>
+          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page - 1)}>
             이전
           </Link>
         ) : (
           <span className="opacity-40">이전</span>
         )}
         {hasNextPage ? (
-          <Link className="underline" href={makePageHref(page + 1)}>
+          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page + 1)}>
             다음
           </Link>
         ) : (
@@ -168,12 +168,12 @@ export default async function TripsPage({
             </dl>
 
             <div className="mt-2 flex gap-3">
-              <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
-                수정
+              <Link href={`/trips/${t.id}`} className="text-red-700 underline">
+                ✏️ 수정
               </Link>
               <form method="POST" action="/api/trips/delete">
                 <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-600 underline">삭제</button>
+                <button className="text-red-700 underline">🗑️ 삭제</button>
               </form>
             </div>
           </article>
@@ -190,8 +190,8 @@ export default async function TripsPage({
               <th className="p-2 text-right">실제주행거리(km)</th>
               <th className="p-2 text-right">통행료(원)</th>
               <th className="p-2 text-right">하이패스 잔액</th>
-              <th className="p-2 text-right">수정</th>
-              <th className="p-2 text-right">삭제</th>
+              <th className="p-2 text-right">✏️ 수정</th>
+              <th className="p-2 text-right">🗑️ 삭제</th>
             </tr>
           </thead>
 
@@ -206,15 +206,15 @@ export default async function TripsPage({
                 <td className="p-2 text-right">{t.hipassBalance}</td>
 
                 <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
-                    수정
+                  <Link href={`/trips/${t.id}`} className="text-red-700 underline">
+                    ✏️ 수정
                   </Link>
                 </td>
 
                 <td className="p-2 text-right">
                   <form method="POST" action="/api/trips/delete">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-600 underline">삭제</button>
+                    <button className="text-red-700 underline">🗑️ 삭제</button>
                   </form>
                 </td>
               </tr>

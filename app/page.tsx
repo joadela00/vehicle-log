@@ -23,20 +23,20 @@ export default async function Home({
 
   return (
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
-      <h1 className="text-xl font-bold sm:text-2xl">인천경기 차량 운행일지</h1>
+      <h1 className="text-xl font-bold sm:text-2xl">🚗 인천경기 차량 운행일지</h1>
 
       {saved ? (
         <p className="mt-3 rounded border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
-          저장되었습니다.
+          💾 저장되었습니다.
         </p>
       ) : null}
 
       <div className="mt-4 flex flex-wrap gap-2 text-sm">
-        <Link className="rounded border px-3 py-2" href="/admin">
-          관리자
+        <Link className="rounded border border-red-200 bg-white px-3 py-2 hover:text-red-600" href="/admin">
+          🛠️ 관리자
         </Link>
-        <Link className="rounded border px-3 py-2" href="/trips">
-          운행일지 목록
+        <Link className="rounded border border-red-200 bg-white px-3 py-2 hover:text-red-600" href="/trips">
+          📚 운행일지 목록
         </Link>
       </div>
 
@@ -65,9 +65,9 @@ export default async function Home({
                   className="peer sr-only"
                   required
                 />
-                <span className="relative block w-full rounded border border-gray-300 bg-white px-3 py-3 text-center text-sm font-medium text-gray-800 transition hover:border-gray-400 peer-checked:border-black peer-checked:bg-gray-100 peer-checked:text-black peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-black dark:border-white/20 dark:bg-black dark:text-white dark:hover:border-white/30 dark:peer-checked:border-white dark:peer-checked:bg-white/10 dark:peer-checked:text-white dark:peer-focus-visible:outline-white">
+                <span className="relative block w-full rounded border border-gray-300 bg-white px-3 py-3 text-center text-sm font-medium text-gray-800 transition hover:border-gray-400 peer-checked:border-black peer-checked:bg-gray-100 peer-checked:text-black peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-black dark:border-white/20 dark:bg-red-600 dark:text-white dark:hover:border-white/30 dark:peer-checked:border-white dark:peer-checked:bg-white/10 dark:peer-checked:text-white dark:peer-focus-visible:outline-white">
                   <span className="hidden text-xs font-bold tracking-wide peer-checked:block">
-                    선택됨
+                    ✅ 선택됨
                   </span>
                   <span>
                     {v.model} / {v.plate}
@@ -136,8 +136,8 @@ export default async function Home({
           <input name="note" type="text" className="rounded border px-3 py-3 text-base" />
         </label>
 
-        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">
-          저장
+        <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">
+          💾 저장
         </button>
       </form>
     </main>

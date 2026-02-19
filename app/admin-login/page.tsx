@@ -10,7 +10,7 @@ export default async function AdminLoginPage({
 
   return (
     <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold">관리자 로그인</h1>
+      <h1 className="text-2xl font-bold">🔐 관리자 🔑 로그인</h1>
 
       {error ? (
         <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
@@ -29,14 +29,14 @@ export default async function AdminLoginPage({
           />
         </label>
 
-        <button className="bg-black text-white rounded px-4 py-2">
-          로그인
+        <button className="bg-red-600 text-white rounded px-4 py-2">
+          🔑 로그인
         </button>
       </form>
 
       <p className="mt-6">
-        <Link className="underline" href="/">
-          입력으로
+        <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+          ⬅️ 입력으로
         </Link>
       </p>
     </main>

@@ -59,7 +59,7 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl p-4 sm:p-6">
-      <h1 className="text-xl font-bold sm:text-2xl">관리자 누적 (이번달)</h1>
+      <h1 className="text-xl font-bold sm:text-2xl">📊 관리자 누적 (이번달)</h1>
       <p className="mt-1 text-xs opacity-70 sm:text-sm">
         기간: {start.toISOString().slice(0, 10)} ~ {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
       </p>
@@ -76,7 +76,7 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      <h2 className="mt-8 text-lg font-semibold sm:text-xl">차량별</h2>
+      <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별</h2>
       <div className="mt-2 overflow-x-auto rounded border">
         <table className="w-full min-w-[900px] border-collapse text-sm sm:text-base">
           <thead>
@@ -113,7 +113,7 @@ export default async function AdminPage() {
         </table>
       </div>
 
-      <h2 className="mt-10 text-lg font-semibold sm:text-xl">최근 운행일지 20건</h2>
+      <h2 className="mt-10 text-lg font-semibold sm:text-xl">🕒 최근 운행일지 20건</h2>
       <div className="mt-2 overflow-x-auto rounded border">
         <table className="w-full min-w-[980px] border-collapse text-sm sm:text-base">
           <thead>
@@ -148,8 +148,8 @@ export default async function AdminPage() {
       </div>
 
       <p className="mt-6">
-        <Link className="underline" href="/">
-          입력으로
+        <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+          ⬅️ 입력으로
         </Link>
       </p>
     </main>
