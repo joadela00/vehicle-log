@@ -33,16 +33,16 @@ export default async function Home({
       "
     >
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
-        <div>
-          <p className="text-sm font-semibold tracking-wide text-red-500">
-            🚘 DAILY LOG
-          </p>
-          <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
-            인천경기 차량 운행일지
-          </h1>
+  
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold tracking-wide text-red-500">🚘 DAILY LOG</p>
+            <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">인천경기 차량 운행일지</h1>
             <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
+          </div>
           <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-50 text-xl">❤️</span>
         </div>
+
 
         {saved ? (
           <p className="mt-4 rounded-2xl border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
