@@ -55,17 +55,17 @@ export default async function Home({
           </Link>
         </div>
 
-        <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
-            <input
-              name="date"
-              type="date"
-              required
-              defaultValue={today}
-              className="rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+      <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm">
+        <label className="grid gap-1">
+          <span className="text-sm sm:text-base">날짜</span>
+          <input
+            name="date"
+            type="date"
+            required
+            defaultValue={today}
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
           <div className="grid gap-2">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
@@ -92,24 +92,24 @@ export default async function Home({
             </div>
           </div>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">👤 운전자</span>
-            <input
-              name="driverName"
-              type="text"
-              required
-              placeholder="예: 홍길동"
-              className="rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm sm:text-base">운전자</span>
+          <input
+            name="driverName"
+            type="text"
+            required
+            placeholder="예: 홍길동"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
         <label className="grid gap-1">
           <span className="text-sm font-semibold sm:text-base">📍 계기 최종 주행거리(누적 km)</span>
-          <CommaNumberInput
+          <input
             name="odoEnd"
             required
-            placeholder="예: 12,345"
-            className="rounded-xl border bg-white px-3 py-3 text-base"
+            placeholder="예: 12345"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
@@ -119,7 +119,7 @@ export default async function Home({
             name="evRemainPct"
             required
             defaultValue="80"
-            className="rounded-xl border bg-white px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           >
             {[20, 40, 60, 80, 100].map((v) => (
               <option key={v} value={v}>
@@ -131,17 +131,17 @@ export default async function Home({
 
         <label className="grid gap-1">
           <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
-          <CommaNumberInput
+          <input
             name="hipassBalance"
             required
-            placeholder="예: 35,000"
-            className="rounded-xl border bg-white px-3 py-3 text-base"
+            placeholder="예: 35000"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
         <label className="grid gap-1">
-          <span className="text-sm font-semibold sm:text-base">📝 메모(선택)</span>
-          <input name="note" type="text" className="rounded-xl border bg-white px-3 py-3 text-base" />
+          <span className="text-sm sm:text-base">메모(선택)</span>
+          <input name="note" type="text" className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
         </label>
 
           <button className="rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500">

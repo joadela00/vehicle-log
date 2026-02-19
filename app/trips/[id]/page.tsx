@@ -51,7 +51,7 @@ export default async function TripDetailPage({
         </Link>
       </div>
 
-      <div className="mt-5 space-y-2 rounded border p-4 text-sm sm:text-base">
+      <div className="mt-5 space-y-2 rounded-2xl border border-red-100 bg-white/95 p-5 shadow-sm text-sm sm:text-base">
         <div>
           <b>날짜</b>: {trip.date.toISOString().slice(0, 10)}
         </div>
@@ -80,7 +80,7 @@ export default async function TripDetailPage({
               name="odoEnd"
               required
               defaultValue={trip.odoEnd}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
 
@@ -90,7 +90,7 @@ export default async function TripDetailPage({
               name="evRemainPct"
               required
               defaultValue={String(trip.evRemainPct)}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             >
               {[20, 40, 60, 80, 100].map((v) => (
                 <option key={v} value={v}>
@@ -106,7 +106,7 @@ export default async function TripDetailPage({
               name="hipassBalance"
               required
               defaultValue={trip.hipassBalance}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
 

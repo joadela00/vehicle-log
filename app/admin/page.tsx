@@ -65,20 +65,17 @@ export default async function AdminPage() {
           기간: {start.toISOString().slice(0, 10)} ~ {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
         </p>
 
-        <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-          <div className="rounded-2xl border border-red-100 bg-[#f5f5f7] px-4 py-4 text-sm sm:text-base">
-            <p className="text-gray-500">이번달 운행 건수</p>
-            <b className="text-xl text-red-600">{formatNumber(totals._count)}건</b>
-          </div>
-          <div className="rounded-2xl border border-red-100 bg-[#f5f5f7] px-4 py-4 text-sm sm:text-base">
-            <p className="text-gray-500">이번달 주행 합계</p>
-            <b className="text-xl text-red-600">{formatNumber(totals._sum.distance)} km</b>
-          </div>
-          <div className="rounded-2xl border border-red-100 bg-[#f5f5f7] px-4 py-4 text-sm sm:text-base">
-            <p className="text-gray-500">이번달 통행료 합계</p>
-            <b className="text-xl text-red-600">{formatNumber(totals._sum.tollCost)} 원</b>
-          </div>
+      <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
+          이번달 운행 건수: <b>{totals._count}</b>
         </div>
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
+          이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
+        </div>
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
+          이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
+        </div>
+      </div>
 
         <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별 현황</h2>
         <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white">
