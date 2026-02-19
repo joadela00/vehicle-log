@@ -69,7 +69,7 @@ export default async function Home({
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm sm:text-base">날짜</span>
+            <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
             <input
               name="date"
               type="date"
@@ -113,12 +113,12 @@ export default async function Home({
           </div>
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm sm:text-base">운전자</span>
+            <span className="text-sm font-semibold sm:text-base">🙋운전자</span>
             <input
               name="driverName"
               type="text"
               required
-              placeholder="예: 홍길동"
+              placeholder="예: 정태훈"
               className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
