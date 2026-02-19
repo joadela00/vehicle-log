@@ -18,6 +18,8 @@ export default async function AdminPage() {
   if (!authed) redirect("/admin-login");
 
   const { start, end } = monthRange();
+  const periodStart = start.toISOString().slice(0, 10);
+  const periodEnd = new Date(end.getTime() - 1).toISOString().slice(0, 10);
 
   const vehicles = await prisma.vehicle.findMany({ orderBy: { plate: "asc" } });
 
