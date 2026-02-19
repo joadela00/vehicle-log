@@ -23,15 +23,15 @@ export default async function Home({
   const vehicles = await getVehicles();
 
   return (
-    <main className="mx-auto w-full max-w-3xl p-3 sm:p-6">
-      <section className="overflow-hidden rounded-3xl border border-red-100 bg-white/95 p-4 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
+    <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
+      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
+          <div>
             <p className="text-sm font-semibold tracking-wide text-red-500">🚘 DAILY LOG</p>
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">인천경기 차량 운행일지</h1>
-            <p className="mt-1 text-sm text-gray-500">화이트 기반 + 레드 포인트 스타일</p>
+            <p className="mt-1 text-sm text-gray-500">기본은 화이트, 중요한 정보는 레드로 강조했습니다.</p>
           </div>
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-50 text-xl">🔔</span>
+          <span className="grid h-11 w-11 place-items-center rounded-2xl bg-red-50 text-xl">🔔</span>
         </div>
 
         {saved ? (
@@ -55,23 +55,23 @@ export default async function Home({
           </Link>
         </div>
 
-        <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
-            <input
-              name="date"
-              type="date"
-              required
-              defaultValue={today}
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+      <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm">
+        <label className="grid gap-1">
+          <span className="text-sm sm:text-base">날짜</span>
+          <input
+            name="date"
+            type="date"
+            required
+            defaultValue={today}
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
           <div className="grid gap-2">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
               {vehicles.map((v, idx) => (
-                <label key={v.id} className="min-w-0 cursor-pointer">
+                <label key={v.id} className="cursor-pointer">
                   <input
                     type="radio"
                     name="vehicleId"
@@ -80,71 +80,71 @@ export default async function Home({
                     className="peer sr-only"
                     required
                   />
-                  <span className="relative block w-full min-w-0 rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
+                  <span className="relative block w-full rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-sm font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
                     <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-xs peer-checked:grid">
                       ✔
                     </span>
-                    <span className="block truncate text-xs opacity-80">{v.model}</span>
-                    <span className="mt-0.5 block truncate">{v.plate}</span>
+                    <span className="block text-xs opacity-80">{v.model}</span>
+                    <span className="mt-0.5 block">{v.plate}</span>
                   </span>
                 </label>
               ))}
             </div>
           </div>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">👤 운전자</span>
-            <input
-              name="driverName"
-              type="text"
-              required
-              placeholder="예: 홍길동"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm sm:text-base">운전자</span>
+          <input
+            name="driverName"
+            type="text"
+            required
+            placeholder="예: 홍길동"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">📍 계기 최종 주행거리(누적 km)</span>
-            <CommaNumberInput
-              name="odoEnd"
-              required
-              placeholder="예: 12,345"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm font-semibold sm:text-base">📍 계기 최종 주행거리(누적 km)</span>
+          <input
+            name="odoEnd"
+            required
+            placeholder="예: 12345"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">🔋 전기 잔여(%)</span>
-            <select
-              name="evRemainPct"
-              required
-              defaultValue="80"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base"
-            >
-              {[20, 40, 60, 80, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}%
-                </option>
-              ))}
-            </select>
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm font-semibold sm:text-base">🔋 전기 잔여(%)</span>
+          <select
+            name="evRemainPct"
+            required
+            defaultValue="80"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          >
+            {[20, 40, 60, 80, 100].map((v) => (
+              <option key={v} value={v}>
+                {v}%
+              </option>
+            ))}
+          </select>
+        </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
-            <CommaNumberInput
-              name="hipassBalance"
-              required
-              placeholder="예: 35,000"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base"
-            />
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
+          <input
+            name="hipassBalance"
+            required
+            placeholder="예: 35000"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+        </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">📝 메모(선택)</span>
-            <input name="note" type="text" className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base" />
-          </label>
+        <label className="grid gap-1">
+          <span className="text-sm sm:text-base">메모(선택)</span>
+          <input name="note" type="text" className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
+        </label>
 
-          <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500">
+          <button className="rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500">
             💾 저장
           </button>
         </form>
