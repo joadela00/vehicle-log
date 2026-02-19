@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
+import CommaNumberInput from "@/components/comma-number-input";
 
 export const revalidate = 60;
 
@@ -106,9 +107,6 @@ export default async function Home({
           <span className="text-sm font-semibold sm:text-base">📍 계기 최종 주행거리(누적 km)</span>
           <input
             name="odoEnd"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
             required
             placeholder="예: 12345"
             className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
@@ -135,9 +133,6 @@ export default async function Home({
           <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
           <input
             name="hipassBalance"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
             required
             placeholder="예: 35000"
             className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"

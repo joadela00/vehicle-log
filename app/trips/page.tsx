@@ -2,6 +2,7 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { formatNumber } from "@/lib/number";
 
 export const revalidate = 30;
 
@@ -155,15 +156,15 @@ export default async function TripsPage({
               </div>
               <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                 <dt className="text-gray-500">주행거리</dt>
-                <dd>{t.distance} km</dd>
+                <dd>{formatNumber(t.distance)} km</dd>
               </div>
               <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                 <dt className="text-gray-500">통행료</dt>
-                <dd>{t.tollCost} 원</dd>
+                <dd>{formatNumber(t.tollCost)} 원</dd>
               </div>
               <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                 <dt className="text-gray-500">하이패스</dt>
-                <dd>{t.hipassBalance} 원</dd>
+                <dd>{formatNumber(t.hipassBalance)} 원</dd>
               </div>
             </dl>
 
@@ -201,9 +202,9 @@ export default async function TripsPage({
                 <td className="p-2 whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</td>
                 <td className="p-2 whitespace-nowrap">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
                 <td className="p-2 whitespace-nowrap">{t.driver?.name ?? "-"}</td>
-                <td className="p-2 text-right">{t.distance}</td>
-                <td className="p-2 text-right">{t.tollCost}</td>
-                <td className="p-2 text-right">{t.hipassBalance}</td>
+                <td className="p-2 text-right">{formatNumber(t.distance)}</td>
+                <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
+                <td className="p-2 text-right">{formatNumber(t.hipassBalance)}</td>
 
                 <td className="p-2 text-right">
                   <Link href={`/trips/${t.id}`} className="text-red-700 underline">
