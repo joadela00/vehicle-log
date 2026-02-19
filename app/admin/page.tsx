@@ -50,7 +50,7 @@ export default async function AdminPage() {
       ]);
 
       return { v, agg, latest };
-    })
+    }),
   );
 
   const recentTrips = await prisma.trip.findMany({
