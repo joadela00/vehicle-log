@@ -77,7 +77,7 @@ export default async function Home({
               defaultValue={today}
               className="block w-full max-w-full box-border min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
               style={{
-                webkitappearance: "none",
+                WebkitAppearance: "none",
                 apperance: "none",
               }}
             />
