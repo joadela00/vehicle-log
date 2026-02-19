@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import CommaNumberInput from "@/components/comma-number-input";
+import { formatNumber } from "@/lib/number";
 
 export default async function TripDetailPage({
   params,
@@ -60,13 +62,13 @@ export default async function TripDetailPage({
           <b>운전자</b>: {driver?.name ?? "-"}
         </div>
         <div>
-          <b>실제주행거리(km)</b>: {trip.distance}
+          <b>실제주행거리(km)</b>: {formatNumber(trip.distance)}
         </div>
         <div>
-          <b>통행료(원)</b>: {trip.tollCost}
+          <b>통행료(원)</b>: {formatNumber(trip.tollCost)}
         </div>
         <div>
-          <b>하이패스 잔액</b>: {trip.hipassBalance}
+          <b>하이패스 잔액</b>: {formatNumber(trip.hipassBalance)}
         </div>
 
         <form method="POST" action="/api/trips/update" className="mt-5 grid gap-4">
@@ -74,11 +76,8 @@ export default async function TripDetailPage({
 
           <label className="grid gap-1">
             <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
-            <input
+            <CommaNumberInput
               name="odoEnd"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
               required
               defaultValue={trip.odoEnd}
               className="rounded border px-3 py-3 text-base"
@@ -103,11 +102,8 @@ export default async function TripDetailPage({
 
           <label className="grid gap-1">
             <span className="text-sm sm:text-base">하이패스 잔액(원)</span>
-            <input
+            <CommaNumberInput
               name="hipassBalance"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
               required
               defaultValue={trip.hipassBalance}
               className="rounded border px-3 py-3 text-base"
