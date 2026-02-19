@@ -73,6 +73,7 @@ export default async function TripsPage({
         vehicleId: true,
         distance: true,
         tollCost: true,
+        hipassBalance: true,
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
