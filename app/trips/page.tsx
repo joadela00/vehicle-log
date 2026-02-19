@@ -170,11 +170,11 @@ export default async function TripsPage({
 
             <div className="mt-2 flex gap-3">
               <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                ✏️ 수정
+                ✏️
               </Link>
               <form method="POST" action="/api/trips/delete">
                 <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-700 underline">🗑️ 삭제</button>
+                <button className="text-red-700 underline">🗑️</button>
               </form>
             </div>
           </article>
