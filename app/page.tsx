@@ -40,7 +40,7 @@ export default async function Home({
         </Link>
       </div>
 
-      <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4">
+      <form method="POST" action="/api/trips/create" className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm">
         <label className="grid gap-1">
           <span className="text-sm sm:text-base">날짜</span>
           <input
@@ -48,7 +48,7 @@ export default async function Home({
             type="date"
             required
             defaultValue={today}
-            className="rounded border px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
@@ -85,7 +85,7 @@ export default async function Home({
             type="text"
             required
             placeholder="예: 홍길동"
-            className="rounded border px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
@@ -98,7 +98,7 @@ export default async function Home({
             pattern="[0-9]*"
             required
             placeholder="예: 12345"
-            className="rounded border px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
@@ -108,7 +108,7 @@ export default async function Home({
             name="evRemainPct"
             required
             defaultValue="80"
-            className="rounded border px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           >
             {[20, 40, 60, 80, 100].map((v) => (
               <option key={v} value={v}>
@@ -127,13 +127,13 @@ export default async function Home({
             pattern="[0-9]*"
             required
             placeholder="예: 35000"
-            className="rounded border px-3 py-3 text-base"
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
           />
         </label>
 
         <label className="grid gap-1">
           <span className="text-sm sm:text-base">메모(선택)</span>
-          <input name="note" type="text" className="rounded border px-3 py-3 text-base" />
+          <input name="note" type="text" className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
         </label>
 
         <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">

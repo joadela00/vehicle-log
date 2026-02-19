@@ -100,8 +100,8 @@ export default async function TripsPage({
         </p>
       ) : null}
 
-      <form method="GET" className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-        <select name="vehicleId" defaultValue={vehicleId} className="rounded border px-3 py-3 text-base">
+      <form method="GET" className="mt-4 grid grid-cols-1 gap-2 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-3">
+        <select name="vehicleId" defaultValue={vehicleId} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm">
           <option value="">전체 차량</option>
           {vehicles.map((v) => (
             <option key={v.id} value={v.id}>
@@ -110,8 +110,8 @@ export default async function TripsPage({
           ))}
         </select>
 
-        <input type="date" name="from" defaultValue={fromParam} className="rounded border px-3 py-3 text-base" />
-        <input type="date" name="to" defaultValue={toParam} className="rounded border px-3 py-3 text-base" />
+        <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
+        <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
         <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
       </form>
@@ -138,7 +138,7 @@ export default async function TripsPage({
 
       <div className="mt-5 grid gap-3 sm:hidden">
         {trips.map((t) => (
-          <article key={t.id} className="rounded-lg border p-3 text-sm">
+          <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-4 text-sm shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <div className="font-semibold whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</div>
               <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
@@ -180,7 +180,7 @@ export default async function TripsPage({
         ))}
       </div>
 
-      <div className="mt-6 hidden overflow-x-auto sm:block">
+      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
