@@ -43,9 +43,9 @@ export default async function TripDetailPage({
   return (
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold sm:text-2xl">운행일지 상세</h1>
+        <h1 className="text-xl font-bold sm:text-2xl">🧾 운행일지 상세</h1>
         <Link href="/trips" className="rounded border px-3 py-2 text-sm">
-          목록으로
+          ⬅️ 목록으로
         </Link>
       </div>
 
@@ -114,8 +114,8 @@ export default async function TripDetailPage({
             />
           </label>
 
-          <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">
-            수정 저장
+          <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">
+            ✅ 수정 저장
           </button>
         </form>
       </div>
