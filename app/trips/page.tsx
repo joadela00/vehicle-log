@@ -3,6 +3,7 @@ import Script from "next/script";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { formatNumber } from "@/lib/number";
 
 export const revalidate = 30;
 
@@ -95,7 +96,7 @@ export default async function TripsPage({
       <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
 
       {deleted ? (
-        <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
+        <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
           🗑️ 삭제되었습니다.
         </p>
       ) : null}
@@ -113,7 +114,7 @@ export default async function TripsPage({
         <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
         <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
-        <button className="rounded-xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-red-700">🔍 검색</button>
+        <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
@@ -138,7 +139,7 @@ export default async function TripsPage({
 
       <div className="mt-5 grid gap-3 sm:hidden">
         {trips.map((t) => (
-          <article key={t.id} className="relative rounded-2xl border border-red-100 bg-white p-4 pb-12 text-sm shadow-sm">
+          <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-4 text-sm shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <div className="font-semibold whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</div>
               <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
@@ -155,21 +156,25 @@ export default async function TripsPage({
               </div>
               <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                 <dt className="text-gray-500">주행거리</dt>
-                <dd>{t.distance} km</dd>
+                <dd>{formatNumber(t.distance)} km</dd>
               </div>
               <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                 <dt className="text-gray-500">통행료</dt>
-                <dd>{t.tollCost} 원</dd>
+                <dd>{formatNumber(t.tollCost)} 원</dd>
+              </div>
+              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                <dt className="text-gray-500">하이패스</dt>
+                <dd>{formatNumber(t.hipassBalance)} 원</dd>
               </div>
             </dl>
 
-            <div className="absolute right-4 bottom-4 flex gap-3">
+            <div className="mt-2 flex gap-3">
               <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                ✏️ 수정
+                ✏️
               </Link>
               <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                 <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-700 underline">🗑️ 삭제</button>
+                <button className="text-red-700 underline">🗑️</button>
               </form>
             </div>
           </article>
@@ -185,6 +190,7 @@ export default async function TripsPage({
               <th className="p-2 text-left">운전자</th>
               <th className="p-2 text-right">실제주행거리(km)</th>
               <th className="p-2 text-right">통행료(원)</th>
+              <th className="p-2 text-right">하이패스 잔액</th>
               <th className="p-2 text-right">✏️ 수정</th>
               <th className="p-2 text-right">🗑️ 삭제</th>
             </tr>
@@ -196,10 +202,11 @@ export default async function TripsPage({
                 <td className="p-2 whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</td>
                 <td className="p-2 whitespace-nowrap">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
                 <td className="p-2 whitespace-nowrap">{t.driver?.name ?? "-"}</td>
-                <td className="p-2 text-right">{t.distance}</td>
-                <td className="p-2 text-right">{t.tollCost}</td>
+                <td className="p-2 text-right">{formatNumber(t.distance)}</td>
+                <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
+                <td className="p-2 text-right">{formatNumber(t.hipassBalance)}</td>
 
-                <td className="p-2 text-right align-bottom">
+                <td className="p-2 text-right">
                   <Link href={`/trips/${t.id}`} className="text-red-700 underline">
                     ✏️ 수정
                   </Link>

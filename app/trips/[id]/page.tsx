@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import CommaNumberInput from "@/components/comma-number-input";
+import { formatNumber } from "@/lib/number";
 
 export default async function TripDetailPage({
   params,
@@ -44,7 +46,7 @@ export default async function TripDetailPage({
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold sm:text-2xl">🧾 운행일지 상세</h1>
-        <Link href="/trips" className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm shadow-sm">
+        <Link href="/trips" className="rounded border px-3 py-2 text-sm">
           ⬅️ 목록으로
         </Link>
       </div>
@@ -60,13 +62,13 @@ export default async function TripDetailPage({
           <b>운전자</b>: {driver?.name ?? "-"}
         </div>
         <div>
-          <b>실제주행거리(km)</b>: {trip.distance}
+          <b>실제주행거리(km)</b>: {formatNumber(trip.distance)}
         </div>
         <div>
-          <b>통행료(원)</b>: {trip.tollCost}
+          <b>통행료(원)</b>: {formatNumber(trip.tollCost)}
         </div>
         <div>
-          <b>하이패스 잔액</b>: {trip.hipassBalance}
+          <b>하이패스 잔액</b>: {formatNumber(trip.hipassBalance)}
         </div>
 
         <form method="POST" action="/api/trips/update" className="mt-5 grid gap-4">
@@ -74,11 +76,8 @@ export default async function TripDetailPage({
 
           <label className="grid gap-1">
             <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
-            <input
+            <CommaNumberInput
               name="odoEnd"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
               required
               defaultValue={trip.odoEnd}
               className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
@@ -103,18 +102,15 @@ export default async function TripDetailPage({
 
           <label className="grid gap-1">
             <span className="text-sm sm:text-base">하이패스 잔액(원)</span>
-            <input
+            <CommaNumberInput
               name="hipassBalance"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
               required
               defaultValue={trip.hipassBalance}
               className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
 
-          <button className="rounded-xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-red-700">
+          <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">
             ✅ 수정 저장
           </button>
         </form>
