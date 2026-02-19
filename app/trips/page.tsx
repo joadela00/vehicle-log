@@ -92,16 +92,16 @@ export default async function TripsPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
-      <h1 className="text-xl font-bold sm:text-2xl">운행일지 전체 목록</h1>
+      <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
 
       {deleted ? (
-        <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-          삭제되었습니다.
+        <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
+          🗑️ 삭제되었습니다.
         </p>
       ) : null}
 
-      <form method="GET" className="mt-4 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-        <select name="vehicleId" defaultValue={vehicleId} className="rounded border px-3 py-3 text-base">
+      <form method="GET" className="mt-4 grid grid-cols-1 gap-2 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-3">
+        <select name="vehicleId" defaultValue={vehicleId} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm">
           <option value="">전체 차량</option>
           {vehicles.map((v) => (
             <option key={v.id} value={v.id}>
@@ -110,10 +110,10 @@ export default async function TripsPage({
           ))}
         </select>
 
-        <input type="date" name="from" defaultValue={fromParam} className="rounded border px-3 py-3 text-base" />
-        <input type="date" name="to" defaultValue={toParam} className="rounded border px-3 py-3 text-base" />
+        <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
+        <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
-        <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">검색</button>
+        <button className="rounded-xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-red-700">🔍 검색</button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
@@ -121,14 +121,14 @@ export default async function TripsPage({
           페이지 <b>{page}</b>
         </span>
         {page > 1 ? (
-          <Link className="underline" href={makePageHref(page - 1)}>
+          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page - 1)}>
             이전
           </Link>
         ) : (
           <span className="opacity-40">이전</span>
         )}
         {hasNextPage ? (
-          <Link className="underline" href={makePageHref(page + 1)}>
+          <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href={makePageHref(page + 1)}>
             다음
           </Link>
         ) : (
@@ -138,7 +138,7 @@ export default async function TripsPage({
 
       <div className="mt-5 grid gap-3 sm:hidden">
         {trips.map((t) => (
-          <article key={t.id} className="rounded-lg border p-3 text-sm">
+          <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-4 text-sm shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <div className="font-semibold whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</div>
               <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
@@ -168,19 +168,19 @@ export default async function TripsPage({
             </dl>
 
             <div className="mt-2 flex gap-3">
-              <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
-                수정
+              <Link href={`/trips/${t.id}`} className="text-red-700 underline">
+                ✏️ 수정
               </Link>
               <form method="POST" action="/api/trips/delete">
                 <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-600 underline">삭제</button>
+                <button className="text-red-700 underline">🗑️ 삭제</button>
               </form>
             </div>
           </article>
         ))}
       </div>
 
-      <div className="mt-6 hidden overflow-x-auto sm:block">
+      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
         <table className="w-full border-collapse">
           <thead>
             <tr className="border-b">
@@ -190,8 +190,8 @@ export default async function TripsPage({
               <th className="p-2 text-right">실제주행거리(km)</th>
               <th className="p-2 text-right">통행료(원)</th>
               <th className="p-2 text-right">하이패스 잔액</th>
-              <th className="p-2 text-right">수정</th>
-              <th className="p-2 text-right">삭제</th>
+              <th className="p-2 text-right">✏️ 수정</th>
+              <th className="p-2 text-right">🗑️ 삭제</th>
             </tr>
           </thead>
 
@@ -206,15 +206,15 @@ export default async function TripsPage({
                 <td className="p-2 text-right">{t.hipassBalance}</td>
 
                 <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-blue-600 underline">
-                    수정
+                  <Link href={`/trips/${t.id}`} className="text-red-700 underline">
+                    ✏️ 수정
                   </Link>
                 </td>
 
                 <td className="p-2 text-right">
                   <form method="POST" action="/api/trips/delete">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-600 underline">삭제</button>
+                    <button className="text-red-700 underline">🗑️ 삭제</button>
                   </form>
                 </td>
               </tr>
