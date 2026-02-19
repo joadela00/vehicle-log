@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Script from "next/script";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -72,7 +73,6 @@ export default async function TripsPage({
         vehicleId: true,
         distance: true,
         tollCost: true,
-        hipassBalance: true,
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
@@ -172,7 +172,7 @@ export default async function TripsPage({
               <Link href={`/trips/${t.id}`} className="text-red-700 underline">
                 ✏️
               </Link>
-              <form method="POST" action="/api/trips/delete">
+              <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                 <input type="hidden" name="id" value={t.id} />
                 <button className="text-red-700 underline">🗑️</button>
               </form>
@@ -212,8 +212,8 @@ export default async function TripsPage({
                   </Link>
                 </td>
 
-                <td className="p-2 text-right">
-                  <form method="POST" action="/api/trips/delete">
+                <td className="p-2 text-right align-bottom">
+                  <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                     <input type="hidden" name="id" value={t.id} />
                     <button className="text-red-700 underline">🗑️ 삭제</button>
                   </form>
@@ -223,6 +223,25 @@ export default async function TripsPage({
           </tbody>
         </table>
       </div>
+
+      <p className="mt-6">
+        <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+          ⬅️ 입력으로
+        </Link>
+      </p>
+
+      <Script id="confirm-trip-delete" strategy="afterInteractive">
+        {`
+          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+              const ok = window.confirm('정말 삭제하시겠습니까?');
+              if (!ok) {
+                event.preventDefault();
+              }
+            });
+          });
+        `}
+      </Script>
     </main>
   );
 }
