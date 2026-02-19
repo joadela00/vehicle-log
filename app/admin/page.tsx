@@ -49,7 +49,7 @@ export default async function AdminPage() {
         }),
       ]);
 
-      return { v, agg, latest };
+      return { v: vehicle, agg, latest };
     }),
   );
 
@@ -64,18 +64,19 @@ export default async function AdminPage() {
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <h1 className="text-xl font-bold sm:text-2xl">📊 관리자 대시보드</h1>
         <p className="mt-1 text-xs text-gray-500 sm:text-sm">
-          기간: {start.toISOString().slice(0, 10)} ~ {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
+          기간: {periodStart} ~ {periodEnd}
         </p>
 
-      <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
-          이번달 운행 건수: <b>{totals._count}</b>
-        </div>
-        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
-          이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
-        </div>
-        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
-          이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
+        <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+          <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
+            이번달 운행 건수: <b>{totals._count}</b>
+          </div>
+          <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
+            이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
+          </div>
+          <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
+            이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
+          </div>
         </div>
 
         <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별 현황</h2>
