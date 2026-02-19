@@ -75,7 +75,6 @@ export default async function AdminPage() {
         <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
           이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
         </div>
-      </div>
 
         <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별 현황</h2>
         <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white">
