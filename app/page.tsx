@@ -41,13 +41,13 @@ export default async function Home({
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+            className="min-w-0 break-words rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href="/admin"
           >
             🛠️ 관리자
           </Link>
           <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+            className="min-w-0 break-words rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href="/trips"
           >
             📚 운행일지 목록
@@ -72,7 +72,7 @@ export default async function Home({
 
           <div className="grid gap-2 overflow-hidden">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+            <div className="grid w-full max-w-full grid-cols-1 gap-2 sm:grid-cols-3">
               {vehicles.map((v, idx) => (
                 <label key={v.id} className="block min-w-0 cursor-pointer">
                   <input
