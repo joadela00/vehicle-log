@@ -113,7 +113,7 @@ export default async function Home({
           </div>
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🙋운전자</span>
+            <span className="text-sm font-semibold sm:text-base">🙋 운전자</span>
             <input
               name="driverName"
               type="text"
@@ -156,7 +156,7 @@ export default async function Home({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">
-              💳 하이패스 잔액(원)
+              💳  하이패스 잔액(원)
             </span>
             <input
               name="hipassBalance"
