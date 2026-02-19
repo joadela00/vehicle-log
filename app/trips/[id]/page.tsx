@@ -43,13 +43,13 @@ export default async function TripDetailPage({
   return (
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold sm:text-2xl">운행일지 상세</h1>
-        <Link href="/trips" className="rounded border px-3 py-2 text-sm">
-          목록으로
+        <h1 className="text-xl font-bold sm:text-2xl">🧾 운행일지 상세</h1>
+        <Link href="/trips" className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm shadow-sm">
+          ⬅️ 목록으로
         </Link>
       </div>
 
-      <div className="mt-5 space-y-2 rounded border p-4 text-sm sm:text-base">
+      <div className="mt-5 space-y-2 rounded-2xl border border-red-100 bg-white/95 p-5 shadow-sm text-sm sm:text-base">
         <div>
           <b>날짜</b>: {trip.date.toISOString().slice(0, 10)}
         </div>
@@ -81,7 +81,7 @@ export default async function TripDetailPage({
               pattern="[0-9]*"
               required
               defaultValue={trip.odoEnd}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
 
@@ -91,7 +91,7 @@ export default async function TripDetailPage({
               name="evRemainPct"
               required
               defaultValue={String(trip.evRemainPct)}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             >
               {[20, 40, 60, 80, 100].map((v) => (
                 <option key={v} value={v}>
@@ -110,12 +110,12 @@ export default async function TripDetailPage({
               pattern="[0-9]*"
               required
               defaultValue={trip.hipassBalance}
-              className="rounded border px-3 py-3 text-base"
+              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
             />
           </label>
 
-          <button className="rounded bg-black px-4 py-3 text-base font-semibold text-white">
-            수정 저장
+          <button className="rounded-xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-red-700">
+            ✅ 수정 저장
           </button>
         </form>
       </div>

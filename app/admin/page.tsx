@@ -59,25 +59,25 @@ export default async function AdminPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl p-4 sm:p-6">
-      <h1 className="text-xl font-bold sm:text-2xl">관리자 누적 (이번달)</h1>
+      <h1 className="text-xl font-bold sm:text-2xl">📊 관리자 누적 (이번달)</h1>
       <p className="mt-1 text-xs opacity-70 sm:text-sm">
         기간: {start.toISOString().slice(0, 10)} ~ {new Date(end.getTime() - 1).toISOString().slice(0, 10)}
       </p>
 
       <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
-        <div className="rounded border px-3 py-3 text-sm sm:text-base">
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
           이번달 운행 건수: <b>{totals._count}</b>
         </div>
-        <div className="rounded border px-3 py-3 text-sm sm:text-base">
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
           이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
         </div>
-        <div className="rounded border px-3 py-3 text-sm sm:text-base">
+        <div className="rounded-2xl border border-red-100 bg-white/95 shadow-sm px-3 py-3 text-sm sm:text-base">
           이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
         </div>
       </div>
 
-      <h2 className="mt-8 text-lg font-semibold sm:text-xl">차량별</h2>
-      <div className="mt-2 overflow-x-auto rounded border">
+      <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별</h2>
+      <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm">
         <table className="w-full min-w-[900px] border-collapse text-sm sm:text-base">
           <thead>
             <tr className="border-b bg-gray-50 dark:bg-white/5">
@@ -113,8 +113,8 @@ export default async function AdminPage() {
         </table>
       </div>
 
-      <h2 className="mt-10 text-lg font-semibold sm:text-xl">최근 운행일지 20건</h2>
-      <div className="mt-2 overflow-x-auto rounded border">
+      <h2 className="mt-10 text-lg font-semibold sm:text-xl">🕒 최근 운행일지 20건</h2>
+      <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm">
         <table className="w-full min-w-[980px] border-collapse text-sm sm:text-base">
           <thead>
             <tr className="border-b bg-gray-50 dark:bg-white/5">
@@ -148,8 +148,8 @@ export default async function AdminPage() {
       </div>
 
       <p className="mt-6">
-        <Link className="underline" href="/">
-          입력으로
+        <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+          ⬅️ 입력으로
         </Link>
       </p>
     </main>
