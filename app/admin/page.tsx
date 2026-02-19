@@ -5,10 +5,10 @@ import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
 
 function monthRange(base = new Date()) {
-  const y = base.getFullYear();
-  const m = base.getMonth();
-  const start = new Date(y, m, 1);
-  const end = new Date(y, m + 1, 1);
+  const year = base.getFullYear();
+  const month = base.getMonth();
+  const start = new Date(year, month, 1);
+  const end = new Date(year, month + 1, 1);
   return { start, end };
 }
 
@@ -30,15 +30,15 @@ export default async function AdminPage() {
   });
 
   const byVehicle = await Promise.all(
-    vehicles.map(async (v) => {
+    vehicles.map(async (vehicle) => {
       const [agg, latest] = await Promise.all([
         prisma.trip.aggregate({
-          where: { vehicleId: v.id, date: { gte: start, lt: end } },
+          where: { vehicleId: vehicle.id, date: { gte: start, lt: end } },
           _sum: { distance: true, tollCost: true },
           _count: true,
         }),
         prisma.trip.findFirst({
-          where: { vehicleId: v.id },
+          where: { vehicleId: vehicle.id },
           orderBy: [{ date: "desc" }, { createdAt: "desc" }],
           select: {
             date: true,
