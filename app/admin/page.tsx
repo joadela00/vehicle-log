@@ -77,7 +77,7 @@ export default async function AdminPage() {
       </div>
 
       <h2 className="mt-8 text-lg font-semibold sm:text-xl">🚘 차량별</h2>
-      <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm">
+      <div className="mt-2 overflow-x-auto rounded border">
         <table className="w-full min-w-[900px] border-collapse text-sm sm:text-base">
           <thead>
             <tr className="border-b bg-gray-50 dark:bg-white/5">
@@ -114,7 +114,7 @@ export default async function AdminPage() {
       </div>
 
       <h2 className="mt-10 text-lg font-semibold sm:text-xl">🕒 최근 운행일지 20건</h2>
-      <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm">
+      <div className="mt-2 overflow-x-auto rounded border">
         <table className="w-full min-w-[980px] border-collapse text-sm sm:text-base">
           <thead>
             <tr className="border-b bg-gray-50 dark:bg-white/5">

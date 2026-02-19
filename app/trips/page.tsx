@@ -95,7 +95,7 @@ export default async function TripsPage({
       <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
 
       {deleted ? (
-        <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
+        <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
           🗑️ 삭제되었습니다.
         </p>
       ) : null}
@@ -113,7 +113,7 @@ export default async function TripsPage({
         <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
         <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
-        <button className="rounded-xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-red-700">🔍 검색</button>
+        <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
       </form>
 
       <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
