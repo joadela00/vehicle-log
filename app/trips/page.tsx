@@ -7,7 +7,16 @@ import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
 
 function PencilIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z" />
     </svg>
@@ -16,7 +25,16 @@ function PencilIcon({ className }: { className?: string }) {
 
 function Trash2Icon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M3 6h18" />
       <path d="M8 6V4h8v2" />
       <path d="M19 6l-1 14H6L5 6" />
@@ -73,7 +91,9 @@ export default async function TripsPage({
   const deleteError = params?.deleteError || "";
 
   const parsedPage = Number(params?.page || "1");
-  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
+  const page = Number.isFinite(parsedPage)
+    ? Math.max(1, Math.trunc(parsedPage))
+    : 1;
 
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
@@ -145,7 +165,11 @@ export default async function TripsPage({
           method="GET"
           className="mt-4 grid grid-cols-1 gap-2 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-3"
         >
-          <select name="vehicleId" defaultValue={vehicleId} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm">
+          <select
+            name="vehicleId"
+            defaultValue={vehicleId}
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          >
             <option value="">전체 차량</option>
             {vehicles.map((v) => (
               <option key={v.id} value={v.id}>
@@ -154,16 +178,29 @@ export default async function TripsPage({
             ))}
           </select>
 
-          <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
-          <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
+          <input
+            type="date"
+            name="from"
+            defaultValue={fromParam}
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
+          <input
+            type="date"
+            name="to"
+            defaultValue={toParam}
+            className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+          />
 
-          <button className="rounded border border-red-200 bg-red-600 px-4 py-3 text-base font-semibold text-white">🔍 검색</button>
+          <button className="rounded border border-red-200 bg-red-600 px-4 py-3 text-base font-semibold text-white">
+            🔍 검색
+          </button>
         </form>
 
         <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
           <span>
             페이지 <b>{page}</b>
           </span>
+
           {page > 1 ? (
             <Link
               className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600"
@@ -174,6 +211,7 @@ export default async function TripsPage({
           ) : (
             <span className="opacity-40">이전</span>
           )}
+
           {hasNextPage ? (
             <Link
               className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600"
@@ -192,34 +230,46 @@ export default async function TripsPage({
           </p>
         ) : (
           <>
-            {/* ✅ 모바일 카드: 높이 줄임 + 아이콘 상단 */}
+            {/* ✅ 모바일 카드 */}
             <div className="mt-5 grid gap-3 sm:hidden">
               {trips.map((t) => (
-                <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-3 text-sm shadow-sm">
+                <article
+                  key={t.id}
+                  className="rounded-2xl border border-red-100 bg-white p-3 text-sm shadow-sm"
+                >
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="whitespace-nowrap font-semibold">{t.date.toISOString().slice(0, 10)}</div>
-                      <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
+                      <div className="whitespace-nowrap font-semibold">
+                        {t.date.toISOString().slice(0, 10)}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        #{t.id.slice(0, 8)}
+                      </div>
                     </div>
 
                     <div className="flex shrink-0 items-center gap-3 text-gray-600">
                       <Link
                         href={`/trips/${t.id}`}
-                        className="hover:text-red-600 transition"
+                        className="transition hover:text-red-600"
                         aria-label="수정"
                         title="수정"
                       >
                         <PencilIcon className="h-[18px] w-[18px]" />
                       </Link>
 
-                      <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
+                      <form
+                        method="POST"
+                        action="/api/trips/delete"
+                        data-confirm-delete="1"
+                      >
                         <input type="hidden" name="id" value={t.id} />
                         <button
-                          className="hover:text-red-600 transition"
+                          type="submit"
+                          className="transition hover:text-red-600"
                           aria-label="삭제"
                           title="삭제"
                         >
-                          <Trash2Icon className="h-[20px] w-[18px]" />
+                          <Trash2Icon className="h-[18px] w-[18px]" />
                         </button>
                       </form>
                     </div>
@@ -228,12 +278,18 @@ export default async function TripsPage({
                   <dl className="mt-2 space-y-0.5">
                     <div className="grid grid-cols-[64px_1fr] items-start gap-1">
                       <dt className="text-gray-500">차량</dt>
-                      <dd className="break-keep leading-5">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</dd>
+                      <dd className="break-keep leading-5">
+                        {t.vehicle
+                          ? `${t.vehicle.model} / ${t.vehicle.plate}`
+                          : "-"}
+                      </dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-1">
                       <dt className="text-gray-500">운전자</dt>
-                      <dd className="break-keep leading-5">{t.driver?.name ?? "-"}</dd>
+                      <dd className="break-keep leading-5">
+                        {t.driver?.name ?? "-"}
+                      </dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-1">
@@ -243,14 +299,16 @@ export default async function TripsPage({
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-1">
                       <dt className="text-gray-500">통행료</dt>
-                      <dd className="leading-5">{formatNumber(t.tollCost)} 원</dd>
+                      <dd className="leading-5">
+                        {formatNumber(t.tollCost)} 원
+                      </dd>
                     </div>
                   </dl>
                 </article>
               ))}
             </div>
 
-            {/* ✅ PC 테이블: Lucide 아이콘으로 통일 */}
+            {/* ✅ PC 테이블: SVG 아이콘으로 통일 (lucide-react 불필요) */}
             <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
               <table className="w-full border-collapse">
                 <thead>
@@ -268,36 +326,48 @@ export default async function TripsPage({
                 <tbody>
                   {trips.map((t) => (
                     <tr key={t.id} className="border-b">
-                      <td className="whitespace-nowrap p-2">{t.date.toISOString().slice(0, 10)}</td>
-                      <td className="whitespace-nowrap p-2">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
-                      <td className="whitespace-nowrap p-2">{t.driver?.name ?? "-"}</td>
+                      <td className="whitespace-nowrap p-2">
+                        {t.date.toISOString().slice(0, 10)}
+                      </td>
+                      <td className="whitespace-nowrap p-2">
+                        {t.vehicle
+                          ? `${t.vehicle.model} / ${t.vehicle.plate}`
+                          : "-"}
+                      </td>
+                      <td className="whitespace-nowrap p-2">
+                        {t.driver?.name ?? "-"}
+                      </td>
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                       <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
 
-<td className="p-2 text-right">
-  <Link
-    href={`/trips/${t.id}`}
-    className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
-    aria-label="수정"
-    title="수정"
-  >
-    <Pencil className="h-4 w-4" />
-  </Link>
-</td>
+                      <td className="p-2 text-right">
+                        <Link
+                          href={`/trips/${t.id}`}
+                          className="inline-flex items-center justify-end text-gray-600 transition hover:text-red-600"
+                          aria-label="수정"
+                          title="수정"
+                        >
+                          <PencilIcon className="h-4 w-4" />
+                        </Link>
+                      </td>
 
-<td className="p-2 text-right align-bottom">
-  <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-    <input type="hidden" name="id" value={t.id} />
-    <button
-      type="submit"
-      className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
-      aria-label="삭제"
-      title="삭제"
-    >
-      <Trash2 className="h-4 w-4" />
-    </button>
-  </form>
-</td>
+                      <td className="p-2 text-right align-bottom">
+                        <form
+                          method="POST"
+                          action="/api/trips/delete"
+                          data-confirm-delete="1"
+                        >
+                          <input type="hidden" name="id" value={t.id} />
+                          <button
+                            type="submit"
+                            className="inline-flex items-center justify-end text-gray-600 transition hover:text-red-600"
+                            aria-label="삭제"
+                            title="삭제"
+                          >
+                            <Trash2Icon className="h-4 w-4" />
+                          </button>
+                        </form>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
