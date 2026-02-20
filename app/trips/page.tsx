@@ -243,6 +243,7 @@ export default async function TripsPage({
           });
         `}
       </Script>
+      </section>
     </main>
   );
 }

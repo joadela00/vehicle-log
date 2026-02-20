@@ -25,16 +25,16 @@ export default async function AdminLoginPage({
         </p>
       ) : null}
 
-      <form method="POST" action="/api/admin/login" className="mt-6 grid gap-3">
-        <label className="grid gap-1">
-          <span>비밀번호</span>
-          <input
-            name="password"
-            type="password"
-            required
-            className="border rounded px-3 py-2"
-          />
-        </label>
+        <form method="POST" action="/api/admin/login" className="mt-6 grid gap-3">
+          <label className="grid gap-1">
+            <span>비밀번호</span>
+            <input
+              name="password"
+              type="password"
+              required
+              className="rounded border px-3 py-2"
+            />
+          </label>
 
         <button className="bg-red-600 text-white rounded px-4 py-2">
           🔑 로그인
