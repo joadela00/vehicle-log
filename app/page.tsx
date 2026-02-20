@@ -185,7 +185,7 @@ export default async function Home({
           </label>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500 sm:w-auto">
-            💾 저장
+            저장
           </button>
         </form>
       </section>
