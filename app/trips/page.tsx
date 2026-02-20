@@ -97,7 +97,7 @@ export default async function TripsPage({
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
           <Link
-            className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 underline decoration-red-300 underline-offset-4 hover:text-red-600"
+           className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
             href="/"
           >
             🏠 홈으로
@@ -175,20 +175,19 @@ export default async function TripsPage({
                     </div>
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="text-gray-500">통행료</dt>
-                      <dd className="flex items-center justify-between gap-3">
-                        <span>{formatNumber(t.tollCost)} 원</span>
-                        <span className="flex items-center gap-3">
-                          <Link href={`/trips/${t.id}`} className="text-red-700">
-                            ✏️
-                          </Link>
-                          <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-                            <input type="hidden" name="id" value={t.id} />
-                            <button className="text-red-700">🗑️</button>
-                          </form>
-                        </span>
-                      </dd>
+                      <dd>{formatNumber(t.tollCost)} 원</dd>
                     </div>
                   </dl>
+
+                  <div className="mt-3 flex justify-end gap-3">
+                    <Link href={`/trips/${t.id}`} className="text-red-700">
+                      ✏️
+                    </Link>
+                    <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
+                      <input type="hidden" name="id" value={t.id} />
+                      <button className="text-red-700">🗑️</button>
+                    </form>
+                  </div>
                 </article>
               ))}
             </div>
@@ -202,8 +201,8 @@ export default async function TripsPage({
                     <th className="p-2 text-left">운전자</th>
                     <th className="p-2 text-right">실제주행거리(km)</th>
                     <th className="p-2 text-right">통행료(원)</th>
-                    <th className="p-2 text-right">✏️ 수정</th>
-                    <th className="p-2 text-right">🗑️ 삭제</th>
+                    <th className="p-2 text-right">수정</th>
+                    <th className="p-2 text-right">삭제</th>
                   </tr>
                 </thead>
 
