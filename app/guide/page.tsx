@@ -69,7 +69,7 @@ export default function GuidePage() {
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="rounded-xl border border-red-200 bg-white px-3 py-2">
-                <div className="text-xs text-gray-500">사고 신고 (redcap투어)</div>
+                <div className="text-sm text-gray-500">사고 신고 (redcap투어)</div>
                 <div className="text-base font-extrabold text-red-700">1544-4599</div>
               </div>
               <div className="rounded-xl border border-red-200 bg-white px-3 py-2">
@@ -80,7 +80,7 @@ export default function GuidePage() {
           </div>
         </div>
 
-        <div className="mt-6 space-y-8 text-sm text-gray-800 sm:text-base">
+        <div className="mt-6 space-y-8 text-lg text-gray-800 sm:text-base">
           {/* 1 */}
           <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="text-lg font-bold">1) 차량 사고 시 조치사항</h2>
@@ -158,7 +158,7 @@ export default function GuidePage() {
                 {/* 이것도 “절차”라 1,2,3 유지 */}
                 <ol className="mt-3 space-y-2">
                   <NumItem n={1}>
-                    하이패스 잔액이 부족하거나 주차료가 생기면, <b>운자가 먼저 결제</b>해 주세요.
+                    하이패스 잔액이 부족하거나 주차료가 생기면, <b>운전자가 먼저 결제</b>해 주세요.
                   </NumItem>
 
                   <NumItem n={2}>
