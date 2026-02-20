@@ -179,34 +179,62 @@ export default function GuidePage() {
           </section>
 
           {/* 3 */}
-          <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
-            <h2 className="text-lg font-bold">3) 기타 유의사항</h2>
+<section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
+  <h2 className="text-lg font-bold">3) 기타 유의사항</h2>
 
-            <ul className="mt-4 space-y-2">
-              <BulletItem icon=" ">
-                전기차는 사용 후 <b className="text-red-700">충전기 꽂기</b>를 부탁드려요.
-              </BulletItem>
+  <ul className="mt-4 space-y-2">
 
-              <BulletItem icon=" ">
-                사용 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고, <b className="text-red-700">운행일지</b>를 작성해 주세요.
-              </BulletItem>
+    <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </span>
+      <div className="break-keep leading-7">
+        전기차는 사용 후 <b className="text-red-700">충전기를 꼭 연결</b>해 주세요.
+      </div>
+    </li>
 
-              <BulletItem icon=" ">
-                과태료는 <b className="text-red-700">해당일 차량사용자</b>가 개별 납부해 주세요.
-              </BulletItem>
+    <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </span>
+      <div className="break-keep leading-7">
+        운행 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고,
+        <b className="text-red-700"> 운행일지를 작성</b>해 주세요.
+      </div>
+    </li>
 
-              <BulletItem icon="🚭" tone="danger">
-                차량 내 <span className="inline-flex items-center rounded-full bg-red-700 px-3 py-1 text-xs font-extrabold text-white">금연</span>이에요.
-                <span className="ml-2 inline-flex items-center rounded bg-white px-2 py-0.5 text-xs font-semibold text-red-700">
-                  꼭 지켜주세요
-                </span>
-              </BulletItem>
+    <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </span>
+      <div className="break-keep leading-7">
+        과태료는 <b className="text-red-700">해당일 차량사용자</b>가 납부해 주세요.
+      </div>
+    </li>
 
-              <BulletItem icon=" ">
-                내리기 전에 <b>소지품</b>을 한 번만 확인해 주시고, <b>쓰레기</b>도 정리 부탁드려요.
-              </BulletItem>
-            </ul>
-          </section>
+    <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2">
+      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </span>
+      <div className="break-keep leading-7">
+        차량 내 <b className="text-red-700">금연</b>입니다.
+        <span className="ml-2 inline-flex items-center rounded bg-white px-2 py-0.5 text-xs font-semibold text-red-700">
+          꼭 지켜주세요
+        </span>
+      </div>
+    </li>
+
+    <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
+      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
+        <span className="h-2 w-2 rounded-full bg-white" />
+      </span>
+      <div className="break-keep leading-7">
+        하차 전 <b>소지품</b>을 확인하고, 차량 내 <b>쓰레기 정리</b>를 부탁드립니다.
+      </div>
+    </li>
+
+  </ul>
+</section>
         </div>
       </section>
     </main>
