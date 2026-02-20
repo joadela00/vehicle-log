@@ -69,13 +69,13 @@ export default async function AdminPage() {
 
         <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
           <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
-            이번달 운행 건수: <b>{totals._count}</b>
+            이번달 운행 건수: <b>{totals._count}</b> 회
           </div>
           <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
             이번달 주행 합계: <b>{totals._sum.distance ?? 0}</b> km
           </div>
           <div className="rounded-2xl border border-red-100 bg-white/95 px-3 py-3 text-sm shadow-sm sm:text-base">
-            이번달 통행료 합계: <b>{totals._sum.tollCost ?? 0}</b> 원
+            이번달 통행료 합계: <b>{(totals._sum.tollCost ?? 0).toLocaleString()}</b> 원
           </div>
         </div>
 
