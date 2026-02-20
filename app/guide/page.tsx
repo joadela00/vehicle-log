@@ -63,7 +63,7 @@ export default function GuidePage() {
                 나. 사용 후 계기판, 하이패스 잔액 확인하시고 차량운행일지 작성 부탁드립니다.
               </li>
               <li>다. 업무용 차량 과태료 : 해당일 차량사용자가 개별 납부</li>
-              <li>라. 차량 내  <p className= "underline decoration-red-300 underline-offset-4">금연</p>입니다.</li>
+              <li>라. 차량 내  <p className= "underline decoration-red-300 underline-offset-4"> 금연 </p>입니다.</li>
               <li>
                 마. 차량 사용 후 소지품은 꼭 챙겨주시고, 차량 내 발생한 쓰레기는 정리 부탁드립니다.
               </li>
