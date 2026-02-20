@@ -247,14 +247,14 @@ export default async function TripsPage({
                       </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-3 text-gray-600">
+                    <div className="flex shrink-0 items-center gap-2 text-gray-600">
                       <Link
                         href={`/trips/${t.id}`}
-                        className="transition hover:text-red-600"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
                         aria-label="수정"
                         title="수정"
                       >
-                        <PencilIcon className="h-[18px] w-[18px]" />
+                        <PencilIcon className="h-4 w-4" />
                       </Link>
 
                       <form
@@ -265,11 +265,11 @@ export default async function TripsPage({
                         <input type="hidden" name="id" value={t.id} />
                         <button
                           type="submit"
-                          className="transition hover:text-red-600"
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
                           aria-label="삭제"
                           title="삭제"
                         >
-                          <Trash2Icon className="h-[18px] w-[18px]" />
+                          <Trash2Icon className="h-4 w-4" />
                         </button>
                       </form>
                     </div>
@@ -308,7 +308,7 @@ export default async function TripsPage({
               ))}
             </div>
 
-            {/* ✅ PC 테이블: SVG 아이콘으로 통일 (lucide-react 불필요) */}
+            {/* ✅ PC 테이블 */}
             <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
               <table className="w-full border-collapse">
                 <thead>
@@ -318,8 +318,7 @@ export default async function TripsPage({
                     <th className="p-2 text-left">운전자</th>
                     <th className="p-2 text-right">실제주행거리(km)</th>
                     <th className="p-2 text-right">통행료(원)</th>
-                    <th className="p-2 text-right">수정</th>
-                    <th className="p-2 text-right">삭제</th>
+                    <th className="p-2 text-right">작업</th>
                   </tr>
                 </thead>
 
@@ -340,33 +339,33 @@ export default async function TripsPage({
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                       <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
 
-                      <td className="p-2 text-right">
-                        <Link
-                          href={`/trips/${t.id}`}
-                          className="inline-flex items-center justify-end text-gray-600 transition hover:text-red-600"
-                          aria-label="수정"
-                          title="수정"
-                        >
-                          <PencilIcon className="h-4 w-4" />
-                        </Link>
-                      </td>
-
-                      <td className="p-2 text-right align-bottom">
-                        <form
-                          method="POST"
-                          action="/api/trips/delete"
-                          data-confirm-delete="1"
-                        >
-                          <input type="hidden" name="id" value={t.id} />
-                          <button
-                            type="submit"
-                            className="inline-flex items-center justify-end text-gray-600 transition hover:text-red-600"
-                            aria-label="삭제"
-                            title="삭제"
+                      <td className="p-2">
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/trips/${t.id}`}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                            aria-label="수정"
+                            title="수정"
                           >
-                            <Trash2Icon className="h-4 w-4" />
-                          </button>
-                        </form>
+                            <PencilIcon className="h-4 w-4" />
+                          </Link>
+
+                          <form
+                            method="POST"
+                            action="/api/trips/delete"
+                            data-confirm-delete="1"
+                          >
+                            <input type="hidden" name="id" value={t.id} />
+                            <button
+                              type="submit"
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                              aria-label="삭제"
+                              title="삭제"
+                            >
+                              <Trash2Icon className="h-4 w-4" />
+                            </button>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   ))}
