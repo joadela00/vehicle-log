@@ -92,7 +92,7 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
           </label>
 
           <p className="text-xs text-gray-500 sm:text-sm">
-            현재 값: 주행거리 {formatNumber(trip.odoEnd)} km / 하이패스 {formatNumber(trip.hipassBalance)} 원
+            기존값: 주행거리 {formatNumber(trip.odoEnd)} km / 하이패스 {formatNumber(trip.hipassBalance)} 원
           </p>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500 sm:w-auto">
