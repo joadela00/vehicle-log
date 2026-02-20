@@ -10,7 +10,7 @@ export default function GuidePage() {
             href="/"
             className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-400 hover:text-red-600"
           >
-            홈으로
+            🏠홈으로
           </Link>
         </div>
 
