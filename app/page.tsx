@@ -51,23 +51,23 @@ export default async function Home({
         ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link
+         <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/admin"
+            href="/guide"
           >
-            🛠️ 관리자
+            📢 운행안내
           </Link>
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href="/trips"
           >
-            📚 운행일지 목록
+            📚 운행목록
           </Link>
-          <Link
+           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/guide"
+            href="/admin"
           >
-            📢 운행 안내사항
+            🛠️ 관리자
           </Link>
         </div>
 
