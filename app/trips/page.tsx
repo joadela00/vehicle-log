@@ -200,15 +200,15 @@ export default async function TripsPage({
                 <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                 <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
                 <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                    ✏️ 수정
+                  <Link href={`/trips/${t.id}`} className="text-red-900">
+                    ✏️
                   </Link>
                 </td>
 
                 <td className="p-2 text-right align-bottom">
                   <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-700 underline">🗑️ 삭제</button>
+                    <button className="text-red-900">🗑️</button>
                   </form>
                 </td>
               </tr>
