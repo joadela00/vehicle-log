@@ -49,9 +49,7 @@ export default function GuidePage() {
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-bold sm:text-2xl">📢 업무용 차량 운행 안내</h1>
-            <p className="mt-1 text-xs text-gray-500 sm:text-sm break-keep">
-              필요한 내용만 짧게 정리했어요. 안전운행 부탁드려요 🙂
-            </p>
+
           </div>
 
           <Link
@@ -67,9 +65,6 @@ export default function GuidePage() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
               <div className="text-sm font-bold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요 🚨</div>
-              <p className="mt-1 text-xs text-red-700 break-keep">
-                당신은 소즁하니까
-              </p>
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -179,11 +174,13 @@ export default function GuidePage() {
           </section>
 
           {/* 3 */}
+
 <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
   <h2 className="text-lg font-bold">3) 기타 유의사항</h2>
 
   <ul className="mt-4 space-y-2">
 
+    {/* 기본 항목 */}
     <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2">
       <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
         <span className="h-2 w-2 rounded-full bg-white" />
@@ -198,7 +195,7 @@ export default function GuidePage() {
         <span className="h-2 w-2 rounded-full bg-white" />
       </span>
       <div className="break-keep leading-7">
-        운행 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고,
+        운행 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고
         <b className="text-red-700"> 운행일지를 작성</b>해 주세요.
       </div>
     </li>
@@ -212,12 +209,15 @@ export default function GuidePage() {
       </div>
     </li>
 
+    {/* 🚭 금연 항목 (요청한 코드 적용) */}
     <li className="grid grid-cols-[28px_1fr] items-start gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2">
-      <span className="mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-900">
-        <span className="h-2 w-2 rounded-full bg-white" />
-      </span>
+      <span className="mt-1 text-lg">🚭</span>
       <div className="break-keep leading-7">
-        차량 내 <b className="text-red-700">금연</b>입니다.
+        차량 내{" "}
+        <span className="inline-flex items-center rounded-full bg-red-700 px-3 py-1 text-xs font-extrabold text-white">
+          금연
+        </span>
+        입니다.
         <span className="ml-2 inline-flex items-center rounded bg-white px-2 py-0.5 text-xs font-semibold text-red-700">
           꼭 지켜주세요
         </span>
@@ -229,12 +229,14 @@ export default function GuidePage() {
         <span className="h-2 w-2 rounded-full bg-white" />
       </span>
       <div className="break-keep leading-7">
-        하차 전 <b>소지품</b>을 확인하고, 차량 내 <b>쓰레기 정리</b>를 부탁드립니다.
+        하차 전 <b>소지품</b>을 확인하고 차량 내 <b>쓰레기 정리</b>를 부탁드립니다.
       </div>
     </li>
 
   </ul>
 </section>
+
+          
         </div>
       </section>
     </main>
