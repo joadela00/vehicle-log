@@ -1,9 +1,9 @@
 import Link from "next/link";
-import Script from "next/script";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
+import DeleteConfirmScript from "./delete-confirm-script";
 
 export const revalidate = 30;
 
