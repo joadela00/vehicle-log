@@ -219,7 +219,7 @@ export default async function TripsPage({
 
       <p className="mt-6">
         <Link className="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
-          ⬅️ 입력으로
+          ⬅️ 홈으로
         </Link>
       </p>
 
