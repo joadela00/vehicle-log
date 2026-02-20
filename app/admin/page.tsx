@@ -152,7 +152,7 @@ export default async function AdminPage() {
 
         <p className="mt-6">
           <Link className="rounded-xl border border-red-200 px-3 py-2 hover:text-red-600" href="/">
-            ⬅️ 입력으로
+            ⬅️ 홈으로
           </Link>
         </p>
       </section>
