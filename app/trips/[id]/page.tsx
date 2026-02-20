@@ -1,120 +1,208 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import Script from "next/script";
+import { unstable_cache } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import CommaNumberInput from "@/components/comma-number-input";
 import { formatNumber } from "@/lib/number";
 
-export default async function TripDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export const revalidate = 30;
 
-  const trip = await prisma.trip.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      date: true,
-      vehicleId: true,
-      driverId: true,
-      odoEnd: true,
-      evRemainPct: true,
-      hipassBalance: true,
-      distance: true,
-      tollCost: true,
-      createdAt: true,
-    },
-  });
+const PAGE_SIZE = 50;
 
-  if (!trip) return notFound();
-
-  const [vehicle, driver] = await Promise.all([
-    prisma.vehicle.findUnique({
-      where: { id: trip.vehicleId },
+const getVehicles = unstable_cache(
+  () =>
+    prisma.vehicle.findMany({
+      orderBy: { plate: "asc" },
       select: { id: true, model: true, plate: true },
     }),
-    trip.driverId
-      ? prisma.driver.findUnique({
-          where: { id: trip.driverId },
-          select: { id: true, name: true },
-        })
-      : null,
+  ["vehicles-list"],
+  { revalidate: 60 * 60 }
+);
+
+function getCurrentMonthDateRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    from: start.toISOString().slice(0, 10),
+    to: end.toISOString().slice(0, 10),
+  };
+}
+
+export default async function TripsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    vehicleId?: string;
+    from?: string;
+    to?: string;
+    page?: string;
+    deleted?: string;
+  }>;
+}) {
+  const params = await searchParams;
+  const currentMonth = getCurrentMonthDateRange();
+
+  const vehicleId = params?.vehicleId || "";
+  const fromParam = params?.from || currentMonth.from;
+  const toParam = params?.to || currentMonth.to;
+  const deleted = params?.deleted === "1";
+
+  const parsedPage = Number(params?.page || "1");
+  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
+
+  const from = new Date(fromParam + "T00:00:00");
+  const to = new Date(toParam + "T23:59:59");
+
+  const where: Prisma.TripWhereInput = {
+    date: { gte: from, lte: to },
+    ...(vehicleId ? { vehicleId } : {}),
+  };
+
+  const [vehicles, tripsRaw] = await Promise.all([
+    getVehicles(),
+    prisma.trip.findMany({
+      where,
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE + 1,
+      select: {
+        id: true,
+        date: true,
+        vehicleId: true,
+        distance: true,
+        tollCost: true,
+        vehicle: { select: { model: true, plate: true } },
+        driver: { select: { name: true } },
+      },
+    }),
   ]);
 
+  const hasNextPage = tripsRaw.length > PAGE_SIZE;
+  const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
+
+  const makePageHref = (nextPage: number) => {
+    const query = new URLSearchParams();
+    if (vehicleId) query.set("vehicleId", vehicleId);
+    query.set("from", fromParam);
+    query.set("to", toParam);
+    query.set("page", String(nextPage));
+    return `/trips?${query.toString()}`;
+  };
+
   return (
-    <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold sm:text-2xl">🧾 운행일지 상세</h1>
-        <Link href="/trips" className="rounded border px-3 py-2 text-sm">
-          ⬅️ 목록으로
-        </Link>
-      </div>
-
-      <div className="mt-5 space-y-2 rounded-2xl border border-red-100 bg-white/95 p-5 shadow-sm text-sm sm:text-base">
-        <div>
-          <b>날짜</b>: {trip.date.toISOString().slice(0, 10)}
-        </div>
-        <div>
-          <b>차량</b>: {vehicle ? `${vehicle.model} / ${vehicle.plate}` : "-"}
-        </div>
-        <div>
-          <b>운전자</b>: {driver?.name ?? "-"}
-        </div>
-        <div>
-          <b>실제주행거리(km)</b>: {formatNumber(trip.distance)}
-        </div>
-        <div>
-          <b>통행료(원)</b>: {formatNumber(trip.tollCost)}
-        </div>
-        <div>
-          <b>하이패스 잔액</b>: {formatNumber(trip.hipassBalance)}
+    <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
+      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
+          <Link
+            className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
+            href="/"
+          >
+            🏠 홈으로
+          </Link>
         </div>
 
-        <form method="POST" action="/api/trips/update" className="mt-5 grid gap-4">
-          <input type="hidden" name="id" value={trip.id} />
+        {deleted && (
+          <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            🗑️ 삭제되었습니다.
+          </p>
+        )}
 
-          <label className="grid gap-1">
-            <span className="text-sm sm:text-base">계기판 최종 주행거리(누적 km)</span>
-            <CommaNumberInput
-              name="odoEnd"
-              required
-              defaultValue={trip.odoEnd}
-              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
+        {/* 검색 */}
+        <form className="mt-4 grid grid-cols-1 gap-2 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-3">
+          <select name="vehicleId" defaultValue={vehicleId} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm">
+            <option value="">전체 차량</option>
+            {vehicles.map((v) => (
+              <option key={v.id} value={v.id}>
+                {v.model} / {v.plate}
+              </option>
+            ))}
+          </select>
 
-          <label className="grid gap-1">
-            <span className="text-sm sm:text-base">전기 잔여(%)</span>
-            <select
-              name="evRemainPct"
-              required
-              defaultValue={String(trip.evRemainPct)}
-              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            >
-              {[20, 40, 60, 80, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}%
-                </option>
-              ))}
-            </select>
-          </label>
+          <input type="date" name="from" defaultValue={fromParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
+          <input type="date" name="to" defaultValue={toParam} className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm" />
 
-          <label className="grid gap-1">
-            <span className="text-sm sm:text-base">하이패스 잔액(원)</span>
-            <CommaNumberInput
-              name="hipassBalance"
-              required
-              defaultValue={trip.hipassBalance}
-              className="rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
-
-          <button className="rounded bg-red-600 px-4 py-3 text-base font-semibold text-white">
-            ✅ 수정 저장
+          <button className="rounded border border-red-200 bg-red-600 px-4 py-3 text-base font-semibold text-white">
+            🔍 검색
           </button>
         </form>
-      </div>
+
+        {/* 페이지 */}
+        <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
+          <span>
+            페이지 <b>{page}</b>
+          </span>
+          {page > 1 ? (
+            <Link className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600" href={makePageHref(page - 1)}>
+              이전
+            </Link>
+          ) : (
+            <span className="opacity-40">이전</span>
+          )}
+          {hasNextPage ? (
+            <Link className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600" href={makePageHref(page + 1)}>
+              다음
+            </Link>
+          ) : (
+            <span className="opacity-40">다음</span>
+          )}
+        </div>
+
+        {/* 모바일 카드 */}
+        <div className="mt-5 grid gap-3 sm:hidden">
+          {trips.map((t) => (
+            <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-3 text-sm shadow-sm">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="font-semibold">{t.date.toISOString().slice(0, 10)}</div>
+                  <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Link href={`/trips/${t.id}`} className="text-red-700">✏️</Link>
+                  <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
+                    <input type="hidden" name="id" value={t.id} />
+                    <button className="text-red-700">🗑️</button>
+                  </form>
+                </div>
+              </div>
+
+              <dl className="mt-2 space-y-0.5">
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">차량</dt>
+                  <dd>{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">운전자</dt>
+                  <dd>{t.driver?.name ?? "-"}</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">주행거리</dt>
+                  <dd>{formatNumber(t.distance)} km</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">통행료</dt>
+                  <dd>{formatNumber(t.tollCost)} 원</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
+
+      </section>
+
+      <Script id="confirm-trip-delete" strategy="afterInteractive">
+        {`
+          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+              const ok = window.confirm('정말 삭제하시겠습니까?');
+              if (!ok) event.preventDefault();
+            });
+          });
+        `}
+      </Script>
     </main>
   );
 }
