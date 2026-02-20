@@ -1,10 +1,30 @@
 import Link from "next/link";
-import Script from "next/script";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
-import { Pencil, Trash2 } from "lucide-react";
+import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
+
+function PencilIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
+  );
+}
+
+function Trash2Icon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M3 6h18" />
+      <path d="M8 6V4h8v2" />
+      <path d="M19 6l-1 14H6L5 6" />
+      <path d="M10 11v6" />
+      <path d="M14 11v6" />
+    </svg>
+  );
+}
 
 export const revalidate = 30;
 
@@ -179,7 +199,7 @@ export default async function TripsPage({
                         aria-label="수정"
                         title="수정"
                       >
-                        <Pencil size={18} strokeWidth={1.8} />
+                        <PencilIcon className="h-[18px] w-[18px]" />
                       </Link>
 
                       <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
@@ -189,7 +209,7 @@ export default async function TripsPage({
                           aria-label="삭제"
                           title="삭제"
                         >
-                          <Trash2 size={18} strokeWidth={1.8} />
+                          <Trash2Icon className="h-[18px] w-[18px]" />
                         </button>
                       </form>
                     </div>
@@ -251,7 +271,7 @@ export default async function TripsPage({
                           aria-label="수정"
                           title="수정"
                         >
-                          <Pencil size={18} strokeWidth={1.8} />
+                          <PencilIcon className="h-[18px] w-[18px]" />
                         </Link>
                       </td>
 
@@ -263,7 +283,7 @@ export default async function TripsPage({
                             aria-label="삭제"
                             title="삭제"
                           >
-                            <Trash2 size={18} strokeWidth={1.8} />
+                            <Trash2Icon className="h-[18px] w-[18px]" />
                           </button>
                         </form>
                       </td>
@@ -276,18 +296,7 @@ export default async function TripsPage({
         )}
       </section>
 
-      <Script id="confirm-trip-delete" strategy="afterInteractive">
-        {`
-          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
-            form.addEventListener('submit', (event) => {
-              const ok = window.confirm('정말 삭제하시겠습니까?');
-              if (!ok) {
-                event.preventDefault();
-              }
-            });
-          });
-        `}
-      </Script>
+      <DeleteConfirmScript />
     </main>
   );
 }
