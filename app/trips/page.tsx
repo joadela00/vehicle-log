@@ -60,6 +60,7 @@ export default async function TripsPage({
     to?: string;
     page?: string;
     deleted?: string;
+    deleteError?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -69,6 +70,7 @@ export default async function TripsPage({
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
   const deleted = params?.deleted === "1";
+  const deleteError = params?.deleteError || "";
 
   const parsedPage = Number(params?.page || "1");
   const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
@@ -128,6 +130,14 @@ export default async function TripsPage({
         {deleted ? (
           <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
             🗑️ 삭제되었습니다.
+          </p>
+        ) : null}
+
+        {deleteError ? (
+          <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+            {deleteError === "auth"
+              ? "관리자 비밀번호가 틀려 삭제할 수 없습니다."
+              : "서버 설정 오류로 삭제할 수 없습니다."}
           </p>
         ) : null}
 
