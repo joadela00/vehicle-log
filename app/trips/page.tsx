@@ -340,7 +340,7 @@ export default async function TripsPage({
                       <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
 
                       <td className="p-2">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1">
                           <Link
                             href={`/trips/${t.id}`}
                             className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
