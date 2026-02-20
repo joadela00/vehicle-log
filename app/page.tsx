@@ -133,7 +133,7 @@ export default async function Home({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">
-              📍 계기 최종 주행거리(누적 km)
+              📍 최종 주행거리(누적 km)
             </span>
             <input
               name="odoEnd"
