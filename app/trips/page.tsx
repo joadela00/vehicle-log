@@ -274,29 +274,30 @@ export default async function TripsPage({
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                       <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
 
-                      <td className="p-2 text-right">
-                        <Link
-                          href={`/trips/${t.id}`}
-                          className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
-                          aria-label="수정"
-                          title="수정"
-                        >
-                          <PencilIcon className="h-[18px] w-[18px]" />
-                        </Link>
-                      </td>
+<td className="p-2 text-right">
+  <Link
+    href={`/trips/${t.id}`}
+    className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
+    aria-label="수정"
+    title="수정"
+  >
+    <Pencil className="h-4 w-4" />
+  </Link>
+</td>
 
-                      <td className="p-2 text-right align-bottom">
-                        <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-                          <input type="hidden" name="id" value={t.id} />
-                          <button
-                            className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
-                            aria-label="삭제"
-                            title="삭제"
-                          >
-                            <Trash2Icon className="h-[18px] w-[18px]" />
-                          </button>
-                        </form>
-                      </td>
+<td className="p-2 text-right align-bottom">
+  <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
+    <input type="hidden" name="id" value={t.id} />
+    <button
+      type="submit"
+      className="inline-flex items-center justify-end text-gray-600 hover:text-red-600 transition"
+      aria-label="삭제"
+      title="삭제"
+    >
+      <Trash2 className="h-4 w-4" />
+    </button>
+  </form>
+</td>
                     </tr>
                   ))}
                 </tbody>
