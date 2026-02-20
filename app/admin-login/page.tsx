@@ -37,9 +37,9 @@ export default async function AdminLoginPage({
             className="rounded border px-3 py-2"
           />
         </label>
-          <button className="rounded bg-red-600 px-4 py-2 text-white">🔑 로그인</button>
-
-      </form>
+         <button className="rounded bg-red-600 px-4 py-2 text-white">🔑 로그인</button>
+        </form>
+      </section>
     </main>
-
+  );
 }
