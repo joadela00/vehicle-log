@@ -1,194 +1,215 @@
 import Link from "next/link";
+import Script from "next/script";
 import { unstable_cache } from "next/cache";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { formatNumber } from "@/lib/number";
+import { Pencil, Trash2 } from "lucide-react";
 
-export const revalidate = 60;
+export const revalidate = 30;
+
+const PAGE_SIZE = 50;
 
 const getVehicles = unstable_cache(
-  () => prisma.vehicle.findMany({ orderBy: { plate: "asc" } }),
-  ["home-vehicles"],
-  { revalidate: 60 },
+  () =>
+    prisma.vehicle.findMany({
+      orderBy: { plate: "asc" },
+      select: { id: true, model: true, plate: true },
+    }),
+  ["vehicles-list"],
+  { revalidate: 60 * 60 }
 );
 
-export default async function Home({
+function getCurrentMonthDateRange() {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+  return {
+    from: start.toISOString().slice(0, 10),
+    to: end.toISOString().slice(0, 10),
+  };
+}
+
+export default async function TripsPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ saved?: string }>;
+  searchParams: Promise<{
+    vehicleId?: string;
+    from?: string;
+    to?: string;
+    page?: string;
+    deleted?: string;
+  }>;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
   const params = await searchParams;
-  const saved = params?.saved === "1";
+  const currentMonth = getCurrentMonthDateRange();
 
-  const vehicles = await getVehicles();
+  const vehicleId = params?.vehicleId || "";
+  const fromParam = params?.from || currentMonth.from;
+  const toParam = params?.to || currentMonth.to;
+  const deleted = params?.deleted === "1";
+
+  const parsedPage = Number(params?.page || "1");
+  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
+
+  const from = new Date(fromParam + "T00:00:00");
+  const to = new Date(toParam + "T23:59:59");
+
+  const where: Prisma.TripWhereInput = {
+    date: { gte: from, lte: to },
+    ...(vehicleId ? { vehicleId } : {}),
+  };
+
+  const [vehicles, tripsRaw] = await Promise.all([
+    getVehicles(),
+    prisma.trip.findMany({
+      where,
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      skip: (page - 1) * PAGE_SIZE,
+      take: PAGE_SIZE + 1,
+      select: {
+        id: true,
+        date: true,
+        distance: true,
+        tollCost: true,
+        vehicle: { select: { model: true, plate: true } },
+        driver: { select: { name: true } },
+      },
+    }),
+  ]);
+
+  const hasNextPage = tripsRaw.length > PAGE_SIZE;
+  const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
+
+  const makePageHref = (nextPage: number) => {
+    const query = new URLSearchParams();
+    if (vehicleId) query.set("vehicleId", vehicleId);
+    query.set("from", fromParam);
+    query.set("to", toParam);
+    query.set("page", String(nextPage));
+    return `/trips?${query.toString()}`;
+  };
 
   return (
-    <main
-      className="
-        mx-auto w-full max-w-3xl
-        p-4 sm:p-6
-        overflow-x-clip
-        pb-[calc(1rem+env(safe-area-inset-bottom))]
-        px-[calc(1rem+env(safe-area-inset-left))]
-        pr-[calc(1rem+env(safe-area-inset-right))]
-      "
-    >
-      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
-  
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
-            <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">인천경기 차량 운행일지</h1>
-            <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
-          </div>
-{/* <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-red-50 text-xl">❤️</span>  */}
-        </div>
+    <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
+      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-sm sm:p-7">
 
-
-        {saved ? (
-          <p className="mt-4 rounded-2xl border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
-            💾 저장되었습니다.
-          </p>
-        ) : null}
-
-        <div className="mt-4 flex flex-wrap gap-2 text-sm">
-         <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/guide"
-          >
-            📢 운행안내
-          </Link>
+        {/* 제목 */}
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-xl font-bold sm:text-2xl">
+            📋 운행일지 전체 목록
+          </h1>
           <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/trips"
+            className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
+            href="/"
           >
-            📚 운행목록
-          </Link>
-           <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/admin"
-          >
-            🛠️ 관리자
+            🏠 홈으로
           </Link>
         </div>
 
-        <form
-          method="POST"
-          action="/api/trips/create"
-          className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
-        >
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
-            <input
-              name="date"
-              type="date"
-              required
-              defaultValue={today}
-              className="block w-full max-w-full box-border min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-              style={{
-                WebkitAppearance: "none",
-                appearance: "none",
-              }}
-            />
-          </label>
-
-          <div className="grid gap-2 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
-
-            <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
-              {vehicles.map((v, idx) => (
-                <label key={v.id} className="block min-w-0 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="vehicleId"
-                    value={v.id}
-                    defaultChecked={idx === 0}
-                    className="peer sr-only"
-                    required
-                  />
-
-                  <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
-                    <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
-                      ✔
-                    </span>
-                    <span className="block truncate text-xs opacity-80">
-                      {v.model}
-                    </span>
-                    <span className="mt-0.5 block truncate">{v.plate}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🙋 운전자</span>
-            <input
-              name="driverName"
-              type="text"
-              required
-              placeholder="예: 정태훈"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
-
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">
-              📍 최종 주행거리(누적 km)
-            </span>
-            <input
-              name="odoEnd"
-              required
-              placeholder="예: 12345"
-              inputMode="numeric"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
-
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">
-              🔋 전기 잔여(%)
-            </span>
-            <select
-              name="evRemainPct"
-              required
-              defaultValue="80"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+        {/* 페이지 표시 */}
+        <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
+          <span>
+            페이지 <b>{page}</b>
+          </span>
+          {page > 1 ? (
+            <Link
+              className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600"
+              href={makePageHref(page - 1)}
             >
-              {[20, 40, 60, 80, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}%
-                </option>
-              ))}
-            </select>
-          </label>
+              이전
+            </Link>
+          ) : (
+            <span className="opacity-40">이전</span>
+          )}
+          {hasNextPage ? (
+            <Link
+              className="rounded-lg border border-red-200 px-2 py-1 hover:text-red-600"
+              href={makePageHref(page + 1)}
+            >
+              다음
+            </Link>
+          ) : (
+            <span className="opacity-40">다음</span>
+          )}
+        </div>
 
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">
-              💳  하이패스 잔액(원)
-            </span>
-            <input
-              name="hipassBalance"
-              required
-              placeholder="예: 35000"
-              inputMode="numeric"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
+        {/* 모바일 카드 */}
+        <div className="mt-5 grid gap-3 sm:hidden">
+          {trips.map((t) => (
+            <article
+              key={t.id}
+              className="rounded-2xl border border-red-100 bg-white p-3 text-sm shadow-sm"
+            >
+              {/* 상단 라인 */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold">
+                    {t.date.toISOString().slice(0, 10)}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    #{t.id.slice(0, 8)}
+                  </div>
+                </div>
 
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm sm:text-base">메모(선택)</span>
-            <input
-              name="note"
-              type="text"
-              className="w-full min-w-0 rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
+                {/* Lucide 아이콘 */}
+                <div className="flex items-center gap-3 text-gray-600">
+                  <Link
+                    href={`/trips/${t.id}`}
+                    className="hover:text-red-600 transition"
+                  >
+                    <Pencil size={18} strokeWidth={1.8} />
+                  </Link>
 
-          <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500 sm:w-auto">
-            💾 저장
-          </button>
-        </form>
+                  <form
+                    method="POST"
+                    action="/api/trips/delete"
+                    data-confirm-delete="1"
+                  >
+                    <input type="hidden" name="id" value={t.id} />
+                    <button className="hover:text-red-600 transition">
+                      <Trash2 size={18} strokeWidth={1.8} />
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {/* 내용 */}
+              <dl className="mt-2 space-y-0.5">
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">차량</dt>
+                  <dd>{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">운전자</dt>
+                  <dd>{t.driver?.name ?? "-"}</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">주행거리</dt>
+                  <dd>{formatNumber(t.distance)} km</dd>
+                </div>
+                <div className="grid grid-cols-[64px_1fr] gap-1">
+                  <dt className="text-gray-500">통행료</dt>
+                  <dd>{formatNumber(t.tollCost)} 원</dd>
+                </div>
+              </dl>
+            </article>
+          ))}
+        </div>
       </section>
+
+      {/* 삭제 확인 */}
+      <Script id="confirm-trip-delete" strategy="afterInteractive">
+        {`
+          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+              const ok = window.confirm('정말 삭제하시겠습니까?');
+              if (!ok) event.preventDefault();
+            });
+          });
+        `}
+      </Script>
     </main>
   );
 }
