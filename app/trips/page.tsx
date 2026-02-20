@@ -209,7 +209,7 @@ export default async function TripsPage({
                           aria-label="삭제"
                           title="삭제"
                         >
-                          <Trash2Icon className="h-[18px] w-[18px]" />
+                          <Trash2Icon className="h-[20px] w-[18px]" />
                         </button>
                       </form>
                     </div>
