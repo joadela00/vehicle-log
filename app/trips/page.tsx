@@ -97,7 +97,7 @@ export default async function TripsPage({
         <div className="flex items-start justify-between gap-3">
           <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
           <Link
-            className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white "
+           className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
             href="/"
           >
             🏠 홈으로
