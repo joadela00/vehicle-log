@@ -140,7 +140,9 @@ export default function GuidePage() {
                   </NumItem>
 
                   <NumItem n={3}>
-                    충전구 위치 — EV3: 조수석 앞쪽 / 아이오닉5: 조수석 뒤쪽
+                    충전구 위치 
+                    — EV3: 조수석 앞쪽 
+                    — 아이오닉5: 조수석 뒤쪽
                   </NumItem>
                 </ol>
               </div>
