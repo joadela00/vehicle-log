@@ -46,7 +46,7 @@ export default function GuidePage() {
   return (
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
             <h1 className="text-xl font-bold sm:text-2xl">📢 업무용 차량 운행 안내</h1>
 
