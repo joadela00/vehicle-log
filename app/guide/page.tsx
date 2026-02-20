@@ -21,7 +21,7 @@ export default function GuidePage() {
             <ul className="mt-2 list-none space-y-2">
               <li>
                 가. 업무용 차량 사고 시 렌트업체로 전화하여 해당 차량번호를 알려주고 조치 요청
-                <p className="ml-4 text-gray-700">❍ redcap투어 사고 신고 콜센터: 1544-4599</p>
+                <p className="ml-4 text-orange-700"> redcap투어 사고 신고 콜센터: 1544-4599</p>
               </li>
               <li>나. 상대차량 과실로 발생된 사고도 신고</li>
               <li>다. 안전한 장소에서 조치가 이루어질 때까지 2차사고 등에 주의</li>
@@ -36,17 +36,17 @@ export default function GuidePage() {
               <p className="font-semibold">가. 전기차 충전카드</p>
               <ul className="ml-4 list-none space-y-1 text-gray-700">
                 <li>
-                  ❍ (충전소 이용) 충전방식 선택 시 C타입/DC콤보 선택 / 운전석쪽 카드꽂이에 있는 카드 사용
+                 <p className="font-semibold">(충전소 이용)</p> 충전방식 선택 시 C타입/DC콤보 선택 / 운전석쪽 카드꽂이에 있는 카드 사용
                 </li>
                 <li>
-                  ❍ 급속 이용 시 80%, 완속 이용 시 90% 내외로 충전 / 가급적 복귀 시 이용 전 충전율만큼 충전 요망
+                  급속 이용 시 80%, 완속 이용 시 90% 내외로 충전 / 가급적 복귀 시 이용 전 충전율만큼 충전 요망
                 </li>
-                <li>❍ (충전구 위치) EV3: 조수석 앞쪽 / 아이오닉5: 조수석 뒤쪽</li>
+                <li><p className="font-semibold"> (충전구 위치) </p> EV3: 조수석 앞쪽 / 아이오닉5: 조수석 뒤쪽</li>
               </ul>
               <p className="font-semibold">나. 운행 중 통행료와 주차요금은 주유카드로 결제 불가</p>
               <ul className="ml-4 list-none space-y-1 text-gray-700">
                 <li>
-                  ❍ 운행 중 통행료(하이패스 잔액 부족 시)와 주차료가 발생 하는 경우 배차 신청자가 우선 현금/개인카드로 지급 후 차량키 반납 시 영수증 제출
+                  운행 중 통행료(하이패스 잔액 부족 시)와 주차료가 발생 하는 경우 배차 신청자가 우선 현금/개인카드로 지급 후 차량키 반납 시 영수증 제출
                 </li>
                 <li>
                   ※ 주차비 지급한도: 3만원/ 지출품의를 위해 사전에 행정지원부로 유선 협의必
