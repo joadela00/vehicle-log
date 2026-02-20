@@ -41,6 +41,17 @@ export default async function TripsPage({
     deleted?: string;
   }>;
 }) {
+  const confirmDeleteScript = [
+    "document.querySelectorAll('form[data-confirm-delete=\"1\"]').forEach((form) => {",
+    "  form.addEventListener('submit', (event) => {",
+    "    const ok = window.confirm('정말 삭제하시겠습니까?');",
+    "    if (!ok) {",
+    "      event.preventDefault();",
+    "    }",
+    "  });",
+    "});",
+  ].join("\n");
+
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
 
