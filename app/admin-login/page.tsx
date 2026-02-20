@@ -36,7 +36,7 @@ export default async function AdminLoginPage({
 
       <p className="mt-6">
         <Link className="underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
-          ⬅️ 입력으로
+          ⬅️ 홈으로
         </Link>
       </p>
     </main>
