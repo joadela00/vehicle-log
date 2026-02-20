@@ -41,5 +41,5 @@ export default async function AdminLoginPage({
 
       </form>
     </main>
-  );
+
 }
