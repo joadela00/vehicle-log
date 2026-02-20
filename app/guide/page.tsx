@@ -64,7 +64,7 @@ export default function GuidePage() {
         <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-xl font-bold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요 🚨</div>
+              <div className="text-sm font-bold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요 🚨</div>
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -80,7 +80,7 @@ export default function GuidePage() {
           </div>
         </div>
 
-        <div className="mt-6 space-y-8 text-sm text-gray-800 sm:text-base">
+        <div className="mt-6 space-y-8 text-base text-gray-800 sm:text-lg">
           {/* 1 */}
           <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="text-lg font-bold">1) 차량 사고 시 조치사항</h2>
