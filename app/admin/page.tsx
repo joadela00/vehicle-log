@@ -156,6 +156,12 @@ export default async function AdminPage() {
             </tbody>
           </table>
         </div>
+
+        <p className="mt-6">
+          <Link className="rounded-xl border border-red-200 px-3 py-2 hover:text-red-600" href="/">
+            ⬅️ 홈으로
+          </Link>
+        </p>
       </section>
     </main>
   );

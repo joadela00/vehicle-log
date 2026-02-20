@@ -104,7 +104,6 @@ export default async function TripsPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
-      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
       <div className="flex items-start justify-between gap-3">
         <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
         <Link
@@ -185,12 +184,12 @@ export default async function TripsPage({
             </dl>
 
             <div className="mt-3 flex justify-end gap-3">
-              <Link href={`/trips/${t.id}`} className="text-red-700 underline">
+              <Link href={`/trips/${t.id}`} className="text-red-700">
                 ✏️
               </Link>
               <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                 <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-700 underline">🗑️</button>
+                <button className="text-red-700">🗑️</button>
               </form>
             </div>
           </article>
@@ -220,15 +219,15 @@ export default async function TripsPage({
                 <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                 <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
                 <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                    ✏️ 수정
+                  <Link href={`/trips/${t.id}`} className="text-red-900">
+                    ✏️
                   </Link>
                 </td>
 
                 <td className="p-2 text-right align-bottom">
                   <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
                     <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-700 underline">🗑️ 삭제</button>
+                    <button className="text-red-900">🗑️</button>
                   </form>
                 </td>
               </tr>
@@ -237,9 +236,24 @@ export default async function TripsPage({
         </table>
       </div>
 
-        <Script id="confirm-trip-delete" strategy="afterInteractive">
-          {confirmDeleteScript}
-        </Script>
+      <p className="mt-6">
+        <Link className="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 underline decoration-red-300 underline-offset-4 hover:text-red-600" href="/">
+          ⬅️ 홈으로
+        </Link>
+      </p>
+
+      <Script id="confirm-trip-delete" strategy="afterInteractive">
+        {`
+          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+              const ok = window.confirm('정말 삭제하시겠습니까?');
+              if (!ok) {
+                event.preventDefault();
+              }
+            });
+          });
+        `}
+      </Script>
       </section>
     </main>
   );
