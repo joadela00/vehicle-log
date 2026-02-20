@@ -66,7 +66,7 @@ export default function GuidePage() {
         <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0">
-              <div className="text-sm font-semibold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요</div>
+              <div className="text-sm font-bold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요 🚨</div>
               <p className="mt-1 text-xs text-red-700 break-keep">
                 당신은 소즁하니까
               </p>
