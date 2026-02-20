@@ -3,8 +3,7 @@ import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
-import DeleteConfirmScript from "./delete-confirm-script";
-import Script from "next/script";
+import Script from "next/script";  // Script 컴포넌트 import 추가
 
 export const revalidate = 30;
 
