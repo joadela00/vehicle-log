@@ -10,12 +10,15 @@ export default async function AdminLoginPage({
 
   return (
     <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold">🔐 관리자 로그인</h1>
-      
-          <Link className="rounded-xl border border-red-200 px-3 py-2 hover:text-red-600" href="/">
-            🏠 홈으로
-          </Link>
-      
+        <h1 className="text-xl font-bold sm:text-2xl"> 🔐 관리자 로그인</h1>
+        <Link
+          className="inline-flex items-center rounded-lg border border-red-200 px-3 py-2 underline decoration-red-300 underline-offset-4 hover:text-red-600"
+          href="/"
+        >
+          🏠 홈으로
+        </Link>
+      </div>
+    
       {error ? (
         <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
           {error === "1" ? "비밀번호가 틀렸습니다." : "서버 설정 오류(ADMIN_PASSWORD)."}
