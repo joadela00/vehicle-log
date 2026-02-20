@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
-import DeleteConfirmScript from "./delete-confirm-script";
+import Script from "next/script";  // Script 컴포넌트 import 추가
 
 export const revalidate = 30;
 
@@ -41,6 +41,17 @@ export default async function TripsPage({
     deleted?: string;
   }>;
 }) {
+  const confirmDeleteScript = [
+    "document.querySelectorAll('form[data-confirm-delete=\"1\"]').forEach((form) => {",
+    "  form.addEventListener('submit', (event) => {",
+    "    const ok = window.confirm('정말 삭제하시겠습니까?');",
+    "    if (!ok) {",
+    "      event.preventDefault();",
+    "    }",
+    "  });",
+    "});",
+  ].join("\n");
+
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
 
@@ -93,7 +104,6 @@ export default async function TripsPage({
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
-      <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
       <div className="flex items-start justify-between gap-3">
         <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
         <Link
@@ -146,88 +156,18 @@ export default async function TripsPage({
         )}
       </div>
 
-      <div className="mt-5 grid gap-3 sm:hidden">
-        {trips.map((t) => (
-          <article key={t.id} className="rounded-2xl border border-red-100 bg-white p-4 text-sm shadow-sm">
-            <div className="flex items-center justify-between gap-2">
-              <div className="font-semibold whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</div>
-              <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
-            </div>
-
-            <dl className="mt-2 space-y-1">
-              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                <dt className="text-gray-500">차량</dt>
-                <dd className="break-keep leading-5">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</dd>
-              </div>
-              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                <dt className="text-gray-500">운전자</dt>
-                <dd className="break-keep leading-5">{t.driver?.name ?? "-"}</dd>
-              </div>
-              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                <dt className="text-gray-500">주행거리</dt>
-                <dd>{formatNumber(t.distance)} km</dd>
-              </div>
-              <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                <dt className="text-gray-500">통행료</dt>
-                <dd>{formatNumber(t.tollCost)} 원</dd>
-              </div>
-            </dl>
-
-            <div className="mt-3 flex justify-end gap-3">
-              <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                ✏️
-              </Link>
-              <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-                <input type="hidden" name="id" value={t.id} />
-                <button className="text-red-700 underline">🗑️</button>
-              </form>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="border-b">
-              <th className="p-2 text-left">날짜</th>
-              <th className="p-2 text-left">차량</th>
-              <th className="p-2 text-left">운전자</th>
-              <th className="p-2 text-right">실제주행거리(km)</th>
-              <th className="p-2 text-right">통행료(원)</th>
-              <th className="p-2 text-right">✏️ 수정</th>
-              <th className="p-2 text-right">🗑️ 삭제</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {trips.map((t) => (
-              <tr key={t.id} className="border-b">
-                <td className="p-2 whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</td>
-                <td className="p-2 whitespace-nowrap">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
-                <td className="p-2 whitespace-nowrap">{t.driver?.name ?? "-"}</td>
-                <td className="p-2 text-right">{formatNumber(t.distance)}</td>
-                <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
-                <td className="p-2 text-right">
-                  <Link href={`/trips/${t.id}`} className="text-red-700 underline">
-                    ✏️ 수정
-                  </Link>
-                </td>
-
-                <td className="p-2 text-right align-bottom">
-                  <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-                    <input type="hidden" name="id" value={t.id} />
-                    <button className="text-red-700 underline">🗑️ 삭제</button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-        <DeleteConfirmScript />
-      </section>
+      <Script id="confirm-trip-delete" strategy="afterInteractive">
+        {`
+          document.querySelectorAll('form[data-confirm-delete="1"]').forEach((form) => {
+            form.addEventListener('submit', (event) => {
+              const ok = window.confirm('정말 삭제하시겠습니까?');
+              if (!ok) {
+                event.preventDefault();
+              }
+            });
+          });
+        `}
+      </Script>
     </main>
   );
 }
