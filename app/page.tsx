@@ -69,6 +69,12 @@ export default async function Home({
           >
             🛠️ 관리자
           </Link>
+          <Link
+            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+            href="/guide"
+          >
+            📢 운행 안내사항
+          </Link>
         </div>
 
         <form
