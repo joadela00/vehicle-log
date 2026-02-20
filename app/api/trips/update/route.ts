@@ -7,6 +7,10 @@ function toInt(raw: FormDataEntryValue | null): number {
   return Number(cleaned);
 }
 
+function redirectToEdit(req: Request, id: string, error: string) {
+  return NextResponse.redirect(new URL(`/trips/${id}?error=${error}`, req.url), 303);
+}
+
 export async function POST(req: Request) {
   const form = await req.formData();
 
@@ -15,79 +19,91 @@ export async function POST(req: Request) {
   const evRemainPct = Number(form.get("evRemainPct"));
   const hipassBalance = toInt(form.get("hipassBalance"));
 
-  if (!id) return NextResponse.json({ error: "id missing" }, { status: 400 });
-  if (!Number.isFinite(odoEnd) || odoEnd < 0) return NextResponse.json({ error: "invalid odoEnd" }, { status: 400 });
-  if (![20, 40, 60, 80, 100].includes(evRemainPct)) return NextResponse.json({ error: "invalid evRemainPct" }, { status: 400 });
-  if (!Number.isFinite(hipassBalance) || hipassBalance < 0) return NextResponse.json({ error: "invalid hipassBalance" }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: "id missing" }, { status: 400 });
+  }
+  if (!Number.isFinite(odoEnd) || odoEnd < 0) {
+    return redirectToEdit(req, id, "invalid_odo");
+  }
+  if (![20, 40, 60, 80, 100].includes(evRemainPct)) {
+    return redirectToEdit(req, id, "invalid_ev");
+  }
+  if (!Number.isFinite(hipassBalance) || hipassBalance < 0) {
+    return redirectToEdit(req, id, "invalid_hipass");
+  }
 
-  // 현재 레코드(기준점) 읽기
   const current = await prisma.trip.findUnique({
     where: { id },
     select: { id: true, vehicleId: true, date: true, createdAt: true },
   });
-  if (!current) return NextResponse.json({ error: "record not found" }, { status: 404 });
 
-  // 1) 현재 레코드 값 업데이트
+  if (!current) {
+    return NextResponse.json({ error: "record not found" }, { status: 404 });
+  }
+
+  const [prevTrip, nextTrip] = await Promise.all([
+    prisma.trip.findFirst({
+      where: {
+        vehicleId: current.vehicleId,
+        OR: [{ date: { lt: current.date } }, { date: current.date, createdAt: { lt: current.createdAt } }],
+      },
+      orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+      select: { odoEnd: true },
+    }),
+    prisma.trip.findFirst({
+      where: {
+        vehicleId: current.vehicleId,
+        OR: [{ date: { gt: current.date } }, { date: current.date, createdAt: { gt: current.createdAt } }],
+      },
+      orderBy: [{ date: "asc" }, { createdAt: "asc" }],
+      select: { odoEnd: true },
+    }),
+  ]);
+
+  if (prevTrip && odoEnd < prevTrip.odoEnd) {
+    return redirectToEdit(req, id, "prev_odo");
+  }
+
+  if (nextTrip && odoEnd > nextTrip.odoEnd) {
+    return redirectToEdit(req, id, "next_odo");
+  }
+
   await prisma.trip.update({
     where: { id },
     data: { odoEnd, evRemainPct, hipassBalance },
   });
 
-  // 2) 현재 레코드 "이전 1건" 찾기 (기준 odo/hipass)
-  const prev = await prisma.trip.findFirst({
-    where: {
-      vehicleId: current.vehicleId,
-      OR: [
-        { date: { lt: current.date } },
-        { date: current.date, createdAt: { lt: current.createdAt } },
-      ],
-    },
-    orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    select: { odoEnd: true, hipassBalance: true },
-  });
-
-  let prevOdo: number | null = prev?.odoEnd ?? null;
-  let prevHipass: number | null = prev?.hipassBalance ?? null;
-
-  // 3) 현재 레코드 포함해서 "이후 레코드만" 가져오기
-  const affected = await prisma.trip.findMany({
-    where: {
-      vehicleId: current.vehicleId,
-      OR: [
-        { date: { gt: current.date } },
-        { date: current.date, createdAt: { gte: current.createdAt } },
-      ],
-    },
+  const allTrips = await prisma.trip.findMany({
+    where: { vehicleId: current.vehicleId },
     orderBy: [{ date: "asc" }, { createdAt: "asc" }],
     select: { id: true, odoEnd: true, hipassBalance: true },
   });
 
-  // 4) 영향 구간만 재계산 (업데이트 묶어서 왕복 줄이기)
-  const updates = affected.map((t) => {
-    const newDistance = prevOdo !== null ? t.odoEnd - prevOdo : 0;
-    const safeDistance = newDistance >= 0 ? newDistance : 0;
+  let prevOdo: number | null = null;
+  let prevHipass: number | null = null;
 
-    const newToll = prevHipass !== null ? prevHipass - t.hipassBalance : 0;
-    const safeToll = newToll >= 0 ? newToll : 0;
+  const updates = allTrips.map((trip) => {
+    const distance = prevOdo === null ? 0 : Math.max(0, trip.odoEnd - prevOdo);
+    const tollCost = prevHipass === null ? 0 : Math.max(0, prevHipass - trip.hipassBalance);
 
-    // 다음 레코드 계산을 위해 prev 갱신
-    prevOdo = t.odoEnd;
-    prevHipass = t.hipassBalance;
+    const data = {
+      odoStart: prevOdo,
+      distance,
+      tollCost,
+    };
+
+    prevOdo = trip.odoEnd;
+    prevHipass = trip.hipassBalance;
 
     return prisma.trip.update({
-      where: { id: t.id },
-      data: {
-        odoStart: prevOdo === null ? null : (prevOdo - safeDistance),
-        distance: safeDistance,
-        tollCost: safeToll,
-      },
+      where: { id: trip.id },
+      data,
     });
   });
 
-  // 트랜잭션으로 묶어 DB 왕복 최소화
   if (updates.length) {
     await prisma.$transaction(updates);
   }
 
-  return NextResponse.redirect(new URL("/trips", req.url));
+  return NextResponse.redirect(new URL(`/trips/${id}?updated=1`, req.url), 303);
 }
