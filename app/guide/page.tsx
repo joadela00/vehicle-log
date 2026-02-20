@@ -183,13 +183,17 @@ export default function GuidePage() {
             <h2 className="text-lg font-bold">3) 기타 유의사항</h2>
 
             <ul className="mt-4 space-y-2">
+              <BulletItem icon=" ">
                 전기차는 사용 후 <b className="text-red-700">충전기 꽂기</b>를 부탁드려요.
+              </BulletItem>
 
+              <BulletItem icon=" ">
                 사용 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고, <b className="text-red-700">운행일지</b>를 작성해 주세요.
+              </BulletItem>
 
-
+              <BulletItem icon=" ">
                 과태료는 <b className="text-red-700">해당일 차량사용자</b>가 개별 납부해 주세요.
-
+              </BulletItem>
 
               <BulletItem icon="🚭" tone="danger">
                 차량 내 <span className="inline-flex items-center rounded-full bg-red-700 px-3 py-1 text-xs font-extrabold text-white">금연</span>이에요.
@@ -198,8 +202,9 @@ export default function GuidePage() {
                 </span>
               </BulletItem>
 
+              <BulletItem icon=" ">
                 내리기 전에 <b>소지품</b>을 한 번만 확인해 주시고, <b>쓰레기</b>도 정리 부탁드려요.
-
+              </BulletItem>
             </ul>
           </section>
         </div>
