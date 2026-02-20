@@ -10,7 +10,7 @@ export default async function AdminLoginPage({
 
   return (
     <main className="max-w-md mx-auto p-6">
-      <h1 className="text-2xl font-bold">🔐 관리자 🔑 로그인</h1>
+      <h1 className="text-2xl font-bold">🔐 관리자 로그인</h1>
 
       {error ? (
         <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
