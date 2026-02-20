@@ -36,7 +36,7 @@ export default async function Home({
   
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-sm font-semibold tracking-wide text-red-500">🚘 DAILY LOG</p>
+            <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">인천경기 차량 운행일지</h1>
             <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
           </div>
@@ -51,17 +51,23 @@ export default async function Home({
         ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link
+         <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/admin"
+            href="/guide"
           >
-            🛠️ 관리자
+            📢 운행안내
           </Link>
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href="/trips"
           >
-            📚 운행일지 목록
+            📚 운행목록
+          </Link>
+           <Link
+            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+            href="/admin"
+          >
+            🛠️ 관리자
           </Link>
         </div>
 
@@ -127,7 +133,7 @@ export default async function Home({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">
-              📍 계기 최종 주행거리(누적 km)
+              📍 최종 주행거리(누적 km)
             </span>
             <input
               name="odoEnd"
