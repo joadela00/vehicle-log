@@ -68,13 +68,13 @@ export default function GuidePage() {
             <div className="min-w-0">
               <div className="text-sm font-semibold text-red-800">🚨 사고가 나면 먼저 안전을 확인해 주세요</div>
               <p className="mt-1 text-xs text-red-700 break-keep">
-                필요한 연락처는 아래에 있어요.
+                당신은 소즁하니까
               </p>
             </div>
 
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <div className="rounded-xl border border-red-200 bg-white px-3 py-2">
-                <div className="text-xs text-gray-500">렌트사 사고 신고 (redcap투어)</div>
+                <div className="text-xs text-gray-500">사고 신고 (redcap투어)</div>
                 <div className="text-base font-extrabold text-red-700">1544-4599</div>
               </div>
               <div className="rounded-xl border border-red-200 bg-white px-3 py-2">
@@ -110,9 +110,12 @@ export default function GuidePage() {
                 복귀 후 <b>사고 사진</b>을 포함해서 <b>사고경위서</b>를 행정지원부로 전달해 주세요.
               </NumItem>
 
-              <NumItem n={5}>
+              <BulletItem icon="😥" tone="danger">
                 작은 접촉이라도 <b className="text-red-700">행정지원부에 꼭 알려주세요.</b>
-              </NumItem>
+              </BulletItem>
+            
+            
+            
             </ol>
           </section>
 
@@ -160,7 +163,7 @@ export default function GuidePage() {
                 {/* 이것도 “절차”라 1,2,3 유지 */}
                 <ol className="mt-3 space-y-2">
                   <NumItem n={1}>
-                    하이패스 잔액이 부족하거나 주차료가 생기면, <b>배차 신청자가 먼저 결제</b>해 주세요.
+                    하이패스 잔액이 부족하거나 주차료가 생기면, <b>운자가 먼저 결제</b>해 주세요.
                   </NumItem>
 
                   <NumItem n={2}>
@@ -169,9 +172,6 @@ export default function GuidePage() {
 
                   <NumItem n={3}>
                     주차비는 <b className="text-orange-800">최대 3만원</b>까지 가능해요.
-                    <div className="mt-1 text-sm text-orange-800">
-                      지출품의를 위해 <b>사전에 행정지원부와 전화로 확인</b> 부탁드려요.
-                    </div>
                   </NumItem>
                 </ol>
               </div>
@@ -182,19 +182,14 @@ export default function GuidePage() {
           <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="text-lg font-bold">3) 기타 유의사항</h2>
 
-            {/* 순서가 아닌 “주의사항” → 글머리(●/✅) */}
             <ul className="mt-4 space-y-2">
-              <BulletItem icon="✅">
                 전기차는 사용 후 <b className="text-red-700">충전기 꽂기</b>를 부탁드려요.
-              </BulletItem>
 
-              <BulletItem icon="✅">
                 사용 후 <b>계기판</b>과 <b>하이패스 잔액</b>을 확인하고, <b className="text-red-700">운행일지</b>를 작성해 주세요.
-              </BulletItem>
 
-              <BulletItem icon="•">
+
                 과태료는 <b className="text-red-700">해당일 차량사용자</b>가 개별 납부해 주세요.
-              </BulletItem>
+
 
               <BulletItem icon="🚭" tone="danger">
                 차량 내 <span className="inline-flex items-center rounded-full bg-red-700 px-3 py-1 text-xs font-extrabold text-white">금연</span>이에요.
@@ -203,9 +198,8 @@ export default function GuidePage() {
                 </span>
               </BulletItem>
 
-              <BulletItem icon="•">
                 내리기 전에 <b>소지품</b>을 한 번만 확인해 주시고, <b>쓰레기</b>도 정리 부탁드려요.
-              </BulletItem>
+
             </ul>
           </section>
         </div>
