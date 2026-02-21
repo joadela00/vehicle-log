@@ -1,5 +1,4 @@
 import Link from "next/link";
-import BranchMovePicker from "@/components/branch-move-picker";
 
 type VehicleOption = {
   id: string;
@@ -69,7 +68,21 @@ export default function BranchLogForm({
 
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
           <p className="mb-2 text-sm font-semibold text-gray-700">지사 페이지 이동</p>
-          <BranchMovePicker branches={branches} currentCode={branchCode} />
+          <div className="flex flex-wrap gap-2 text-sm">
+            {branches.map((branch) => (
+              <Link
+                key={branch.code}
+                className={`rounded-lg border px-2 py-1 ${
+                  branch.code === branchCode
+                    ? "border-red-500 bg-red-600 text-white"
+                    : "border-red-200 bg-white hover:text-red-600"
+                }`}
+                href={branch.code === "0230" ? "/" : `/branches/${branch.code}`}
+              >
+                {branch.name}
+              </Link>
+            ))}
+          </div>
         </div>
 
         <form
@@ -77,7 +90,7 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input type="hidden" name="returnTo" value={`/branches/${branchCode}`} />
+          <input type="hidden" name="returnTo" value={branchCode === "0230" ? "/" : `/branches/${branchCode}`} />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
