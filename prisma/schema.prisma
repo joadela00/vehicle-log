@@ -9,10 +9,15 @@ generator client {
 }
 
 model Vehicle {
-  id     String @id @default(cuid())
-  model  String
-  plate  String @unique
-  trips  Trip[]
+  id         String @id @default(cuid())
+  branchCode String
+  branchName String
+  model      String
+  plate      String @unique
+  fuelType   String
+  trips      Trip[]
+
+  @@index([branchCode, plate])
 }
 
 model Driver {
