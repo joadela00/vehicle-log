@@ -1,13 +1,20 @@
+import { unstable_cache } from "next/cache";
 import BranchLogForm from "@/components/branch-log-form";
 import { prisma } from "@/lib/prisma";
-import {
-  getBranchOptions,
-  hasVehicleBranchColumns,
-  MAIN_BRANCH_CODE,
-  MAIN_BRANCH_NAME,
-} from "@/lib/branches";
+import { getBranchOptions, MAIN_BRANCH_CODE } from "@/lib/branches";
 
 export const revalidate = 60;
+
+const getMainBranchVehicles = unstable_cache(
+  () =>
+    prisma.vehicle.findMany({
+      where: { branchCode: MAIN_BRANCH_CODE },
+      orderBy: { plate: "asc" },
+      select: { id: true, model: true, plate: true },
+    }),
+  ["home-vehicles-main-branch"],
+  { revalidate: 60 },
+);
 
 export default async function Home({
   searchParams,
@@ -17,21 +24,15 @@ export default async function Home({
   const params = await searchParams;
   const saved = params?.saved === "1";
 
-  const branchReady = await hasVehicleBranchColumns();
-
   const [vehicles, branches] = await Promise.all([
-    prisma.vehicle.findMany({
-      ...(branchReady ? { where: { branchCode: MAIN_BRANCH_CODE } } : {}),
-      orderBy: { plate: "asc" },
-      select: { id: true, model: true, plate: true },
-    }),
+    getMainBranchVehicles(),
     getBranchOptions(),
   ]);
 
   return (
     <BranchLogForm
       branchCode={MAIN_BRANCH_CODE}
-      branchName={MAIN_BRANCH_NAME}
+      branchName="인천경기"
       vehicles={vehicles}
       branches={branches}
       saved={saved}
