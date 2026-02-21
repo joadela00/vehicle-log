@@ -1,7 +1,8 @@
 "use client";
-import { MAIN_BRANCH_CODE } from "@/lib/branches";
+
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { MAIN_BRANCH_CODE } from "@/lib/branches";
 
 type VehicleOption = {
   id: string;
@@ -39,17 +40,25 @@ export default function BranchLogForm({
     [branches]
   );
 
-  const [selectedBranchCode, setSelectedBranchCode] = useState<string>(
+  const initialSafe =
     safeBranches.find((b) => b.code === initialBranchCode)?.code ??
-      safeBranches[0]?.code ??
-      initialBranchCode
-  );
+    safeBranches[0]?.code ??
+    initialBranchCode;
 
-  // 서버에서 내려준 initialBranchCode가 바뀔 수도 있으니 동기화
+  const [selectedBranchCode, setSelectedBranchCode] = useState<string>(initialSafe);
+
+  // ✅ initialBranchCode(쿼리에서 들어오는 값)가 바뀌면 상태 동기화
   useEffect(() => {
-    if (!initialBranchCode) return;
-    setSelectedBranchCode((prev) => prev || initialBranchCode);
-  }, [initialBranchCode]);
+    const next =
+      safeBranches.find((b) => b.code === initialBranchCode)?.code ??
+      safeBranches[0]?.code ??
+      initialBranchCode;
+
+    if (next && next !== selectedBranchCode) {
+      setSelectedBranchCode(next);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialBranchCode, safeBranches]);
 
   const selectedBranchName = useMemo(() => {
     const found = safeBranches.find((b) => b.code === selectedBranchCode);
@@ -62,15 +71,17 @@ export default function BranchLogForm({
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
 
-  // 지사 바뀌면 해당 지사의 첫 차량으로 라디오 자동 선택
+  // ✅ 지사 바뀌면 해당 지사의 첫 차량으로 라디오 자동 선택
   useEffect(() => {
     const first = filteredVehicles[0]?.id ?? "";
     setSelectedVehicleId(first);
-  }, [selectedBranchCode, filteredVehicles]);
+  }, [filteredVehicles, selectedBranchCode]);
+
+  // ✅ 여기! JSX에서 쓰는 변수를 "반드시 return 위에서" 선언해야 함
+  const showAdminButton = selectedBranchCode === MAIN_BRANCH_CODE;
 
   // ✅ 운행목록 링크는 선택 지사 기준으로
   const tripsHref = useMemo(() => {
-    const showAdminButton = selectedBranchCode === MAIN_BRANCH_CODE;
     const q = new URLSearchParams();
     if (selectedBranchCode) q.set("branchCode", selectedBranchCode);
     return `/trips?${q.toString()}`;
@@ -83,7 +94,7 @@ export default function BranchLogForm({
           <div className="min-w-0">
             <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
-              {selectedBranchName} 차량 운행목록
+              {selectedBranchName} 차량 운행일지
             </h1>
             <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
           </div>
@@ -111,15 +122,15 @@ export default function BranchLogForm({
             📚 운행목록
           </Link>
 
-     {showAdminButton && (
-  <Link
-    className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-    href={`/admin/${selectedBranchCode}`}
-  >
-    🛠️ 관리자
-  </Link>
-)}
-
+          {/* ✅ 지역본부(0230)만 관리자 노출 */}
+          {showAdminButton && (
+            <Link
+              className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+              href={`/admin/${selectedBranchCode}`}
+            >
+              🛠️ 관리자
+            </Link>
+          )}
         </div>
 
         {/* ✅ 지사 선택 (페이지 이동 없음) */}
@@ -152,8 +163,12 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          {/* ✅ 저장 후에도 선택 지사 유지: /?branch=xxxx 로 돌아오기 */}
-          <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
+          {/* ✅ 저장 후에도 선택 지사 유지 */}
+          <input
+            type="hidden"
+            name="returnTo"
+            value={`/?branch=${encodeURIComponent(selectedBranchCode)}`}
+          />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
