@@ -8,10 +8,10 @@ function toInt(raw: FormDataEntryValue | null): number {
 }
 
 function isSafeReturnTo(value: string) {
-  // ✅ 허용 예시:
-  //  / , /?branch=0230 , /some/path , /some/path?x=1&y=2
-  // ✅ 차단 예시:
-  //  http://..., //evil.com, /../, /api/..., 등 (여기서는 간단히 패턴 제한)
+  // 허용 예:
+  //  /, /?branch=0230, /some/path, /some/path?x=1&y=2
+  // 차단 예:
+  //  http://..., //evil.com, /../, 등
   return /^\/(?:[a-zA-Z0-9/_-]*)?(?:\?[a-zA-Z0-9=&_%\-]*)?$/.test(value);
 }
 
@@ -88,7 +88,7 @@ export async function POST(req: Request) {
   const safeReturnTo = isSafeReturnTo(returnTo) ? returnTo : "/";
   const redirectUrl = new URL(safeReturnTo, req.url);
 
-  // ✅ 기존 query(branch=xxxx)는 유지하고 saved=1만 추가/갱신
+  // 기존 branch=xxxx 유지 + saved=1만 추가
   redirectUrl.searchParams.set("saved", "1");
 
   return NextResponse.redirect(redirectUrl);
