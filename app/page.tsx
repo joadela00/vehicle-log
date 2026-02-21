@@ -26,10 +26,7 @@ export default async function Home({
   const branchFromQuery = String(params?.branch ?? "").trim();
   const initialBranchCode = branchFromQuery || MAIN_BRANCH_CODE;
 
-  const [vehicles, branches] = await Promise.all([
-    getAllVehicles(),
-    getBranchOptions(),
-  ]);
+  const [vehicles, branches] = await Promise.all([getAllVehicles(), getBranchOptions()]);
 
   return (
     <BranchLogForm
