@@ -30,9 +30,7 @@ export default async function AdminByBranchPage({
     <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-xl font-extrabold sm:text-2xl">
-            🛠️ {branchName} 관리자
-          </h1>
+          <h1 className="text-xl font-extrabold sm:text-2xl">🛠️ {branchName} 관리자</h1>
 
           <div className="flex items-center gap-2">
             <Link
