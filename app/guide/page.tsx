@@ -169,7 +169,7 @@ export default function GuidePage() {
                   </NumItem>
 
                   <NumItem n={3}>
-                    주차비는 시외출장일때만 <b className="text-orange-800">최대 3만원</b>까지 가능해요.
+                    주차비는 <b className="text-orange-800">최대 3만원</b>까지 가능해요.
                   </NumItem>
                 </ol>
               </div>
