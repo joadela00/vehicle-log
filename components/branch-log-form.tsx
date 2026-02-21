@@ -45,6 +45,12 @@ export default function BranchLogForm({
       initialBranchCode
   );
 
+  // 서버에서 내려준 initialBranchCode가 바뀔 수도 있으니 동기화
+  useEffect(() => {
+    if (!initialBranchCode) return;
+    setSelectedBranchCode((prev) => prev || initialBranchCode);
+  }, [initialBranchCode]);
+
   const selectedBranchName = useMemo(() => {
     const found = safeBranches.find((b) => b.code === selectedBranchCode);
     return found?.name || selectedBranchCode;
@@ -56,11 +62,18 @@ export default function BranchLogForm({
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
 
-  // 지사 바뀌면 해당 지사의 첫 차량으로 자동 선택(라디오 reset)
+  // 지사 바뀌면 해당 지사의 첫 차량으로 라디오 자동 선택
   useEffect(() => {
     const first = filteredVehicles[0]?.id ?? "";
     setSelectedVehicleId(first);
   }, [selectedBranchCode, filteredVehicles]);
+
+  // ✅ 운행목록 링크는 선택 지사 기준으로
+  const tripsHref = useMemo(() => {
+    const q = new URLSearchParams();
+    if (selectedBranchCode) q.set("branchCode", selectedBranchCode);
+    return `/trips?${q.toString()}`;
+  }, [selectedBranchCode]);
 
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
@@ -88,12 +101,15 @@ export default function BranchLogForm({
           >
             📢 운행안내
           </Link>
+
+          {/* ✅ 지사별 운행목록 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/trips"
+            href={tripsHref}
           >
             📚 운행목록
           </Link>
+
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href={`/admin/${selectedBranchCode}`}
@@ -102,7 +118,7 @@ export default function BranchLogForm({
           </Link>
         </div>
 
-        {/* ✅ 지사 페이지 이동: "페이지 이동" 절대 없음 (버튼으로 상태만 변경) */}
+        {/* ✅ 지사 선택 (페이지 이동 없음) */}
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
           <p className="mb-2 text-sm font-semibold text-gray-700">지사 선택</p>
 
@@ -132,8 +148,8 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          {/* ✅ 이동 없이 항상 현재(홈)로 돌아오게 */}
-          <input type="hidden" name="returnTo" value="/" />
+          {/* ✅ 저장 후에도 선택 지사 유지: /?branch=xxxx 로 돌아오기 */}
+          <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
