@@ -165,7 +165,7 @@ export default async function TripsPage({
 
 // ✅ 홈(지사 선택 완료 상태)으로: 항상 /?branch=xxxx 로 복귀
 const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/";
-
+  
   const titleText = branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록";
 
   return (
