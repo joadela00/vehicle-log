@@ -1,7 +1,4 @@
-"use client";
-
 import Link from "next/link";
-import { useMemo, useState } from "react";
 
 type VehicleOption = {
   id: string;
@@ -14,48 +11,20 @@ type BranchOption = {
   name: string;
 };
 
-type VehiclesByBranch = Record<string, VehicleOption[]>;
-
 export default function BranchLogForm({
-  initialBranchCode,
-  initialBranchName,
-  vehiclesByBranch,
+  branchCode,
+  branchName,
+  vehicles,
   branches,
   saved,
 }: {
-  initialBranchCode: string;
-  initialBranchName: string;
-  vehiclesByBranch: VehiclesByBranch;
+  branchCode: string;
+  branchName: string;
+  vehicles: VehicleOption[];
   branches: BranchOption[];
   saved: boolean;
 }) {
   const today = new Date().toISOString().slice(0, 10);
-
-  const [branchCode, setBranchCode] = useState(initialBranchCode);
-
-  const branchName = useMemo(() => {
-    return (
-      branches.find((b) => b.code === branchCode)?.name ||
-      (branchCode === initialBranchCode ? initialBranchName : branchCode)
-    );
-  }, [branches, branchCode, initialBranchCode, initialBranchName]);
-
-  const vehicles = vehiclesByBranch[branchCode] ?? [];
-
-  const tripsHref = `/trips?branchCode=${encodeURIComponent(branchCode)}`;
-  const adminHref = `/admin/${encodeURIComponent(branchCode)}`;
-
-  // ✅ 지역본부는 맨 끝으로
-  const sortedBranches = useMemo(() => {
-    const copy = [...branches];
-    copy.sort((a, b) => {
-      const aIsHQ = a.name.includes("지역본부");
-      const bIsHQ = b.name.includes("지역본부");
-      if (aIsHQ === bIsHQ) return a.name.localeCompare(b.name, "ko");
-      return aIsHQ ? 1 : -1;
-    });
-    return copy;
-  }, [branches]);
 
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
@@ -83,39 +52,35 @@ export default function BranchLogForm({
           >
             📢 운행안내
           </Link>
-
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href={tripsHref}
+            href="/trips"
           >
             📚 운행목록
           </Link>
-
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href={adminHref}
+            href={`/admin/${branchCode}`}
           >
             🛠️ 관리자
           </Link>
         </div>
 
-        {/* ✅ 소속 선택: Link 금지! 버튼만 (페이지 이동 없음) */}
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
-          <p className="mb-2 text-sm font-semibold text-gray-700">소속 선택</p>
+          <p className="mb-2 text-sm font-semibold text-gray-700">지사 페이지 이동</p>
           <div className="flex flex-wrap gap-2 text-sm">
-            {sortedBranches.map((branch) => (
-              <button
+            {branches.map((branch) => (
+              <Link
                 key={branch.code}
-                type="button"
-                onClick={() => setBranchCode(branch.code)}
                 className={`rounded-lg border px-2 py-1 ${
                   branch.code === branchCode
                     ? "border-red-500 bg-red-600 text-white"
                     : "border-red-200 bg-white hover:text-red-600"
                 }`}
+                href={branch.code === "0230" ? "/" : `/branches/${branch.code}`}
               >
                 {branch.name}
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -125,7 +90,6 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          {/* ✅ 저장 후 돌아갈 곳도 선택된 소속 기준 */}
           <input
             type="hidden"
             name="returnTo"
@@ -133,7 +97,7 @@ export default function BranchLogForm({
           />
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
+            <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
             <input
               name="date"
               type="date"
@@ -147,35 +111,28 @@ export default function BranchLogForm({
           <div className="grid gap-2 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
 
-            {vehicles.length === 0 ? (
-              <p className="rounded-2xl border border-red-100 bg-white px-3 py-3 text-sm text-gray-600">
-                이 소속에 등록된 차량이 없습니다.
-              </p>
-            ) : (
-              // ✅ branchCode 바뀌면 라디오 defaultChecked가 새로 적용되게 key 사용
-              <div key={branchCode} className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
-                {vehicles.map((v, idx) => (
-                  <label key={v.id} className="block min-w-0 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="vehicleId"
-                      value={v.id}
-                      defaultChecked={idx === 0}
-                      className="peer sr-only"
-                      required
-                    />
+            <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
+              {vehicles.map((v, idx) => (
+                <label key={v.id} className="block min-w-0 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="vehicleId"
+                    value={v.id}
+                    defaultChecked={idx === 0}
+                    className="peer sr-only"
+                    required
+                  />
 
-                    <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
-                      <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
-                        ✔
-                      </span>
-                      <span className="block truncate text-xs opacity-80">{v.model}</span>
-                      <span className="mt-0.5 block truncate">{v.plate}</span>
+                  <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
+                    <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
+                      ✔
                     </span>
-                  </label>
-                ))}
-              </div>
-            )}
+                    <span className="block truncate text-xs opacity-80">{v.model}</span>
+                    <span className="mt-0.5 block truncate">{v.plate}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
           </div>
 
           <label className="grid gap-1 min-w-0">
