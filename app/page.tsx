@@ -18,10 +18,13 @@ const getAllVehicles = unstable_cache(
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: Promise<{ saved?: string }>;
+  searchParams?: Promise<{ saved?: string; branch?: string }>;
 }) {
   const params = await searchParams;
   const saved = params?.saved === "1";
+
+  const branchFromQuery = String(params?.branch ?? "").trim();
+  const initialBranchCode = branchFromQuery || MAIN_BRANCH_CODE;
 
   const [vehicles, branches] = await Promise.all([
     getAllVehicles(),
@@ -30,7 +33,7 @@ export default async function Home({
 
   return (
     <BranchLogForm
-      initialBranchCode={MAIN_BRANCH_CODE}
+      initialBranchCode={initialBranchCode}
       vehicles={vehicles}
       branches={branches}
       saved={saved}
