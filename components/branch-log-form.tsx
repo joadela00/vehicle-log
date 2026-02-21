@@ -104,7 +104,7 @@ export default function BranchLogForm({
         <div className="min-w-0">
           <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl text-red-600">
-            🚘 차량 운행일지
+            차량 운행일지
           </h1>
           <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
         </div>
@@ -182,7 +182,7 @@ export default function BranchLogForm({
                 onClick={() => setBranchPickerOpen(true)}
                 className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
               >
-                변경
+                지사 변경
               </button>
             </div>
           )}
