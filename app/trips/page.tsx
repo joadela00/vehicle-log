@@ -48,7 +48,6 @@ export const revalidate = 30;
 
 const PAGE_SIZE = 50;
 
-// ✅ 전체 차량 목록(필터 없을 때만 사용)
 const getVehicles = unstable_cache(
   () =>
     prisma.vehicle.findMany({
@@ -74,7 +73,7 @@ export default async function TripsPage({
   searchParams,
 }: {
   searchParams: Promise<{
-    branchCode?: string; // ✅ 추가
+    branchCode?: string;
     vehicleId?: string;
     from?: string;
     to?: string;
@@ -86,12 +85,22 @@ export default async function TripsPage({
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
 
-  const branchCode = (params?.branchCode || "").trim(); // ✅ 추가
+  const branchCode = (params?.branchCode || "").trim();
   const vehicleId = params?.vehicleId || "";
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
   const deleted = params?.deleted === "1";
   const deleteError = params?.deleteError || "";
+
+  // ✅ 지사명 조회(제목에 사용)
+  const branchName = branchCode
+    ? (
+        await prisma.vehicle.findFirst({
+          where: { branchCode },
+          select: { branchName: true },
+        })
+      )?.branchName || branchCode
+    : "";
 
   const parsedPage = Number(params?.page || "1");
   const page = Number.isFinite(parsedPage)
@@ -101,14 +110,12 @@ export default async function TripsPage({
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
 
-  // ✅ branchCode가 있으면: Trip.vehicle.branchCode로 필터
   const where: Prisma.TripWhereInput = {
     date: { gte: from, lte: to },
     ...(vehicleId ? { vehicleId } : {}),
     ...(branchCode ? { vehicle: { branchCode } } : {}),
   };
 
-  // ✅ branchCode가 있으면 차량 목록도 그 지사만
   const vehiclesPromise = branchCode
     ? prisma.vehicle.findMany({
         where: { branchCode },
@@ -141,7 +148,7 @@ export default async function TripsPage({
 
   const makePageHref = (nextPage: number) => {
     const query = new URLSearchParams();
-    if (branchCode) query.set("branchCode", branchCode); // ✅ 유지
+    if (branchCode) query.set("branchCode", branchCode);
     if (vehicleId) query.set("vehicleId", vehicleId);
     query.set("from", fromParam);
     query.set("to", toParam);
@@ -155,16 +162,21 @@ export default async function TripsPage({
   const FieldClass =
     "h-11 w-full rounded-xl border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-red-400 focus:ring-2 focus:ring-red-100";
 
-  // ✅ 홈 버튼을 지사 페이지로 돌려보내고 싶으면(선택)
-  const homeHref = branchCode ? `/branches/${encodeURIComponent(branchCode)}` : "/";
+  // ✅ 홈으로 404 수정: 메인(0230)은 /, 그 외는 /branches/{code}
+  const homeHref =
+    branchCode === "0230"
+      ? "/"
+      : branchCode
+        ? `/branches/${encodeURIComponent(branchCode)}`
+        : "/";
+
+  const titleText = branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록";
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold sm:text-2xl">
-            📋 운행일지 {branchCode ? "지사별" : "전체"} 목록
-          </h1>
+          <h1 className="text-xl font-bold sm:text-2xl">📋 {titleText}</h1>
           <Link
             className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
             href={homeHref}
@@ -191,21 +203,15 @@ export default async function TripsPage({
           method="GET"
           className="mt-5 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm"
         >
-          {/* ✅ 검색 눌러도 branchCode 유지 */}
+          {/* ✅ 검색해도 branchCode 유지 */}
           {branchCode ? (
             <input type="hidden" name="branchCode" value={branchCode} />
           ) : null}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.2fr_0.9fr_0.9fr_auto] sm:items-end">
             <label className="grid gap-1 min-w-0">
-              <select
-                name="vehicleId"
-                defaultValue={vehicleId}
-                className={FieldClass}
-              >
-                <option value="">
-                  {branchCode ? "지사 전체 차량" : "전체 차량"}
-                </option>
+              <select name="vehicleId" defaultValue={vehicleId} className={FieldClass}>
+                <option value="">{branchCode ? "지사 전체 차량" : "전체 차량"}</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.model} / {v.plate}
