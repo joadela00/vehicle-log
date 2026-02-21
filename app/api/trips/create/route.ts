@@ -7,6 +7,14 @@ function toInt(raw: FormDataEntryValue | null): number {
   return Number(cleaned);
 }
 
+function isSafeReturnTo(value: string) {
+  // ✅ 허용 예시:
+  //  / , /?branch=0230 , /some/path , /some/path?x=1&y=2
+  // ✅ 차단 예시:
+  //  http://..., //evil.com, /../, /api/..., 등 (여기서는 간단히 패턴 제한)
+  return /^\/(?:[a-zA-Z0-9/_-]*)?(?:\?[a-zA-Z0-9=&_%\-]*)?$/.test(value);
+}
+
 export async function POST(req: Request) {
   const form = await req.formData();
 
@@ -37,21 +45,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "하이패스 잔액을 올바르게 입력하세요." }, { status: 400 });
   }
 
-  // ✅ 운전자 이름으로 자동 생성/연결
   const driver = await prisma.driver.upsert({
     where: { name: driverName },
     update: {},
     create: { name: driverName },
   });
 
-  // ✅ 같은 차량의 이전 기록(가장 최근) 조회
   const prev = await prisma.trip.findFirst({
     where: { vehicleId },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     select: { odoEnd: true, hipassBalance: true },
   });
 
-  // ✅ 주행거리 자동 계산
   const odoStart = prev?.odoEnd ?? null;
   const distance = prev ? odoEnd - prev.odoEnd : 0;
 
@@ -62,8 +67,6 @@ export async function POST(req: Request) {
     );
   }
 
-  // ✅ 통행료 자동 계산: (이전 잔액 - 현재 잔액)
-  // 첫 기록이면 0
   const tollCostRaw = prev ? prev.hipassBalance - hipassBalance : 0;
   const tollCost = tollCostRaw >= 0 ? tollCostRaw : 0;
 
@@ -82,8 +85,10 @@ export async function POST(req: Request) {
     },
   });
 
-  const safeReturnTo = /^\/(?:$|[a-zA-Z0-9/_-]*)$/.test(returnTo) ? returnTo : "/";
+  const safeReturnTo = isSafeReturnTo(returnTo) ? returnTo : "/";
   const redirectUrl = new URL(safeReturnTo, req.url);
+
+  // ✅ 기존 query(branch=xxxx)는 유지하고 saved=1만 추가/갱신
   redirectUrl.searchParams.set("saved", "1");
 
   return NextResponse.redirect(redirectUrl);
