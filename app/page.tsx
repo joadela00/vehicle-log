@@ -3,6 +3,7 @@ import BranchLogForm from "@/components/branch-log-form";
 import { prisma } from "@/lib/prisma";
 import { getBranchOptions, MAIN_BRANCH_CODE } from "@/lib/branches";
 
+export const dynamic = "force-dynamic";
 export const revalidate = 60;
 
 const getAllVehicles = unstable_cache(
