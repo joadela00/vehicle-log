@@ -20,11 +20,10 @@ export default async function AdminByBranchPage({
   const vehicles = await prisma.vehicle.findMany({
     where: { branchCode },
     orderBy: { plate: "asc" },
-    select: { id: true, model: true, plate: true, branchCode: true, branchName: true },
+    select: { id: true, model: true, plate: true },
   });
 
-  const homeHref =
-    branchCode === "0230" ? "/" : `/branches/${encodeURIComponent(branchCode)}`;
+  const homeHref = branchCode === "0230" ? "/" : `/branches/${encodeURIComponent(branchCode)}`;
 
   return (
     <main className="mx-auto w-full max-w-4xl p-4 sm:p-6">
@@ -34,16 +33,17 @@ export default async function AdminByBranchPage({
 
           <div className="flex items-center gap-2">
             <Link
-              href={`/trips?branchCode=${encodeURIComponent(branchCode)}`}
-              className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-400 hover:text-red-600"
-            >
-              📚 운행목록
-            </Link>
-            <Link
               href={homeHref}
               className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-400 hover:text-red-600"
             >
               🏠 홈으로
+            </Link>
+
+            <Link
+              href={`/trips?branchCode=${encodeURIComponent(branchCode)}`}
+              className="rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-400 hover:text-red-600"
+            >
+              📚 운행목록
             </Link>
           </div>
         </div>
@@ -53,7 +53,7 @@ export default async function AdminByBranchPage({
         </p>
 
         <div className="mt-6 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm">
-          <h2 className="text-base font-bold">🚗 차량 목록 (이 소속만)</h2>
+          <h2 className="text-base font-bold">🚗 차량 목록</h2>
 
           {vehicles.length === 0 ? (
             <p className="mt-3 text-sm text-gray-600">등록된 차량이 없습니다.</p>
