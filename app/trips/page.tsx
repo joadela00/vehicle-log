@@ -233,22 +233,93 @@ export default async function TripsPage({
           </p>
         ) : (
           <>
-            {/* ✅ 모바일 카드 */}
-            <div className="mt-5 grid gap-3 sm:hidden">
-              {trips.map((t) => (
-                <article
-                  key={t.id}
-                  className="rounded-2xl border border-red-100 bg-white p-3 text-sm shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="whitespace-nowrap font-semibold">
-                        {t.date.toISOString().slice(0, 10)}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        #{t.id.slice(0, 8)}
-                      </div>
-                    </div>
+{/* ✅ 모바일 카드 */}
+<div className="mt-5 grid gap-3 sm:hidden">
+  {trips.map((t) => (
+    <article
+      key={t.id}
+      className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          {/* 🔥 날짜 크게 */}
+          <div className="text-lg font-bold tracking-tight sm:text-xl">
+            {t.date.toISOString().slice(0, 10)}
+          </div>
+
+          {/* ID는 작고 연하게 */}
+          <div className="text-xs text-gray-400">
+            #{t.id.slice(0, 8)}
+          </div>
+        </div>
+
+        {/* 수정/삭제 버튼 */}
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href={`/trips/${t.id}`}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition touch-manipulation"
+            aria-label="수정"
+            title="수정"
+          >
+            <PencilIcon className="h-4 w-4 pointer-events-none" />
+            수정
+          </Link>
+
+          <form
+            method="POST"
+            action="/api/trips/delete"
+            data-confirm-delete="1"
+            className="m-0"
+          >
+            <input type="hidden" name="id" value={t.id} />
+            <button
+              type="submit"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition touch-manipulation"
+              aria-label="삭제"
+              title="삭제"
+            >
+              <Trash2Icon className="h-4 w-4 pointer-events-none" />
+              삭제
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* 🔽 정보 영역 */}
+      <dl className="mt-3 space-y-1 text-sm">
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">차량</dt>
+          <dd className="break-keep leading-5">
+            {t.vehicle
+              ? `${t.vehicle.model} / ${t.vehicle.plate}`
+              : "-"}
+          </dd>
+        </div>
+
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">운전자</dt>
+          <dd className="break-keep leading-5">
+            {t.driver?.name ?? "-"}
+          </dd>
+        </div>
+
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
+          <dd className="leading-5">
+            {formatNumber(t.distance)} km
+          </dd>
+        </div>
+
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">통행료</dt>
+          <dd className="leading-5">
+            {formatNumber(t.tollCost)} 원
+          </dd>
+        </div>
+      </dl>
+    </article>
+  ))}
+</div>>
 
                     {/* ✅ 모바일 액션: 홈으로 버튼처럼 박스 + 텍스트 */}
                     <div className="flex shrink-0 items-center gap-2">
