@@ -140,7 +140,7 @@ export default function GuidePage() {
                   </NumItem>
 <NumItem n={3}>
   충전구 위치
-  <div className="mt-1 text-sm text-gray-600">
+  <div className="mt-1 text-base text-gray-600">
     <div>— EV3: 조수석 앞쪽</div>
     <div>— 아이오닉5, EV6: 조수석 뒤쪽</div>
   </div>
