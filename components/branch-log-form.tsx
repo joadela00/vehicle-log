@@ -28,6 +28,14 @@ export default function BranchLogForm({
 
   const tripsHref = `/trips?branchCode=${encodeURIComponent(branchCode)}`;
 
+  // ✅ 지역본부는 맨 끝으로
+  const sortedBranches = [...branches].sort((a, b) => {
+    const aIsHQ = a.name.includes("지역본부");
+    const bIsHQ = b.name.includes("지역본부");
+    if (aIsHQ === bIsHQ) return a.name.localeCompare(b.name, "ko");
+    return aIsHQ ? 1 : -1; // 지역본부 뒤로
+  });
+
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
@@ -55,7 +63,6 @@ export default function BranchLogForm({
             📢 운행안내
           </Link>
 
-          {/* ✅ 여기만 바뀜: 현재 지사코드를 쿼리로 들고 이동 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href={tripsHref}
@@ -63,18 +70,20 @@ export default function BranchLogForm({
             📚 운행목록
           </Link>
 
+          {/* ✅ 선택한 소속(현재 페이지 branchCode)의 관리자만 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href={`/admin/${branchCode}`}
+            href={`/admin/${encodeURIComponent(branchCode)}`}
           >
             🛠️ 관리자
           </Link>
         </div>
 
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
-          <p className="mb-2 text-sm font-semibold text-gray-700">지사 페이지 이동</p>
+          {/* ✅ 문구 변경 */}
+          <p className="mb-2 text-sm font-semibold text-gray-700">소속 선택</p>
           <div className="flex flex-wrap gap-2 text-sm">
-            {branches.map((branch) => (
+            {sortedBranches.map((branch) => (
               <Link
                 key={branch.code}
                 className={`rounded-lg border px-2 py-1 ${
@@ -102,7 +111,7 @@ export default function BranchLogForm({
           />
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
+            <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
             <input
               name="date"
               type="date"
