@@ -65,6 +65,7 @@ const rawVehicles = `0230\t인천경기\tEV3\t9652\t전기
 0342\t용인서부\tIONIQ5\t0448\t전기`;
 
 async function main() {
+console.log("SEED VERSION: RAWVEHICLES", new Date().toISOString());
   const vehicles = rawVehicles.split("\n").map((line) => {
     const [branchCode, branchName, model, plate, fuelType] = line.split("\t");
     return { branchCode, branchName, model, plate, fuelType };
