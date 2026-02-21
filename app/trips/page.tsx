@@ -48,6 +48,7 @@ export const revalidate = 30;
 
 const PAGE_SIZE = 50;
 
+// ✅ 전체 차량 목록(필터 없을 때만 사용)
 const getVehicles = unstable_cache(
   () =>
     prisma.vehicle.findMany({
@@ -73,6 +74,7 @@ export default async function TripsPage({
   searchParams,
 }: {
   searchParams: Promise<{
+    branchCode?: string; // ✅ 추가
     vehicleId?: string;
     from?: string;
     to?: string;
@@ -84,6 +86,7 @@ export default async function TripsPage({
   const params = await searchParams;
   const currentMonth = getCurrentMonthDateRange();
 
+  const branchCode = (params?.branchCode || "").trim(); // ✅ 추가
   const vehicleId = params?.vehicleId || "";
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
@@ -98,13 +101,24 @@ export default async function TripsPage({
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
 
+  // ✅ branchCode가 있으면: Trip.vehicle.branchCode로 필터
   const where: Prisma.TripWhereInput = {
     date: { gte: from, lte: to },
     ...(vehicleId ? { vehicleId } : {}),
+    ...(branchCode ? { vehicle: { branchCode } } : {}),
   };
 
+  // ✅ branchCode가 있으면 차량 목록도 그 지사만
+  const vehiclesPromise = branchCode
+    ? prisma.vehicle.findMany({
+        where: { branchCode },
+        orderBy: { plate: "asc" },
+        select: { id: true, model: true, plate: true },
+      })
+    : getVehicles();
+
   const [vehicles, tripsRaw] = await Promise.all([
-    getVehicles(),
+    vehiclesPromise,
     prisma.trip.findMany({
       where,
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
@@ -127,6 +141,7 @@ export default async function TripsPage({
 
   const makePageHref = (nextPage: number) => {
     const query = new URLSearchParams();
+    if (branchCode) query.set("branchCode", branchCode); // ✅ 유지
     if (vehicleId) query.set("vehicleId", vehicleId);
     query.set("from", fromParam);
     query.set("to", toParam);
@@ -137,18 +152,22 @@ export default async function TripsPage({
   const ActionLinkClass =
     "inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition touch-manipulation";
 
-  // ✅ 고급형 입력 공통 클래스(높이 통일)
   const FieldClass =
     "h-11 w-full rounded-xl border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-red-400 focus:ring-2 focus:ring-red-100";
+
+  // ✅ 홈 버튼을 지사 페이지로 돌려보내고 싶으면(선택)
+  const homeHref = branchCode ? `/branches/${encodeURIComponent(branchCode)}` : "/";
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-center justify-between gap-3">
-          <h1 className="text-xl font-bold sm:text-2xl">📋 운행일지 전체 목록</h1>
+          <h1 className="text-xl font-bold sm:text-2xl">
+            📋 운행일지 {branchCode ? "지사별" : "전체"} 목록
+          </h1>
           <Link
             className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
-            href="/"
+            href={homeHref}
           >
             🏠 홈으로
           </Link>
@@ -168,15 +187,25 @@ export default async function TripsPage({
           </p>
         ) : null}
 
-        {/* ✅ 고급형 필터바 (이 부분만 업그레이드) */}
         <form
           method="GET"
           className="mt-5 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm"
         >
+          {/* ✅ 검색 눌러도 branchCode 유지 */}
+          {branchCode ? (
+            <input type="hidden" name="branchCode" value={branchCode} />
+          ) : null}
+
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.2fr_0.9fr_0.9fr_auto] sm:items-end">
             <label className="grid gap-1 min-w-0">
-              <select name="vehicleId" defaultValue={vehicleId} className={FieldClass}>
-                <option value="">전체 차량</option>
+              <select
+                name="vehicleId"
+                defaultValue={vehicleId}
+                className={FieldClass}
+              >
+                <option value="">
+                  {branchCode ? "지사 전체 차량" : "전체 차량"}
+                </option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
                     {v.model} / {v.plate}
@@ -205,13 +234,12 @@ export default async function TripsPage({
               />
             </label>
 
-<button className="h-11 rounded-xl bg-red-600 px-6 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:justify-self-end">
-   검색
-</button>
+            <button className="h-11 rounded-xl bg-red-600 px-6 text-sm font-semibold text-white shadow-sm hover:bg-red-700 sm:justify-self-end">
+              검색
+            </button>
           </div>
         </form>
 
-        {/* ✅ 페이지 네비(여기가 안 보였던 부분) */}
         <div className="mt-4 flex items-center gap-3 text-sm sm:text-base">
           <span>
             페이지 <b>{page}</b>
@@ -246,88 +274,79 @@ export default async function TripsPage({
           </p>
         ) : (
           <>
-{/* ✅ 모바일 카드 */}
-<div className="mt-6 grid gap-3 sm:hidden">
-  {trips.map((t) => (
-    <article
-      key={t.id}
-      className="min-h-[150px] rounded-2xl border border-red-100 bg-white p-4 shadow-sm"
-    >
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <div className="text-base font-semibold tracking-tight">
-            {t.date.toISOString().slice(0, 10)}
-          </div>
-          <div className="text-xs text-gray-400">
-            #{t.id.slice(0, 8)}
-          </div>
-        </div>
+            {/* ✅ 모바일 카드 */}
+            <div className="mt-6 grid gap-3 sm:hidden">
+              {trips.map((t) => (
+                <article
+                  key={t.id}
+                  className="min-h-[150px] rounded-2xl border border-red-100 bg-white p-4 shadow-sm"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-base font-semibold tracking-tight">
+                        {t.date.toISOString().slice(0, 10)}
+                      </div>
+                      <div className="text-xs text-gray-400">#{t.id.slice(0, 8)}</div>
+                    </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          <Link
-            href={`/trips/${t.id}`}
-            className={ActionLinkClass}
-            aria-label="수정"
-            title="수정"
-          >
-            <PencilIcon className="h-4 w-4 pointer-events-none" />
-            수정
-          </Link>
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Link
+                        href={`/trips/${t.id}`}
+                        className={ActionLinkClass}
+                        aria-label="수정"
+                        title="수정"
+                      >
+                        <PencilIcon className="h-4 w-4 pointer-events-none" />
+                        수정
+                      </Link>
 
-          <form
-            method="POST"
-            action="/api/trips/delete"
-            data-confirm-delete="1"
-            className="m-0"
-          >
-            <input type="hidden" name="id" value={t.id} />
-            <button
-              type="submit"
-              className={ActionLinkClass}
-              aria-label="삭제"
-              title="삭제"
-            >
-              <Trash2Icon className="h-4 w-4 pointer-events-none" />
-              삭제
-            </button>
-          </form>
-        </div>
-      </div>
+                      <form
+                        method="POST"
+                        action="/api/trips/delete"
+                        data-confirm-delete="1"
+                        className="m-0"
+                      >
+                        <input type="hidden" name="id" value={t.id} />
+                        <button
+                          type="submit"
+                          className={ActionLinkClass}
+                          aria-label="삭제"
+                          title="삭제"
+                        >
+                          <Trash2Icon className="h-4 w-4 pointer-events-none" />
+                          삭제
+                        </button>
+                      </form>
+                    </div>
+                  </div>
 
-      <dl className="mt-3 space-y-1.5 text-sm">
-        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-          <dt className="whitespace-nowrap text-gray-500">차량</dt>
-          <dd className="break-keep leading-5">
-            {t.vehicle
-              ? `${t.vehicle.model} / ${t.vehicle.plate}`
-              : "-"}
-          </dd>
-        </div>
+                  <dl className="mt-3 space-y-1.5 text-sm">
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">차량</dt>
+                      <dd className="break-keep leading-5">
+                        {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
+                      </dd>
+                    </div>
 
-        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-          <dt className="whitespace-nowrap text-gray-500">운전자</dt>
-          <dd className="break-keep leading-5">
-            {t.driver?.name ?? "-"}
-          </dd>
-        </div>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">운전자</dt>
+                      <dd className="break-keep leading-5">{t.driver?.name ?? "-"}</dd>
+                    </div>
 
-        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-          <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
-          <dd className="leading-5">
-            {formatNumber(t.distance)} km
-          </dd>
-        </div>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
+                      <dd className="leading-5">{formatNumber(t.distance)} km</dd>
+                    </div>
 
-        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-          <dt className="whitespace-nowrap text-gray-500">통행료</dt>
-          <dd className="leading-5">
-            {formatNumber(t.tollCost)} 원
-          </dd>
-        </div>
-      </dl>
-    </article>
-  ))}
-</div>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">통행료</dt>
+                      <dd className="leading-5">{formatNumber(t.tollCost)} 원</dd>
+                    </div>
+                  </dl>
+                </article>
+              ))}
+            </div>
+
             {/* ✅ PC 테이블 */}
             <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
               <table className="w-full border-collapse">
@@ -338,7 +357,7 @@ export default async function TripsPage({
                     <th className="p-2 text-left">운전자</th>
                     <th className="p-2 text-right">실제주행거리(km)</th>
                     <th className="p-2 text-right">통행료(원)</th>
-                    <th className="p-2 text-right">수정   삭제</th>
+                    <th className="p-2 text-right">수정&nbsp;&nbsp;삭제</th>
                   </tr>
                 </thead>
 
