@@ -85,7 +85,7 @@ export default function GuidePage() {
           <section className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm sm:p-5">
             <h2 className="text-lg font-bold">1) 차량 사고 시 조치사항</h2>
 
-            <ol className="mt-4 space-y-2">
+            <ol className="mt-4 space-y-2">  
               <NumItem n={1}>
                 렌트업체에 전화해서 <b>차량번호</b>를 알려주시고, 조치를 요청해 주세요.
                 <div className="mt-1 text-sm text-orange-800">
@@ -138,12 +138,13 @@ export default function GuidePage() {
                       복귀 전에는 <b>사용한 만큼</b> 충전해 주시면 좋아요.
                     </div>
                   </NumItem>
-
-                  <NumItem n={3}>
-                    충전구 위치 
-                    — EV3: 조수석 앞쪽 
-                    — 아이오닉5: 조수석 뒤쪽
-                  </NumItem>
+<NumItem n={3}>
+  충전구 위치
+  <div className="mt-1 text-sm text-gray-600">
+    <div>— EV3: 조수석 앞쪽</div>
+    <div>— 아이오닉5, EV6: 조수석 뒤쪽</div>
+  </div>
+</NumItem>
                 </ol>
               </div>
 
@@ -168,7 +169,7 @@ export default function GuidePage() {
                   </NumItem>
 
                   <NumItem n={3}>
-                    주차비는 <b className="text-orange-800">최대 3만원</b>까지 가능해요.
+                    주차비는 시외출장일때만 <b className="text-orange-800">최대 3만원</b>까지 가능해요.
                   </NumItem>
                 </ol>
               </div>
