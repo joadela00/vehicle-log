@@ -234,23 +234,21 @@ export default async function TripsPage({
         ) : (
           <>
             {/* ✅ 모바일 카드 */}
-            <div className="mt-5 grid gap-3 sm:hidden">
+            <div className="mt-6 grid gap-4 sm:hidden">
               {trips.map((t) => (
                 <article
                   key={t.id}
-                  className="rounded-2xl border border-red-100 bg-white p-4 shadow-sm"
+                  className="min-h-[170px] rounded-2xl border border-red-100 bg-white p-5 shadow-sm"
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
                       <div className="text-lg font-bold tracking-tight">
                         {t.date.toISOString().slice(0, 10)}
                       </div>
-                      <div className="text-xs text-gray-400">
-                        #{t.id.slice(0, 8)}
-                      </div>
+                      <div className="text-xs text-gray-400">#{t.id.slice(0, 8)}</div>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 items-center gap-2.5">
                       <Link
                         href={`/trips/${t.id}`}
                         className={ActionLinkClass}
@@ -281,10 +279,10 @@ export default async function TripsPage({
                     </div>
                   </div>
 
-                  <dl className="mt-3 space-y-1 text-sm">
+                  <dl className="mt-4 space-y-2 text-sm">
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">차량</dt>
-                      <dd className="break-keep leading-5">
+                      <dd className="break-keep leading-6">
                         {t.vehicle
                           ? `${t.vehicle.model} / ${t.vehicle.plate}`
                           : "-"}
@@ -293,23 +291,19 @@ export default async function TripsPage({
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">운전자</dt>
-                      <dd className="break-keep leading-5">
+                      <dd className="break-keep leading-6">
                         {t.driver?.name ?? "-"}
                       </dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
-                      <dd className="leading-5">
-                        {formatNumber(t.distance)} km
-                      </dd>
+                      <dd className="leading-6">{formatNumber(t.distance)} km</dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">통행료</dt>
-                      <dd className="leading-5">
-                        {formatNumber(t.tollCost)} 원
-                      </dd>
+                      <dd className="leading-6">{formatNumber(t.tollCost)} 원</dd>
                     </div>
                   </dl>
                 </article>
