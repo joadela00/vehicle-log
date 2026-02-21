@@ -195,7 +195,7 @@ export default async function TripsPage({
           />
 
           <button className="rounded border border-red-200 bg-red-600 px-4 py-3 text-base font-semibold text-white">
-            🔍 검색
+            검색
           </button>
         </form>
 
