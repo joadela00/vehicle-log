@@ -73,7 +73,7 @@ export default function GuidePage() {
                 <div className="text-base font-extrabold text-red-700">1544-4599</div>
               </div>
               <div className="rounded-xl border border-red-200 bg-white px-3 py-2">
-                <div className="text-xs text-gray-500">행정지원부</div>
+                <div className="text-xs text-gray-500">지역본부 행정지원부</div>
                 <div className="text-base font-extrabold text-red-700">031-5173-7667</div>
               </div>
             </div>
