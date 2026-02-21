@@ -1,5 +1,4 @@
 import Link from "next/link";
-import BackButton from "@/components/back-button";
 import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -173,11 +172,12 @@ const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/"
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-bold sm:text-2xl">📋 {titleText}</h1>
-  <BackButton
+  <Link
   className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
-  label="🏠 홈으로"
-  fallbackHref={homeHref}
-/>
+  href={homeHref}
+>
+  🏠 홈으로
+</Link>
         </div>
 
         {deleted ? (
