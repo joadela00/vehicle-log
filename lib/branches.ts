@@ -13,7 +13,7 @@ const getVehicleColumns = unstable_cache(
         AND table_name = 'Vehicle'
     `;
 
-    return new Set(rows.map((row) => row.column_name));
+    return rows.map((row) => row.column_name);
   },
   ["vehicle-columns"],
   { revalidate: 60 },
@@ -22,9 +22,9 @@ const getVehicleColumns = unstable_cache(
 export async function hasVehicleBranchColumns() {
   const columns = await getVehicleColumns();
   return (
-    columns.has("branchCode") &&
-    columns.has("branchName") &&
-    columns.has("fuelType")
+    columns.includes("branchCode") &&
+    columns.includes("branchName") &&
+    columns.includes("fuelType")
   );
 }
 
