@@ -1,9 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 type VehicleOption = {
   id: string;
   model: string;
   plate: string;
+  branchCode: string;
 };
 
 type BranchOption = {
@@ -12,19 +16,51 @@ type BranchOption = {
 };
 
 export default function BranchLogForm({
-  branchCode,
-  branchName,
+  initialBranchCode,
   vehicles,
   branches,
   saved,
 }: {
-  branchCode: string;
-  branchName: string;
+  initialBranchCode: string;
   vehicles: VehicleOption[];
   branches: BranchOption[];
   saved: boolean;
 }) {
   const today = new Date().toISOString().slice(0, 10);
+
+  const safeBranches = useMemo(
+    () =>
+      branches
+        .map((b) => ({
+          code: String(b.code ?? "").trim(),
+          name: String(b.name ?? "").trim(),
+        }))
+        .filter((b) => b.code.length > 0),
+    [branches]
+  );
+
+  const [selectedBranchCode, setSelectedBranchCode] = useState<string>(
+    safeBranches.find((b) => b.code === initialBranchCode)?.code ??
+      safeBranches[0]?.code ??
+      initialBranchCode
+  );
+
+  const selectedBranchName = useMemo(() => {
+    const found = safeBranches.find((b) => b.code === selectedBranchCode);
+    return found?.name || selectedBranchCode;
+  }, [safeBranches, selectedBranchCode]);
+
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter((v) => v.branchCode === selectedBranchCode);
+  }, [vehicles, selectedBranchCode]);
+
+  const [selectedVehicleId, setSelectedVehicleId] = useState<string>("");
+
+  // 지사 바뀌면 해당 지사의 첫 차량으로 자동 선택(라디오 reset)
+  useEffect(() => {
+    const first = filteredVehicles[0]?.id ?? "";
+    setSelectedVehicleId(first);
+  }, [selectedBranchCode, filteredVehicles]);
 
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
@@ -33,7 +69,7 @@ export default function BranchLogForm({
           <div className="min-w-0">
             <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
             <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl">
-              {branchName} 차량 운행일지
+              {selectedBranchName} 차량 운행일지
             </h1>
             <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
           </div>
@@ -60,28 +96,34 @@ export default function BranchLogForm({
           </Link>
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href={`/admin/${branchCode}`}
+            href={`/admin/${selectedBranchCode}`}
           >
             🛠️ 관리자
           </Link>
         </div>
 
+        {/* ✅ 지사 페이지 이동: "페이지 이동" 절대 없음 (버튼으로 상태만 변경) */}
         <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
-          <p className="mb-2 text-sm font-semibold text-gray-700">지사 페이지 이동</p>
+          <p className="mb-2 text-sm font-semibold text-gray-700">지사 선택</p>
+
           <div className="flex flex-wrap gap-2 text-sm">
-            {branches.map((branch) => (
-              <Link
-                key={branch.code}
-                className={`rounded-lg border px-2 py-1 ${
-                  branch.code === branchCode
-                    ? "border-red-500 bg-red-600 text-white"
-                    : "border-red-200 bg-white hover:text-red-600"
-                }`}
-                href={branch.code === "0230" ? "/" : `/branches/${branch.code}`}
-              >
-                {branch.name}
-              </Link>
-            ))}
+            {safeBranches.map((branch) => {
+              const active = branch.code === selectedBranchCode;
+              return (
+                <button
+                  key={branch.code}
+                  type="button"
+                  onClick={() => setSelectedBranchCode(branch.code)}
+                  className={`rounded-lg border px-2 py-1 transition ${
+                    active
+                      ? "border-red-500 bg-red-600 text-white"
+                      : "border-red-200 bg-white hover:border-red-300 hover:text-red-600"
+                  }`}
+                >
+                  {branch.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -90,14 +132,11 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input
-            type="hidden"
-            name="returnTo"
-            value={branchCode === "0230" ? "/" : `/branches/${branchCode}`}
-          />
+          {/* ✅ 이동 없이 항상 현재(홈)로 돌아오게 */}
+          <input type="hidden" name="returnTo" value="/" />
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
+            <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
             <input
               name="date"
               type="date"
@@ -111,28 +150,35 @@ export default function BranchLogForm({
           <div className="grid gap-2 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
 
-            <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
-              {vehicles.map((v, idx) => (
-                <label key={v.id} className="block min-w-0 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="vehicleId"
-                    value={v.id}
-                    defaultChecked={idx === 0}
-                    className="peer sr-only"
-                    required
-                  />
+            {filteredVehicles.length === 0 ? (
+              <p className="rounded-xl border border-red-100 bg-red-50/40 px-3 py-3 text-sm text-gray-600">
+                선택한 지사에 등록된 차량이 없습니다.
+              </p>
+            ) : (
+              <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
+                {filteredVehicles.map((v) => (
+                  <label key={v.id} className="block min-w-0 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="vehicleId"
+                      value={v.id}
+                      checked={selectedVehicleId === v.id}
+                      onChange={() => setSelectedVehicleId(v.id)}
+                      className="peer sr-only"
+                      required
+                    />
 
-                  <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
-                    <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
-                      ✔
+                    <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
+                      <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
+                        ✔
+                      </span>
+                      <span className="block truncate text-xs opacity-80">{v.model}</span>
+                      <span className="mt-0.5 block truncate">{v.plate}</span>
                     </span>
-                    <span className="block truncate text-xs opacity-80">{v.model}</span>
-                    <span className="mt-0.5 block truncate">{v.plate}</span>
-                  </span>
-                </label>
-              ))}
-            </div>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           <label className="grid gap-1 min-w-0">
