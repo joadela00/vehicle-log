@@ -1,5 +1,5 @@
 "use client";
-
+import { MAIN_BRANCH_CODE } from "@/lib/branches";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
@@ -70,6 +70,7 @@ export default function BranchLogForm({
 
   // ✅ 운행목록 링크는 선택 지사 기준으로
   const tripsHref = useMemo(() => {
+    const showAdminButton = selectedBranchCode === MAIN_BRANCH_CODE;
     const q = new URLSearchParams();
     if (selectedBranchCode) q.set("branchCode", selectedBranchCode);
     return `/trips?${q.toString()}`;
@@ -110,12 +111,15 @@ export default function BranchLogForm({
             📚 운행목록
           </Link>
 
-          <Link
-            className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href={`/admin/${selectedBranchCode}`}
-          >
-            🛠️ 관리자
-          </Link>
+     {showAdminButton && (
+  <Link
+    className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
+    href={`/admin/${selectedBranchCode}`}
+  >
+    🛠️ 관리자
+  </Link>
+)}
+
         </div>
 
         {/* ✅ 지사 선택 (페이지 이동 없음) */}
