@@ -13,6 +13,7 @@ export async function POST(req: Request) {
   const dateStr = String(form.get("date") || "");
   const vehicleId = String(form.get("vehicleId") || "");
   const driverName = String(form.get("driverName") || "").trim();
+  const returnTo = String(form.get("returnTo") || "").trim();
 
   const odoEnd = toInt(form.get("odoEnd"));
   const evRemainPct = Number(form.get("evRemainPct"));
@@ -81,5 +82,9 @@ export async function POST(req: Request) {
     },
   });
 
-  return NextResponse.redirect(new URL("/?saved=1", req.url));
+  const safeReturnTo = /^\/(?:$|[a-zA-Z0-9/_-]*)$/.test(returnTo) ? returnTo : "/";
+  const redirectUrl = new URL(safeReturnTo, req.url);
+  redirectUrl.searchParams.set("saved", "1");
+
+  return NextResponse.redirect(redirectUrl);
 }

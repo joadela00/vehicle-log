@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 
 export default async function Home() {
@@ -63,7 +64,7 @@ export default async function Home() {
 
         <div className="flex gap-3">
           <button className="bg-black text-white rounded px-4 py-2">저장</button>
-          <a className="underline self-center" href="/admin">관리자(누적)</a>
+          <Link className="underline self-center" href="/admin">관리자(누적)</Link>
         </div>
       </form>
     </main>
