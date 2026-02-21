@@ -247,10 +247,10 @@ export default async function TripsPage({
                       </div>
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-1 text-gray-600">
+                    <div className="flex shrink-0 items-center gap-0">
                       <Link
                         href={`/trips/${t.id}`}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                        className="inline-flex h-7 w-7 -mr-1 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
                         aria-label="수정"
                         title="수정"
                       >
@@ -265,7 +265,7 @@ export default async function TripsPage({
                         <input type="hidden" name="id" value={t.id} />
                         <button
                           type="submit"
-                          className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
                           aria-label="삭제"
                           title="삭제"
                         >
@@ -277,7 +277,7 @@ export default async function TripsPage({
 
                   <dl className="mt-2 space-y-0.5">
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                      <dt className="text-gray-500">차량</dt>
+                      <dt className="whitespace-nowrap text-gray-500">차량</dt>
                       <dd className="break-keep leading-5">
                         {t.vehicle
                           ? `${t.vehicle.model} / ${t.vehicle.plate}`
@@ -285,20 +285,20 @@ export default async function TripsPage({
                       </dd>
                     </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-1">
-                      <dt className="text-gray-500">운전자</dt>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">운전자</dt>
                       <dd className="break-keep leading-5">
                         {t.driver?.name ?? "-"}
                       </dd>
                     </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-1">
-                      <dt className="text-gray-500">주행거리</dt>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
                       <dd className="leading-5">{formatNumber(t.distance)} km</dd>
                     </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-1">
-                      <dt className="text-gray-500">통행료</dt>
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+                      <dt className="whitespace-nowrap text-gray-500">통행료</dt>
                       <dd className="leading-5">
                         {formatNumber(t.tollCost)} 원
                       </dd>
