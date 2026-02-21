@@ -102,11 +102,11 @@ export default function GuidePage() {
               </NumItem>
 
               <NumItem n={4}>
-                복귀 후 <b>사고 사진</b>을 포함해서 <b>사고경위서</b>를 행정지원부로 전달해 주세요.
+                복귀 후 <b>사고 사진</b>을 포함해서 <b>사고경위서</b>를 행지로 전달해 주세요.
               </NumItem>
 
               <BulletItem icon="😥" tone="danger">
-                작은 접촉이라도 <b className="text-red-700">행정지원부에 꼭 알려주세요.</b>
+                작은 접촉이라도 <b className="text-red-700">행지에 꼭 알려주세요.</b>
               </BulletItem>
             
             
