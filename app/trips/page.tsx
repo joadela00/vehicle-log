@@ -276,7 +276,7 @@ export default async function TripsPage({
                   </div>
 
                   <dl className="mt-2 space-y-0.5">
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-1">
+                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="text-gray-500">차량</dt>
                       <dd className="break-keep leading-5">
                         {t.vehicle
@@ -318,7 +318,7 @@ export default async function TripsPage({
                     <th className="p-2 text-left">운전자</th>
                     <th className="p-2 text-right">실제주행거리(km)</th>
                     <th className="p-2 text-right">통행료(원)</th>
-                    <th className="p-2 text-right">작업</th>
+                    <th className="p-2 text-right">수정 삭제</th>
                   </tr>
                 </thead>
 
