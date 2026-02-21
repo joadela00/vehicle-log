@@ -77,7 +77,7 @@ export default function BranchLogForm({
                     ? "border-red-500 bg-red-600 text-white"
                     : "border-red-200 bg-white hover:text-red-600"
                 }`}
-                href={`/branches/${branch.code}`}
+                href={branch.code === "0230" ? "/" : `/branches/${branch.code}`}
               >
                 {branch.name}
               </Link>
@@ -90,7 +90,7 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input type="hidden" name="returnTo" value={`/branches/${branchCode}`} />
+          <input type="hidden" name="returnTo" value={branchCode === "0230" ? "/" : `/branches/${branchCode}`} />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
