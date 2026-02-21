@@ -26,6 +26,8 @@ export default function BranchLogForm({
 }) {
   const today = new Date().toISOString().slice(0, 10);
 
+  const tripsHref = `/trips?branchCode=${encodeURIComponent(branchCode)}`;
+
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
@@ -52,12 +54,15 @@ export default function BranchLogForm({
           >
             📢 운행안내
           </Link>
+
+          {/* ✅ 여기만 바뀜: 현재 지사코드를 쿼리로 들고 이동 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
-            href="/trips"
+            href={tripsHref}
           >
             📚 운행목록
           </Link>
+
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href={`/admin/${branchCode}`}
@@ -90,7 +95,11 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input type="hidden" name="returnTo" value={branchCode === "0230" ? "/" : `/branches/${branchCode}`} />
+          <input
+            type="hidden"
+            name="returnTo"
+            value={branchCode === "0230" ? "/" : `/branches/${branchCode}`}
+          />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm  font-semibold sm:text-base">📅 날짜</span>
