@@ -163,13 +163,8 @@ export default async function TripsPage({
   const FieldClass =
     "h-11 w-full rounded-xl border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-red-400 focus:ring-2 focus:ring-red-100";
 
-  // ✅ 홈으로 404 수정: 메인(0230)은 /, 그 외는 /branches/{code}
-  const homeHref =
-    branchCode === "0230"
-      ? "/"
-      : branchCode
-        ? `/branches/${encodeURIComponent(branchCode)}`
-        : "/";
+// ✅ 홈(지사 선택 완료 상태)으로: 항상 /?branch=xxxx 로 복귀
+const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/";
 
   const titleText = branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록";
 
