@@ -3,12 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
-import {
-  getBranchOptions,
-  hasVehicleBranchColumns,
-  MAIN_BRANCH_CODE,
-  MAIN_BRANCH_NAME,
-} from "@/lib/branches";
+import { getBranchOptions, MAIN_BRANCH_CODE } from "@/lib/branches";
 
 function monthRange(base = new Date()) {
   const year = base.getFullYear();
@@ -28,19 +23,14 @@ export default async function AdminDashboard({
   if (!authed) redirect("/admin-login");
 
   const showAll = branchCode === MAIN_BRANCH_CODE;
-  const branchReady = await hasVehicleBranchColumns();
 
-  if (!branchReady && !showAll) redirect("/admin");
-
-  const [branches, branchInfo] = branchReady
-    ? await Promise.all([
-        getBranchOptions(),
-        prisma.vehicle.findFirst({
-          where: { branchCode },
-          select: { branchName: true },
-        }),
-      ])
-    : [[{ code: MAIN_BRANCH_CODE, name: MAIN_BRANCH_NAME }], { branchName: MAIN_BRANCH_NAME }];
+  const [branches, branchInfo] = await Promise.all([
+    getBranchOptions(),
+    prisma.vehicle.findFirst({
+      where: { branchCode },
+      select: { branchName: true },
+    }),
+  ]);
 
   if (!branchInfo) redirect("/admin");
 
@@ -48,15 +38,14 @@ export default async function AdminDashboard({
   const periodStart = start.toISOString().slice(0, 10);
   const periodEnd = new Date(end.getTime() - 1).toISOString().slice(0, 10);
 
-  const vehicleWhere = !branchReady || showAll ? {} : { branchCode };
-  const tripWhere = !branchReady || showAll
+  const vehicleWhere = showAll ? {} : { branchCode };
+  const tripWhere = showAll
     ? { date: { gte: start, lt: end } }
     : { date: { gte: start, lt: end }, vehicle: { branchCode } };
 
   const vehicles = await prisma.vehicle.findMany({
     where: vehicleWhere,
-    orderBy: [{ plate: "asc" }],
-    select: { id: true, model: true, plate: true, ...(branchReady ? { branchName: true } : {}) },
+    orderBy: [{ branchCode: "asc" }, { plate: "asc" }],
   });
 
   const totals = await prisma.trip.aggregate({
@@ -90,19 +79,10 @@ export default async function AdminDashboard({
   );
 
   const recentTrips = await prisma.trip.findMany({
-    where: !branchReady || showAll ? {} : { vehicle: { branchCode } },
+    where: showAll ? {} : { vehicle: { branchCode } },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     take: 20,
-    include: {
-      driver: true,
-      vehicle: {
-        select: {
-          model: true,
-          plate: true,
-          ...(branchReady ? { branchName: true } : {}),
-        },
-      },
-    },
+    include: { vehicle: true, driver: true },
   });
 
   return (
@@ -112,7 +92,7 @@ export default async function AdminDashboard({
           <div>
             <h1 className="text-xl font-bold sm:text-2xl">📊 {branchInfo.branchName} 관리자 대시보드</h1>
             <p className="mt-1 text-xs text-gray-500 sm:text-sm">기간: {periodStart} ~ {periodEnd}</p>
-            {showAll && branchReady ? (
+            {showAll ? (
               <p className="mt-1 text-xs text-red-500 sm:text-sm">인천경기 관리자 화면에서 전체 지사 데이터를 함께 조회합니다.</p>
             ) : null}
           </div>
@@ -165,7 +145,7 @@ export default async function AdminDashboard({
             <tbody>
               {byVehicle.map(({ v, agg, latest }) => (
                 <tr key={v.id} className="border-b align-top last:border-b-0">
-                  <td className="p-2 whitespace-nowrap">{"branchName" in v ? v.branchName : MAIN_BRANCH_NAME}</td>
+                  <td className="p-2 whitespace-nowrap">{v.branchName}</td>
                   <td className="p-2 whitespace-nowrap">
                     <b>{v.model}</b> / {v.plate}
                     {latest?.date ? <div className="text-xs text-gray-500">최근기록: {latest.date.toISOString().slice(0, 10)}</div> : <div className="text-xs text-gray-500">기록 없음</div>}
@@ -202,7 +182,7 @@ export default async function AdminDashboard({
               {recentTrips.map((t) => (
                 <tr key={t.id} className="border-b align-top last:border-b-0">
                   <td className="p-2 whitespace-nowrap">{t.date.toISOString().slice(0, 10)}</td>
-                  <td className="p-2 whitespace-nowrap">{"branchName" in t.vehicle ? t.vehicle.branchName : MAIN_BRANCH_NAME}</td>
+                  <td className="p-2 whitespace-nowrap">{t.vehicle.branchName}</td>
                   <td className="p-2 whitespace-nowrap">{t.vehicle.model} / {t.vehicle.plate}</td>
                   <td className="p-2 whitespace-nowrap">{t.driver.name}</td>
                   <td className="p-2 text-right whitespace-nowrap">{formatNumber(t.distance)}</td>
