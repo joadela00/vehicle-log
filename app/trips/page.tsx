@@ -175,7 +175,6 @@ export default async function TripsPage({
         >
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.2fr_0.9fr_0.9fr_auto] sm:items-end">
             <label className="grid gap-1 min-w-0">
-              <span className="text-sm font-semibold text-gray-700">🚗 차량</span>
               <select name="vehicleId" defaultValue={vehicleId} className={FieldClass}>
                 <option value="">전체 차량</option>
                 {vehicles.map((v) => (
@@ -187,7 +186,6 @@ export default async function TripsPage({
             </label>
 
             <label className="grid gap-1 min-w-0">
-              <span className="text-sm font-semibold text-gray-700">📅 시작일자</span>
               <input
                 type="date"
                 name="from"
@@ -198,7 +196,6 @@ export default async function TripsPage({
             </label>
 
             <label className="grid gap-1 min-w-0">
-              <span className="text-sm font-semibold text-gray-700">📅 종료일자</span>
               <input
                 type="date"
                 name="to"
