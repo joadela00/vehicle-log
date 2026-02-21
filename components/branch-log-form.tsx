@@ -29,16 +29,20 @@ export default function BranchLogForm({
 }) {
   const today = new Date().toISOString().slice(0, 10);
 
-  const safeBranches = useMemo(
-    () =>
-      branches
-        .map((b) => ({
-          code: String(b.code ?? "").trim(),
-          name: String(b.name ?? "").trim(),
-        }))
-        .filter((b) => b.code.length > 0),
-    [branches]
-  );
+  // ✅ 지사 목록 정리 + 지역본부(MAIN_BRANCH_CODE)만 맨 뒤로
+  const safeBranches = useMemo(() => {
+    const list = branches
+      .map((b) => ({
+        code: String(b.code ?? "").trim(),
+        name: String(b.name ?? "").trim(),
+      }))
+      .filter((b) => b.code.length > 0);
+
+    const normal = list.filter((b) => b.code !== MAIN_BRANCH_CODE);
+    const main = list.filter((b) => b.code === MAIN_BRANCH_CODE);
+
+    return [...normal, ...main];
+  }, [branches]);
 
   const initialSafe =
     safeBranches.find((b) => b.code === initialBranchCode)?.code ??
@@ -46,6 +50,9 @@ export default function BranchLogForm({
     initialBranchCode;
 
   const [selectedBranchCode, setSelectedBranchCode] = useState<string>(initialSafe);
+
+  // ✅ 지사 선택 영역: 처음엔 펼쳐짐, 선택 후 자동 접힘
+  const [branchPickerOpen, setBranchPickerOpen] = useState(true);
 
   // ✅ initialBranchCode(쿼리에서 들어오는 값)가 바뀌면 상태 동기화
   useEffect(() => {
@@ -56,6 +63,8 @@ export default function BranchLogForm({
 
     if (next && next !== selectedBranchCode) {
       setSelectedBranchCode(next);
+      // 쿼리로 지사가 들어와서 바뀌는 경우엔, 선택 완료로 보고 접어두는 게 자연스러움
+      setBranchPickerOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialBranchCode, safeBranches]);
@@ -77,7 +86,7 @@ export default function BranchLogForm({
     setSelectedVehicleId(first);
   }, [filteredVehicles, selectedBranchCode]);
 
-  // ✅ 여기! JSX에서 쓰는 변수를 "반드시 return 위에서" 선언해야 함
+  // ✅ 지역본부(0230)만 관리자 노출
   const showAdminButton = selectedBranchCode === MAIN_BRANCH_CODE;
 
   // ✅ 운행목록 링크는 선택 지사 기준으로
@@ -114,7 +123,6 @@ export default function BranchLogForm({
             📢 운행안내
           </Link>
 
-          {/* ✅ 지사별 운행목록 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
             href={tripsHref}
@@ -122,7 +130,6 @@ export default function BranchLogForm({
             📚 운행목록
           </Link>
 
-          {/* ✅ 지역본부(0230)만 관리자 노출 */}
           {showAdminButton && (
             <Link
               className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-400 hover:text-red-600"
@@ -133,29 +140,65 @@ export default function BranchLogForm({
           )}
         </div>
 
-        {/* ✅ 지사 선택 (페이지 이동 없음) */}
-        <div className="mt-4 rounded-2xl border border-red-100 bg-red-50/40 p-3">
-          <p className="mb-2 text-sm font-semibold text-gray-700">지사 선택</p>
+        {/* ✅ 지사 선택 (선택 후 자동 접힘) */}
+        <div
+          className={`mt-4 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
+            branchPickerOpen ? "p-3" : "p-2"
+          }`}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm font-semibold text-gray-700">지사 선택</p>
 
-          <div className="flex flex-wrap gap-2 text-sm">
-            {safeBranches.map((branch) => {
-              const active = branch.code === selectedBranchCode;
-              return (
-                <button
-                  key={branch.code}
-                  type="button"
-                  onClick={() => setSelectedBranchCode(branch.code)}
-                  className={`rounded-lg border px-2 py-1 transition ${
-                    active
-                      ? "border-red-500 bg-red-600 text-white"
-                      : "border-red-200 bg-white hover:border-red-300 hover:text-red-600"
-                  }`}
-                >
-                  {branch.name}
-                </button>
-              );
-            })}
+            {branchPickerOpen ? (
+              <button
+                type="button"
+                onClick={() => setBranchPickerOpen(false)}
+                className="rounded-lg border border-red-200 bg-white px-2 py-1 text-xs font-medium hover:text-red-600"
+              >
+                접기
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setBranchPickerOpen(true)}
+                className="rounded-lg border border-red-200 bg-white px-2 py-1 text-xs font-medium hover:text-red-600"
+              >
+                변경
+              </button>
+            )}
           </div>
+
+          {branchPickerOpen ? (
+            <div className="mt-2 flex flex-wrap gap-2 text-sm">
+              {safeBranches.map((branch) => {
+                const active = branch.code === selectedBranchCode;
+                return (
+                  <button
+                    key={branch.code}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBranchCode(branch.code);
+                      setBranchPickerOpen(false); // ✅ 선택하면 자동으로 쪼그라듦(접힘)
+                    }}
+                    className={`rounded-lg border px-2 py-1 transition ${
+                      active
+                        ? "border-red-500 bg-red-600 text-white"
+                        : "border-red-200 bg-white hover:border-red-300 hover:text-red-600"
+                    }`}
+                  >
+                    {branch.name}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="mt-2">
+              <div className="inline-flex items-center gap-2 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm">
+                <span className="text-gray-500">선택됨</span>
+                <b className="text-gray-800">{selectedBranchName}</b>
+              </div>
+            </div>
+          )}
         </div>
 
         <form
@@ -163,7 +206,6 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          {/* ✅ 저장 후에도 선택 지사 유지 */}
           <input
             type="hidden"
             name="returnTo"
