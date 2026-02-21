@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
 import BranchLogForm from "@/components/branch-log-form";
 import { prisma } from "@/lib/prisma";
-import {
-  getBranchOptions,
-  hasVehicleBranchColumns,
-  MAIN_BRANCH_CODE,
-} from "@/lib/branches";
+import { getBranchOptions, MAIN_BRANCH_CODE } from "@/lib/branches";
 
 export const revalidate = 60;
 
@@ -19,9 +15,6 @@ export default async function BranchPage({
   const [{ code }, query] = await Promise.all([params, searchParams]);
 
   if (code === MAIN_BRANCH_CODE) notFound();
-
-  const branchReady = await hasVehicleBranchColumns();
-  if (!branchReady) notFound();
 
   const [branch, vehicles, branches] = await Promise.all([
     prisma.vehicle.findFirst({
