@@ -91,7 +91,9 @@ export default async function TripsPage({
   const deleteError = params?.deleteError || "";
 
   const parsedPage = Number(params?.page || "1");
-  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
+  const page = Number.isFinite(parsedPage)
+    ? Math.max(1, Math.trunc(parsedPage))
+    : 1;
 
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
@@ -131,6 +133,9 @@ export default async function TripsPage({
     query.set("page", String(nextPage));
     return `/trips?${query.toString()}`;
   };
+
+  const ActionLinkClass =
+    "inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition touch-manipulation";
 
   return (
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
@@ -240,50 +245,59 @@ export default async function TripsPage({
                       <div className="whitespace-nowrap font-semibold">
                         {t.date.toISOString().slice(0, 10)}
                       </div>
-                      <div className="text-xs text-gray-500">#{t.id.slice(0, 8)}</div>
+                      <div className="text-xs text-gray-500">
+                        #{t.id.slice(0, 8)}
+                      </div>
                     </div>
 
-                    {/* ✅ 모바일 아이콘: 잘 눌리게 + 살짝 띄움 */}
-                   <div className="flex shrink-0 items-center gap-1">
-  <Link
-    href={`/trips/${t.id}`}
-    className="relative z-0 inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 touch-manipulation"
-    aria-label="수정"
-    title="수정"
-  >
-    <PencilIcon className="h-4 w-4 pointer-events-none" />
-  </Link>
+                    {/* ✅ 모바일 액션: 홈으로 버튼처럼 박스 + 텍스트 */}
+                    <div className="flex shrink-0 items-center gap-2">
+                      <Link
+                        href={`/trips/${t.id}`}
+                        className={ActionLinkClass}
+                        aria-label="수정"
+                        title="수정"
+                      >
+                        <PencilIcon className="h-4 w-4 pointer-events-none" />
+                        수정
+                      </Link>
 
-  <form
-    method="POST"
-    action="/api/trips/delete"
-    data-confirm-delete="1"
-    className="relative z-10"
-  >
-    <input type="hidden" name="id" value={t.id} />
-    <button
-      type="submit"
-      className="relative z-10 inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 touch-manipulation"
-      aria-label="삭제"
-      title="삭제"
-    >
-      <Trash2Icon className="h-4 w-4 pointer-events-none" />
-    </button>
-  </form>
-</div>
+                      <form
+                        method="POST"
+                        action="/api/trips/delete"
+                        data-confirm-delete="1"
+                        className="m-0"
+                      >
+                        <input type="hidden" name="id" value={t.id} />
+                        <button
+                          type="submit"
+                          className={ActionLinkClass}
+                          aria-label="삭제"
+                          title="삭제"
+                        >
+                          <Trash2Icon className="h-4 w-4 pointer-events-none" />
+                          삭제
+                        </button>
+                      </form>
+                    </div>
+                  </div>
 
-                  {/* ✅ 모바일: 값 시작 위치 ㅣ자로 정렬 (gap-2 통일) */}
+                  {/* ✅ 모바일: 값 시작 위치 ㅣ자로 정렬 */}
                   <dl className="mt-2 space-y-0.5">
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">차량</dt>
                       <dd className="break-keep leading-5">
-                        {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
+                        {t.vehicle
+                          ? `${t.vehicle.model} / ${t.vehicle.plate}`
+                          : "-"}
                       </dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">운전자</dt>
-                      <dd className="break-keep leading-5">{t.driver?.name ?? "-"}</dd>
+                      <dd className="break-keep leading-5">
+                        {t.driver?.name ?? "-"}
+                      </dd>
                     </div>
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
@@ -293,7 +307,9 @@ export default async function TripsPage({
 
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">통행료</dt>
-                      <dd className="leading-5">{formatNumber(t.tollCost)} 원</dd>
+                      <dd className="leading-5">
+                        {formatNumber(t.tollCost)} 원
+                      </dd>
                     </div>
                   </dl>
                 </article>
@@ -310,41 +326,54 @@ export default async function TripsPage({
                     <th className="p-2 text-left">운전자</th>
                     <th className="p-2 text-right">실제주행거리(km)</th>
                     <th className="p-2 text-right">통행료(원)</th>
-                    <th className="p-2 text-right">수정 삭제</th>
+                    <th className="p-2 text-right">작업</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {trips.map((t) => (
                     <tr key={t.id} className="border-b">
-                      <td className="whitespace-nowrap p-2">{t.date.toISOString().slice(0, 10)}</td>
                       <td className="whitespace-nowrap p-2">
-                        {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
+                        {t.date.toISOString().slice(0, 10)}
                       </td>
-                      <td className="whitespace-nowrap p-2">{t.driver?.name ?? "-"}</td>
+                      <td className="whitespace-nowrap p-2">
+                        {t.vehicle
+                          ? `${t.vehicle.model} / ${t.vehicle.plate}`
+                          : "-"}
+                      </td>
+                      <td className="whitespace-nowrap p-2">
+                        {t.driver?.name ?? "-"}
+                      </td>
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>
                       <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
 
                       <td className="p-2">
-                        <div className="flex items-center justify-end gap-1">
+                        <div className="flex items-center justify-end gap-2">
                           <Link
                             href={`/trips/${t.id}`}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                            className={ActionLinkClass}
                             aria-label="수정"
                             title="수정"
                           >
-                            <PencilIcon className="h-4 w-4" />
+                            <PencilIcon className="h-4 w-4 pointer-events-none" />
+                            수정
                           </Link>
 
-                          <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
+                          <form
+                            method="POST"
+                            action="/api/trips/delete"
+                            data-confirm-delete="1"
+                            className="m-0"
+                          >
                             <input type="hidden" name="id" value={t.id} />
                             <button
                               type="submit"
-                              className="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+                              className={ActionLinkClass}
                               aria-label="삭제"
                               title="삭제"
                             >
-                              <Trash2Icon className="h-4 w-4" />
+                              <Trash2Icon className="h-4 w-4 pointer-events-none" />
+                              삭제
                             </button>
                           </form>
                         </div>
