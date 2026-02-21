@@ -244,29 +244,33 @@ export default async function TripsPage({
                     </div>
 
                     {/* ✅ 모바일 아이콘: 잘 눌리게 + 살짝 띄움 */}
-                    <div className="flex shrink-0 items-center gap-1">
-                      <Link
-                        href={`/trips/${t.id}`}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
-                        aria-label="수정"
-                        title="수정"
-                      >
-                        <PencilIcon className="h-4 w-4 pointer-events-none" />
-                      </Link>
+                   <div className="flex shrink-0 items-center gap-1">
+  <Link
+    href={`/trips/${t.id}`}
+    className="relative z-0 inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 touch-manipulation"
+    aria-label="수정"
+    title="수정"
+  >
+    <PencilIcon className="h-4 w-4 pointer-events-none" />
+  </Link>
 
-                      <form method="POST" action="/api/trips/delete" data-confirm-delete="1">
-                        <input type="hidden" name="id" value={t.id} />
-                        <button
-                          type="submit"
-                          className="inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600"
-                          aria-label="삭제"
-                          title="삭제"
-                        >
-                          <Trash2Icon className="h-4 w-4 pointer-events-none" />
-                        </button>
-                      </form>
-                    </div>
-                  </div>
+  <form
+    method="POST"
+    action="/api/trips/delete"
+    data-confirm-delete="1"
+    className="relative z-10"
+  >
+    <input type="hidden" name="id" value={t.id} />
+    <button
+      type="submit"
+      className="relative z-10 inline-flex h-9 w-9 items-center justify-center rounded-md text-gray-500 transition hover:bg-red-50 hover:text-red-600 touch-manipulation"
+      aria-label="삭제"
+      title="삭제"
+    >
+      <Trash2Icon className="h-4 w-4 pointer-events-none" />
+    </button>
+  </form>
+</div>
 
                   {/* ✅ 모바일: 값 시작 위치 ㅣ자로 정렬 (gap-2 통일) */}
                   <dl className="mt-2 space-y-0.5">
