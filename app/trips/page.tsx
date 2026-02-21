@@ -246,79 +246,88 @@ export default async function TripsPage({
           </p>
         ) : (
           <>
-            {/* ✅ 모바일 카드 */}
-            <div className="mt-6 grid gap-4 sm:hidden">
-              {trips.map((t) => (
-                <article
-                  key={t.id}
-                  className="min-h-[150px] rounded-2xl border border-red-100 bg-white p-5 shadow-sm"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="text-lg font-bold tracking-tight">
-                        {t.date.toISOString().slice(0, 10)}
-                      </div>
-                      <div className="text-xs text-gray-400">#{t.id.slice(0, 8)}</div>
-                    </div>
+{/* ✅ 모바일 카드 */}
+<div className="mt-6 grid gap-3 sm:hidden">
+  {trips.map((t) => (
+    <article
+      key={t.id}
+      className="min-h-[150px] rounded-2xl border border-red-100 bg-white p-4 shadow-sm"
+    >
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-base font-semibold tracking-tight">
+            {t.date.toISOString().slice(0, 10)}
+          </div>
+          <div className="text-xs text-gray-400">
+            #{t.id.slice(0, 8)}
+          </div>
+        </div>
 
-                    <div className="flex shrink-0 items-center gap-2.5">
-                      <Link
-                        href={`/trips/${t.id}`}
-                        className={ActionLinkClass}
-                        aria-label="수정"
-                        title="수정"
-                      >
-                        <PencilIcon className="h-4 w-4 pointer-events-none" />
-                        수정
-                      </Link>
+        <div className="flex shrink-0 items-center gap-2">
+          <Link
+            href={`/trips/${t.id}`}
+            className={ActionLinkClass}
+            aria-label="수정"
+            title="수정"
+          >
+            <PencilIcon className="h-4 w-4 pointer-events-none" />
+            수정
+          </Link>
 
-                      <form
-                        method="POST"
-                        action="/api/trips/delete"
-                        data-confirm-delete="1"
-                        className="m-0"
-                      >
-                        <input type="hidden" name="id" value={t.id} />
-                        <button
-                          type="submit"
-                          className={ActionLinkClass}
-                          aria-label="삭제"
-                          title="삭제"
-                        >
-                          <Trash2Icon className="h-4 w-4 pointer-events-none" />
-                          삭제
-                        </button>
-                      </form>
-                    </div>
-                  </div>
+          <form
+            method="POST"
+            action="/api/trips/delete"
+            data-confirm-delete="1"
+            className="m-0"
+          >
+            <input type="hidden" name="id" value={t.id} />
+            <button
+              type="submit"
+              className={ActionLinkClass}
+              aria-label="삭제"
+              title="삭제"
+            >
+              <Trash2Icon className="h-4 w-4 pointer-events-none" />
+              삭제
+            </button>
+          </form>
+        </div>
+      </div>
 
-                  <dl className="mt-4 space-y-2 text-sm">
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                      <dt className="whitespace-nowrap text-gray-500">차량</dt>
-                      <dd className="break-keep leading-6">
-                        {t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}
-                      </dd>
-                    </div>
+      <dl className="mt-3 space-y-1.5 text-sm">
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">차량</dt>
+          <dd className="break-keep leading-5">
+            {t.vehicle
+              ? `${t.vehicle.model} / ${t.vehicle.plate}`
+              : "-"}
+          </dd>
+        </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                      <dt className="whitespace-nowrap text-gray-500">운전자</dt>
-                      <dd className="break-keep leading-6">{t.driver?.name ?? "-"}</dd>
-                    </div>
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">운전자</dt>
+          <dd className="break-keep leading-5">
+            {t.driver?.name ?? "-"}
+          </dd>
+        </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                      <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
-                      <dd className="leading-6">{formatNumber(t.distance)} km</dd>
-                    </div>
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">주행거리</dt>
+          <dd className="leading-5">
+            {formatNumber(t.distance)} km
+          </dd>
+        </div>
 
-                    <div className="grid grid-cols-[64px_1fr] items-start gap-2">
-                      <dt className="whitespace-nowrap text-gray-500">통행료</dt>
-                      <dd className="leading-6">{formatNumber(t.tollCost)} 원</dd>
-                    </div>
-                  </dl>
-                </article>
-              ))}
-            </div>
-
+        <div className="grid grid-cols-[64px_1fr] items-start gap-2">
+          <dt className="whitespace-nowrap text-gray-500">통행료</dt>
+          <dd className="leading-5">
+            {formatNumber(t.tollCost)} 원
+          </dd>
+        </div>
+      </dl>
+    </article>
+  ))}
+</div>
             {/* ✅ PC 테이블 */}
             <div className="mt-6 hidden overflow-x-auto rounded-2xl border border-red-100 bg-white/95 shadow-sm sm:block">
               <table className="w-full border-collapse">
