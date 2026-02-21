@@ -210,39 +210,234 @@ export default function BranchLogForm({
               style={{ WebkitAppearance: "none", appearance: "none" }}
             />
           </label>
+"use client";
 
-          <div className="grid gap-2 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
+import { MAIN_BRANCH_CODE } from "@/lib/branches";
 
-            {filteredVehicles.length === 0 ? (
-              <p className="rounded-xl border border-red-100 bg-red-50/40 px-3 py-3 text-sm text-gray-600">
-                선택한 지사에 등록된 차량이 없습니다.
-              </p>
-            ) : (
-              <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-3">
-                {filteredVehicles.map((v) => (
-                  <label key={v.id} className="block min-w-0 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="vehicleId"
-                      value={v.id}
-                      checked={selectedVehicleId === v.id}
-                      onChange={() => setSelectedVehicleId(v.id)}
-                      className="peer sr-only"
-                      required
-                    />
+type VehicleOption = {
+  id: string;
+  model: string;
+  plate: string;
+  branchCode: string;
+};
 
-                    <span className="relative block w-full min-w-0 overflow-hidden rounded-2xl border border-red-100 bg-white px-3 py-3 text-center text-base font-semibold text-gray-700 shadow-sm transition hover:border-red-300 peer-checked:border-red-600 peer-checked:bg-red-600 peer-checked:text-white peer-checked:shadow-[0_10px_25px_rgba(220,38,38,0.25)] peer-focus-visible:outline peer-focus-visible:outline-2 peer-focus-visible:outline-red-500">
-                      <span className="absolute right-2 top-2 hidden h-6 w-6 place-items-center rounded-full bg-white/20 text-sm peer-checked:grid">
-                        ✔
-                      </span>
-                      <span className="block truncate text-xs opacity-80">{v.model}</span>
-                      <span className="mt-0.5 block truncate">{v.plate}</span>
-                    </span>
-                  </label>
-                ))}
+type BranchOption = {
+  code: string;
+  name: string;
+};
+
+export default function BranchLogForm({
+  initialBranchCode,
+  vehicles,
+  branches,
+  saved,
+}: {
+  initialBranchCode: string;
+  vehicles: VehicleOption[];
+  branches: BranchOption[];
+  saved: boolean;
+}) {
+  const today = new Date().toISOString().slice(0, 10);
+
+  // 지역본부는 맨 뒤
+  const safeBranches = useMemo(() => {
+    const list = branches
+      .map((b) => ({
+        code: String(b.code ?? "").trim(),
+        name: String(b.name ?? "").trim(),
+      }))
+      .filter((b) => b.code.length > 0);
+
+    const normal = list.filter((b) => b.code !== MAIN_BRANCH_CODE);
+    const main = list.filter((b) => b.code === MAIN_BRANCH_CODE);
+
+    return [...normal, ...main];
+  }, [branches]);
+
+  const initialSafe =
+    safeBranches.find((b) => b.code === initialBranchCode)?.code ??
+    safeBranches[0]?.code ??
+    initialBranchCode;
+
+  const [selectedBranchCode, setSelectedBranchCode] = useState(initialSafe);
+  const [branchPickerOpen, setBranchPickerOpen] = useState(true);
+
+  useEffect(() => {
+    const next =
+      safeBranches.find((b) => b.code === initialBranchCode)?.code ??
+      safeBranches[0]?.code ??
+      initialBranchCode;
+
+    if (next && next !== selectedBranchCode) {
+      setSelectedBranchCode(next);
+      setBranchPickerOpen(false);
+    }
+  }, [initialBranchCode, safeBranches]);
+
+  const selectedBranchName =
+    safeBranches.find((b) => b.code === selectedBranchCode)?.name ??
+    selectedBranchCode;
+
+  const filteredVehicles = useMemo(
+    () => vehicles.filter((v) => v.branchCode === selectedBranchCode),
+    [vehicles, selectedBranchCode]
+  );
+
+  const [selectedVehicleId, setSelectedVehicleId] = useState("");
+
+  useEffect(() => {
+    const first = filteredVehicles[0]?.id ?? "";
+    setSelectedVehicleId(first);
+  }, [filteredVehicles, selectedBranchCode]);
+
+  const showAdminButton = selectedBranchCode === MAIN_BRANCH_CODE;
+
+  const tripsHref = useMemo(() => {
+    const q = new URLSearchParams();
+    if (selectedBranchCode) q.set("branchCode", selectedBranchCode);
+    return `/trips?${q.toString()}`;
+  }, [selectedBranchCode]);
+
+  const FieldInput =
+    "w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base shadow-sm";
+
+  const chooseBranch = (code: string) => {
+    setSelectedBranchCode(code);
+    setBranchPickerOpen(false);
+  };
+
+  return (
+    <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
+      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+
+        {/* 제목 고정 */}
+        <h1 className="text-2xl font-bold sm:text-3xl">차량 운행일지</h1>
+
+        {saved && (
+          <p className="mt-4 rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
+            저장되었습니다.
+          </p>
+        )}
+
+        {/* 상단 버튼 */}
+        <div className="mt-4 flex flex-wrap gap-2 text-sm">
+          <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50" href="/guide">
+            운행안내
+          </Link>
+
+          <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50" href={tripsHref}>
+            운행목록
+          </Link>
+
+          {showAdminButton && (
+            <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50"
+              href={`/admin/${selectedBranchCode}`}>
+              관리자
+            </Link>
+          )}
+        </div>
+
+        {/* 지사 선택 */}
+        <div className={`mt-4 rounded-xl border border-gray-200 ${
+          branchPickerOpen ? "p-3" : "px-3 py-2"
+        }`}>
+
+          {branchPickerOpen ? (
+            <div className="flex flex-wrap gap-2 text-sm">
+              {safeBranches.map((branch) => {
+                const active = branch.code === selectedBranchCode;
+                return (
+                  <button
+                    key={branch.code}
+                    type="button"
+                    onClick={() => chooseBranch(branch.code)}
+                    className={`rounded-lg border px-3 py-1 transition ${
+                      active
+                        ? "border-gray-900 bg-gray-900 text-white"
+                        : "border-gray-200 bg-white hover:bg-gray-50"
+                    }`}
+                  >
+                    {branch.name}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            // 접힌 상태 (색 제거 + 한 줄)
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 truncate rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-900">
+                {selectedBranchName}
               </div>
-            )}
+
+              <button
+                type="button"
+                onClick={() => setBranchPickerOpen(true)}
+                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm hover:bg-gray-50"
+              >
+                변경
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* 입력폼 */}
+        <form
+          method="POST"
+          action="/api/trips/create"
+          className="mt-6 grid gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+        >
+          <input
+            type="hidden"
+            name="returnTo"
+            value={`/?branch=${encodeURIComponent(selectedBranchCode)}`}
+          />
+
+          <label className="grid gap-1">
+            <span className="text-sm font-semibold">날짜</span>
+            <input name="date" type="date" required defaultValue={today}
+              className={FieldInput} />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm font-semibold">운전자</span>
+            <input name="driverName" required className={FieldInput} />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm font-semibold">최종 주행거리</span>
+            <input name="odoEnd" required inputMode="numeric" className={FieldInput} />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm font-semibold">전기 잔여(%)</span>
+            <select name="evRemainPct" required defaultValue="80" className={FieldInput}>
+              {[20, 40, 60, 80, 100].map((v) => (
+                <option key={v} value={v}>{v}%</option>
+              ))}
+            </select>
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm font-semibold">하이패스 잔액</span>
+            <input name="hipassBalance" required inputMode="numeric" className={FieldInput} />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-sm">메모</span>
+            <input name="note" className={FieldInput} />
+          </label>
+
+          <button className="rounded-xl bg-gray-900 px-4 py-3 text-white hover:bg-black">
+            저장
+          </button>
+        </form>
+
+      </section>
+    </main>
+  );
+}
           </div>
 
           <label className="grid gap-1 min-w-0">
