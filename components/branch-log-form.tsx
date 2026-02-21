@@ -29,6 +29,7 @@ export default function BranchLogForm({
 }) {
   const today = new Date().toISOString().slice(0, 10);
 
+  // ✅ 지역본부는 맨 마지막
   const safeBranches = useMemo(() => {
     const list = branches
       .map((b) => ({
@@ -39,7 +40,6 @@ export default function BranchLogForm({
 
     const normal = list.filter((b) => b.code !== MAIN_BRANCH_CODE);
     const main = list.filter((b) => b.code === MAIN_BRANCH_CODE);
-
     return [...normal, ...main];
   }, [branches]);
 
@@ -88,7 +88,7 @@ export default function BranchLogForm({
   }, [selectedBranchCode]);
 
   const FieldInput =
-    "w-full rounded-xl border border-gray-200 bg-white px-3 py-3 text-base shadow-sm";
+    "w-full rounded-xl border border-red-200 bg-white px-3 py-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
   const chooseBranch = (code: string) => {
     setSelectedBranchCode(code);
@@ -97,36 +97,38 @@ export default function BranchLogForm({
 
   return (
     <main className="mx-auto w-full max-w-3xl p-4 sm:p-6">
-      <section className="rounded-3xl border border-gray-200 bg-white p-5 shadow-sm sm:p-7">
+      <section className="rounded-3xl border border-red-100 bg-white p-5 shadow-sm sm:p-7">
 
-        <h1 className="text-2xl font-bold sm:text-3xl">차량 운행일지</h1>
+        <h1 className="text-2xl font-bold sm:text-3xl text-red-600">
+          🚘 차량 운행일지
+        </h1>
 
         {saved && (
           <p className="mt-4 rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
-            저장되었습니다.
+            💾 저장되었습니다.
           </p>
         )}
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50" href="/guide">
-            운행안내
+          <Link className="rounded-lg border border-red-200 px-3 py-2 hover:bg-red-50" href="/guide">
+            📢 운행안내
           </Link>
 
-          <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50" href={tripsHref}>
-            운행목록
+          <Link className="rounded-lg border border-red-200 px-3 py-2 hover:bg-red-50" href={tripsHref}>
+            📚 운행목록
           </Link>
 
           {showAdminButton && (
-            <Link className="rounded-lg border px-3 py-2 hover:bg-gray-50"
+            <Link className="rounded-lg border border-red-200 px-3 py-2 hover:bg-red-50"
               href={`/admin/${selectedBranchCode}`}>
-              관리자
+              🛠️ 관리자
             </Link>
           )}
         </div>
 
         {/* 지사 선택 */}
-        <div className={`mt-4 rounded-xl border border-gray-200 ${
-          branchPickerOpen ? "p-3" : "px-3 py-2"
+        <div className={`mt-4 rounded-xl border border-red-100 ${
+          branchPickerOpen ? "p-3 bg-red-50/40" : "px-3 py-2"
         }`}>
 
           {branchPickerOpen ? (
@@ -140,25 +142,25 @@ export default function BranchLogForm({
                     onClick={() => chooseBranch(branch.code)}
                     className={`rounded-lg border px-3 py-1 transition ${
                       active
-                        ? "border-gray-900 font-semibold"
-                        : "border-gray-200 hover:bg-gray-50"
+                        ? "border-red-600 border-2 font-semibold text-red-700"
+                        : "border-red-200 hover:bg-red-50"
                     }`}
                   >
-                    {branch.name}
+                    🏢 {branch.name}
                   </button>
                 );
               })}
             </div>
           ) : (
             <div className="flex items-center justify-between gap-2">
-              <div className="flex-1 truncate rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-900">
-                {selectedBranchName}
+              <div className="flex-1 truncate rounded-lg border border-red-400 px-3 py-2 text-sm font-semibold text-red-700">
+                🏢 {selectedBranchName}
               </div>
 
               <button
                 type="button"
                 onClick={() => setBranchPickerOpen(true)}
-                className="rounded-lg border border-gray-200 px-3 py-2 text-sm hover:bg-gray-50"
+                className="rounded-lg border border-red-200 px-3 py-2 text-sm hover:bg-red-50"
               >
                 변경
               </button>
@@ -166,11 +168,10 @@ export default function BranchLogForm({
           )}
         </div>
 
-        {/* 입력폼 */}
         <form
           method="POST"
           action="/api/trips/create"
-          className="mt-6 grid gap-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
+          className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white p-5 shadow-sm"
         >
           <input
             type="hidden"
@@ -179,17 +180,17 @@ export default function BranchLogForm({
           />
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">날짜</span>
+            <span className="text-sm font-semibold">📅 날짜</span>
             <input name="date" type="date" required defaultValue={today}
               className={FieldInput} />
           </label>
 
-          {/* 🔥 차량 라디오 카드 (테두리만 강조 스타일) */}
+          {/* 차량 라디오 카드 (테두리만 빨강 강조) */}
           <div className="grid gap-2">
-            <span className="text-sm font-semibold">차량</span>
+            <span className="text-sm font-semibold">🚗 차량</span>
 
             {filteredVehicles.length === 0 ? (
-              <p className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-600">
+              <p className="rounded-lg border border-red-100 bg-red-50 px-3 py-3 text-sm text-gray-600">
                 선택한 지사에 등록된 차량이 없습니다.
               </p>
             ) : (
@@ -206,12 +207,12 @@ export default function BranchLogForm({
                       required
                     />
 
-                    <span className="block rounded-xl border border-gray-200 px-3 py-2 text-center text-sm transition
-                      peer-checked:border-gray-900 peer-checked:border-2 peer-checked:font-semibold
-                      hover:bg-gray-50">
+                    <span className="block rounded-xl border border-red-200 px-3 py-2 text-center text-sm transition
+                      peer-checked:border-red-600 peer-checked:border-2 peer-checked:font-semibold
+                      hover:bg-red-50">
 
                       <div className="truncate text-[11px] opacity-70">
-                        {v.model}
+                        🚘 {v.model}
                       </div>
                       <div className="truncate">
                         {v.plate}
@@ -224,17 +225,17 @@ export default function BranchLogForm({
           </div>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">운전자</span>
+            <span className="text-sm font-semibold">🙋 운전자</span>
             <input name="driverName" required className={FieldInput} />
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">최종 주행거리</span>
+            <span className="text-sm font-semibold">📍 최종 주행거리</span>
             <input name="odoEnd" required inputMode="numeric" className={FieldInput} />
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">전기 잔여(%)</span>
+            <span className="text-sm font-semibold">🔋 전기 잔여(%)</span>
             <select name="evRemainPct" required defaultValue="80" className={FieldInput}>
               {[20, 40, 60, 80, 100].map((v) => (
                 <option key={v} value={v}>{v}%</option>
@@ -243,16 +244,16 @@ export default function BranchLogForm({
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm font-semibold">하이패스 잔액</span>
+            <span className="text-sm font-semibold">💳 하이패스 잔액</span>
             <input name="hipassBalance" required inputMode="numeric" className={FieldInput} />
           </label>
 
           <label className="grid gap-1">
-            <span className="text-sm">메모</span>
+            <span className="text-sm">📝 메모</span>
             <input name="note" className={FieldInput} />
           </label>
 
-          <button className="rounded-xl bg-gray-900 px-4 py-3 text-white hover:bg-black">
+          <button className="rounded-xl bg-red-600 px-4 py-3 text-white hover:bg-red-700">
             저장
           </button>
         </form>
