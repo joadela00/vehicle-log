@@ -251,7 +251,7 @@ export default async function TripsPage({
               {trips.map((t) => (
                 <article
                   key={t.id}
-                  className="min-h-[170px] rounded-2xl border border-red-100 bg-white p-5 shadow-sm"
+                  className="min-h-[150px] rounded-2xl border border-red-100 bg-white p-5 shadow-sm"
                 >
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
