@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
 import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
 import UpdatedToast from "@/app/trips/updated-toast";
+import DeletedToast from "@/app/trips/deleted-toast";
 
 function PencilIcon({ className }: { className?: string }) {
   return (
@@ -81,7 +82,7 @@ export default async function TripsPage({
     page?: string;
     deleted?: string;
     deleteError?: string;
-    updated?: string; // ✅ 추가
+    updated?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -91,11 +92,12 @@ export default async function TripsPage({
   const vehicleId = params?.vehicleId || "";
   const fromParam = params?.from || currentMonth.from;
   const toParam = params?.to || currentMonth.to;
+
   const deleted = params?.deleted === "1";
   const deleteError = params?.deleteError || "";
-  const updated = params?.updated === "1"; // ✅ 추가
+  const updated = params?.updated === "1";
 
-  // ✅ 지사명 조회(제목에 사용)
+  // ✅ 지사명(제목 표시용)
   const branchName = branchCode
     ? (
         await prisma.vehicle.findFirst({
@@ -157,7 +159,10 @@ export default async function TripsPage({
     return `/trips?${query.toString()}`;
   };
 
-  // ✅ 수정 링크에 branchCode 유지(수정화면에서 다시 같은 지사 목록으로 돌아오게)
+  // ✅ 삭제 후 돌아올 주소(현재 화면 그대로: 지사/필터/페이지 유지)
+  const currentListHref = makePageHref(page);
+
+  // ✅ 수정 링크에 branchCode 유지(수정 화면 → 다시 같은 지사 목록으로 복귀)
   const makeEditHref = (id: string) => {
     if (!branchCode) return `/trips/${id}`;
     return `/trips/${id}?branchCode=${encodeURIComponent(branchCode)}`;
@@ -187,15 +192,13 @@ export default async function TripsPage({
           </Link>
         </div>
 
-        {/* ✅ 수정 저장 후 돌아오면 토스트(몇초 후 자동 삭제) */}
+        {/* ✅ 수정 저장 토스트(자동 사라짐) */}
         <UpdatedToast show={updated} message="저장되었습니다." />
 
-        {deleted ? (
-          <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-            🗑️ 삭제되었습니다.
-          </p>
-        ) : null}
+        {/* ✅ 삭제 토스트(자동 사라짐) */}
+        <DeletedToast show={deleted} message="삭제되었습니다." />
 
+        {/* ✅ 삭제 실패 메시지(원하면 이것도 토스트로 바꿔줄 수 있음) */}
         {deleteError ? (
           <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
             {deleteError === "auth"
@@ -316,6 +319,9 @@ export default async function TripsPage({
                         className="m-0"
                       >
                         <input type="hidden" name="id" value={t.id} />
+                        {/* ✅ 삭제 후 이 화면(지사 필터 유지)으로 복귀 */}
+                        <input type="hidden" name="returnTo" value={currentListHref} />
+
                         <button
                           type="submit"
                           className={ActionLinkClass}
@@ -401,6 +407,9 @@ export default async function TripsPage({
                             className="m-0"
                           >
                             <input type="hidden" name="id" value={t.id} />
+                            {/* ✅ 삭제 후 이 화면(지사 필터 유지)으로 복귀 */}
+                            <input type="hidden" name="returnTo" value={currentListHref} />
+
                             <button
                               type="submit"
                               className={ActionLinkClass}
