@@ -20,6 +20,11 @@ type Notice =
   | { type: "success" | "error"; message: string }
   | null;
 
+function pickOne(list: string[]) {
+  if (list.length === 0) return "";
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 export default function BranchLogForm({
   initialBranchCode,
   vehicles,
@@ -32,6 +37,20 @@ export default function BranchLogForm({
   saved: boolean;
 }) {
   const today = new Date().toISOString().slice(0, 10);
+
+  // ✅ 첫 화면 문구(랜덤) - 한 번 뽑으면 리렌더돼도 고정
+  const HERO_MESSAGES = useMemo(
+    () => [
+      "출장 수고 많으셨습니다.",
+      "먼 길 다녀오시느라 고생하셨습니다.",
+      "현장 업무, 애쓰셨습니다.",
+      "차키 반납도 확인해주세요.",
+      "운행 후 차량 상태를 점검해주세요.",
+      "차량 정리 후 마무리 부탁드립니다.",
+    ],
+    []
+  );
+  const [heroMessage] = useState(() => pickOne(HERO_MESSAGES));
 
   // ✅ 지역본부는 맨 마지막
   const safeBranches = useMemo(() => {
@@ -140,7 +159,7 @@ export default function BranchLogForm({
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl text-red-600">
             차량 운행일지
           </h1>
-          <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
+          <p className="mt-1 text-sm text-gray-500">{heroMessage}</p>
         </div>
 
         {/* ✅ 저장/오류 알림: 둘 다 뜨고 자동으로 사라짐 */}
@@ -308,7 +327,9 @@ export default function BranchLogForm({
           </label>
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">📍 최종 주행거리(누적 km)</span>
+            <span className="text-sm font-semibold sm:text-base">
+              📍 최종 주행거리(누적 km)
+            </span>
             <input
               name="odoEnd"
               required
