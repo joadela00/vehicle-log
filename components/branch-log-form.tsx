@@ -44,33 +44,35 @@ export default function BranchLogForm({
     return [...normal, ...main];
   }, [branches]);
 
-  const initialSafe =
-    safeBranches.find((b) => b.code === initialBranchCode)?.code ??
-    safeBranches[0]?.code ??
-    initialBranchCode;
+  // ✅ 초기값: 쿼리로 들어온 값이 유효할 때만 세팅, 아니면 빈 값(미선택)
+  const initialSafe = useMemo(() => {
+    const code = String(initialBranchCode ?? "").trim();
+    if (!code) return "";
+    return safeBranches.find((b) => b.code === code)?.code ?? "";
+  }, [initialBranchCode, safeBranches]);
 
   const [selectedBranchCode, setSelectedBranchCode] = useState(initialSafe);
   const [branchPickerOpen, setBranchPickerOpen] = useState(true);
 
+  // ✅ initialBranchCode가 "실제로 있을 때만" 동기화 (없으면 자동선택 금지)
   useEffect(() => {
-    const next =
-      safeBranches.find((b) => b.code === initialBranchCode)?.code ??
-      safeBranches[0]?.code ??
-      initialBranchCode;
+    if (!initialSafe) return;
 
-    if (next && next !== selectedBranchCode) {
-      setSelectedBranchCode(next);
+    if (initialSafe !== selectedBranchCode) {
+      setSelectedBranchCode(initialSafe);
       setBranchPickerOpen(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialBranchCode, safeBranches]);
+  }, [initialSafe]);
 
   const selectedBranchName = useMemo(() => {
     const found = safeBranches.find((b) => b.code === selectedBranchCode);
-    return found?.name || selectedBranchCode;
+    return found?.name || "";
   }, [safeBranches, selectedBranchCode]);
 
+  // ✅ 지사 미선택이면 차량 목록도 비움
   const filteredVehicles = useMemo(() => {
+    if (!selectedBranchCode) return [];
     return vehicles.filter((v) => v.branchCode === selectedBranchCode);
   }, [vehicles, selectedBranchCode]);
 
@@ -86,7 +88,8 @@ export default function BranchLogForm({
   const tripsHref = useMemo(() => {
     const q = new URLSearchParams();
     if (selectedBranchCode) q.set("branchCode", selectedBranchCode);
-    return `/trips?${q.toString()}`;
+    const qs = q.toString();
+    return qs ? `/trips?${qs}` : `/trips`;
   }, [selectedBranchCode]);
 
   const chooseBranch = (code: string) => {
@@ -94,7 +97,6 @@ export default function BranchLogForm({
     setBranchPickerOpen(false);
   };
 
-  // ✅ 입력칸이 삐져나가지 않게: w-full + min-w-0 + max-w-full + box-border
   const FieldInput =
     "block w-full max-w-full box-border min-w-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
@@ -140,7 +142,7 @@ export default function BranchLogForm({
           ) : null}
         </div>
 
-        {/* ✅ 지사 선택: 펼침/접힘 */}
+        {/* ✅ 지사 선택 */}
         <div
           className={`mt-4 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
             branchPickerOpen ? "p-3" : "px-3 py-2 bg-white"
@@ -174,7 +176,7 @@ export default function BranchLogForm({
                 className="min-w-0 flex-1 truncate rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900 hover:border-red-400"
                 title={selectedBranchName}
               >
-                {selectedBranchName}
+                {selectedBranchName || "지사를 선택하세요"}
               </button>
 
               <button
@@ -211,11 +213,14 @@ export default function BranchLogForm({
             />
           </label>
 
-          {/* ✅ 차량 라디오 카드: 슬림 + 테두리만 빨강 강조 + 차종 이모지 제거 */}
           <div className="grid gap-2 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
 
-            {filteredVehicles.length === 0 ? (
+            {!selectedBranchCode ? (
+              <p className="rounded-xl border border-red-100 bg-red-50/40 px-3 py-3 text-sm text-gray-600">
+                먼저 지사를 선택해 주세요.
+              </p>
+            ) : filteredVehicles.length === 0 ? (
               <p className="rounded-xl border border-red-100 bg-red-50/40 px-3 py-3 text-sm text-gray-600">
                 선택한 지사에 등록된 차량이 없습니다.
               </p>
@@ -230,16 +235,13 @@ export default function BranchLogForm({
                       checked={selectedVehicleId === v.id}
                       onChange={() => setSelectedVehicleId(v.id)}
                       className="peer sr-only"
-                      required
+                      required={!!selectedBranchCode}   // ✅ 지사 선택된 경우에만 required
                     />
-
                     <span
                       className="block w-full min-w-0 overflow-hidden rounded-xl border border-red-200 bg-white px-3 py-2 text-center text-sm text-gray-800 transition hover:bg-red-50
                                  peer-checked:border-red-600 peer-checked:border-2 peer-checked:font-semibold"
                     >
-                      <span className="block truncate text-[11px] opacity-70">
-                        {v.model}
-                      </span>
+                      <span className="block truncate text-[11px] opacity-70">{v.model}</span>
                       <span className="block truncate">{v.plate}</span>
                     </span>
                   </label>
@@ -248,53 +250,29 @@ export default function BranchLogForm({
             )}
           </div>
 
+          {/* 나머지 입력들은 그대로 */}
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🙋 운전자</span>
-            <input
-              name="driverName"
-              type="text"
-              required
-              placeholder="예: 정태훈"
-              className={FieldInput}
-            />
+            <input name="driverName" type="text" required placeholder="예: 정태훈" className={FieldInput} />
           </label>
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">📍 최종 주행거리(누적 km)</span>
-            <input
-              name="odoEnd"
-              required
-              placeholder="예: 12345"
-              inputMode="numeric"
-              className={FieldInput}
-            />
+            <input name="odoEnd" required placeholder="예: 12345" inputMode="numeric" className={FieldInput} />
           </label>
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🔋 전기 잔여(%)</span>
-            <select
-              name="evRemainPct"
-              required
-              defaultValue="80"
-              className={FieldInput}
-            >
+            <select name="evRemainPct" required defaultValue="80" className={FieldInput}>
               {[20, 40, 60, 80, 100].map((v) => (
-                <option key={v} value={v}>
-                  {v}%
-                </option>
+                <option key={v} value={v}>{v}%</option>
               ))}
             </select>
           </label>
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
-            <input
-              name="hipassBalance"
-              required
-              placeholder="예: 35000"
-              inputMode="numeric"
-              className={FieldInput}
-            />
+            <input name="hipassBalance" required placeholder="예: 35000" inputMode="numeric" className={FieldInput} />
           </label>
 
           <label className="grid gap-1 min-w-0">
