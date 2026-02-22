@@ -5,8 +5,17 @@ import { formatNumber } from "@/lib/number";
 
 export const revalidate = 0;
 
-export default async function TripEditPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function TripEditPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams?: Promise<{ branchCode?: string }>;
+}) {
   const { id } = await params;
+  const sp = await searchParams;
+
+  const branchCodeFromQuery = String(sp?.branchCode ?? "").trim();
 
   const trip = await prisma.trip.findUnique({
     where: { id },
@@ -16,7 +25,7 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
       odoEnd: true,
       evRemainPct: true,
       hipassBalance: true,
-      vehicle: { select: { model: true, plate: true } },
+      vehicle: { select: { model: true, plate: true, branchCode: true } }, // ✅ branchCode 추가
       driver: { select: { name: true } },
     },
   });
@@ -25,6 +34,11 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
+  const branchCode = branchCodeFromQuery || trip.vehicle?.branchCode || "";
+  const backHref = branchCode
+    ? `/trips?branchCode=${encodeURIComponent(branchCode)}`
+    : "/trips";
+
   return (
     <main className="mx-auto w-full max-w-2xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
@@ -32,7 +46,7 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
           <h1 className="text-xl font-bold sm:text-2xl">✏️ 운행일지 수정</h1>
           <Link
             className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
-            href="/trips"
+            href={backHref} // ✅ 지사 목록으로
           >
             📋 목록으로
           </Link>
@@ -50,8 +64,16 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
           </p>
         </div>
 
-        <form method="POST" action="/api/trips/update" className="mt-5 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm">
+        <form
+          method="POST"
+          action="/api/trips/update"
+          className="mt-5 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
+        >
           <input type="hidden" name="id" value={trip.id} />
+          {/* ✅ 저장 후 돌아갈 위치(지사 유지) */}
+          <input type="hidden" name="returnTo" value={backHref} />
+          {/* ✅ 에러 리다이렉트 때도 지사 유지용(선택) */}
+          <input type="hidden" name="branchCode" value={branchCode} />
 
           <label className="grid gap-1">
             <span className="text-sm font-semibold sm:text-base">📍 최종 주행거리(누적 km)</span>
@@ -92,7 +114,8 @@ export default async function TripEditPage({ params }: { params: Promise<{ id: s
           </label>
 
           <p className="text-xs text-gray-500 sm:text-sm">
-            기존값: 주행거리 {formatNumber(trip.odoEnd)} km / 하이패스 {formatNumber(trip.hipassBalance)} 원
+            기존값: 주행거리 {formatNumber(trip.odoEnd)} km / 하이패스{" "}
+            {formatNumber(trip.hipassBalance)} 원
           </p>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500 sm:w-auto">
