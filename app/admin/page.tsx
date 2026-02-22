@@ -1,6 +1,12 @@
 import AdminDashboard from "@/components/admin-dashboard";
-import { MAIN_BRANCH_CODE } from "@/lib/branches";
 
-export default async function AdminPage() {
-  return <AdminDashboard branchCode={MAIN_BRANCH_CODE} />;
+const ALL_BRANCH_CODE = "__ALL__";
+
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ rt?: string }>;
+}) {
+  const sp = await searchParams;
+  return <AdminDashboard branchCode={ALL_BRANCH_CODE} rt={sp?.rt ?? "month"} />;
 }
