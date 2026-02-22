@@ -4,6 +4,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
 import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
+import UpdatedToast from "@/app/trips/updated-toast";
 
 function PencilIcon({ className }: { className?: string }) {
   return (
@@ -80,6 +81,7 @@ export default async function TripsPage({
     page?: string;
     deleted?: string;
     deleteError?: string;
+    updated?: string; // ✅ 추가
   }>;
 }) {
   const params = await searchParams;
@@ -91,6 +93,7 @@ export default async function TripsPage({
   const toParam = params?.to || currentMonth.to;
   const deleted = params?.deleted === "1";
   const deleteError = params?.deleteError || "";
+  const updated = params?.updated === "1"; // ✅ 추가
 
   // ✅ 지사명 조회(제목에 사용)
   const branchName = branchCode
@@ -103,9 +106,7 @@ export default async function TripsPage({
     : "";
 
   const parsedPage = Number(params?.page || "1");
-  const page = Number.isFinite(parsedPage)
-    ? Math.max(1, Math.trunc(parsedPage))
-    : 1;
+  const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
 
   const from = new Date(fromParam + "T00:00:00");
   const to = new Date(toParam + "T23:59:59");
@@ -156,15 +157,21 @@ export default async function TripsPage({
     return `/trips?${query.toString()}`;
   };
 
+  // ✅ 수정 링크에 branchCode 유지(수정화면에서 다시 같은 지사 목록으로 돌아오게)
+  const makeEditHref = (id: string) => {
+    if (!branchCode) return `/trips/${id}`;
+    return `/trips/${id}?branchCode=${encodeURIComponent(branchCode)}`;
+  };
+
   const ActionLinkClass =
     "inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition touch-manipulation";
 
   const FieldClass =
     "h-11 w-full rounded-xl border border-gray-300 bg-white px-3 text-sm shadow-sm focus:border-red-400 focus:ring-2 focus:ring-red-100";
 
-// ✅ 홈(지사 선택 완료 상태)으로: 항상 /?branch=xxxx 로 복귀
-const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/";
-  
+  // ✅ 홈(지사 선택 완료 상태)으로: 항상 /?branch=xxxx 로 복귀
+  const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/";
+
   const titleText = branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록";
 
   return (
@@ -172,13 +179,16 @@ const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/"
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-center justify-between gap-3">
           <h1 className="text-xl font-bold sm:text-2xl">📋 {titleText}</h1>
-  <Link
-  className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
-  href={homeHref}
->
-  🏠 홈으로
-</Link>
+          <Link
+            className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600"
+            href={homeHref}
+          >
+            🏠 홈으로
+          </Link>
         </div>
+
+        {/* ✅ 수정 저장 후 돌아오면 토스트(몇초 후 자동 삭제) */}
+        <UpdatedToast show={updated} message="저장되었습니다." />
 
         {deleted ? (
           <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
@@ -199,9 +209,7 @@ const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/"
           className="mt-5 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm"
         >
           {/* ✅ 검색해도 branchCode 유지 */}
-          {branchCode ? (
-            <input type="hidden" name="branchCode" value={branchCode} />
-          ) : null}
+          {branchCode ? <input type="hidden" name="branchCode" value={branchCode} /> : null}
 
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1.2fr_0.9fr_0.9fr_auto] sm:items-end">
             <label className="grid gap-1 min-w-0">
@@ -292,7 +300,7 @@ const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/"
 
                     <div className="flex shrink-0 items-center gap-2">
                       <Link
-                        href={`/trips/${t.id}`}
+                        href={makeEditHref(t.id)}
                         className={ActionLinkClass}
                         aria-label="수정"
                         title="수정"
@@ -377,7 +385,7 @@ const homeHref = branchCode ? `/?branch=${encodeURIComponent(branchCode)}` : "/"
                       <td className="p-2">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/trips/${t.id}`}
+                            href={makeEditHref(t.id)}
                             className={ActionLinkClass}
                             aria-label="수정"
                             title="수정"
