@@ -23,7 +23,7 @@ export default async function AdminLoginPage({
 
         {error ? (
           <p className="mt-3 rounded-2xl border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800 shadow-sm">
-            {error === "1" ? "비밀번호가 틀렸습니다." : "서버 설정 오류(ADMIN_PASSWORD)."}
+            {error === "1" ? "비밀번호가 틀렸습니다."}
           </p>
         ) : null}
 
