@@ -13,7 +13,16 @@ const PAGE_SIZE = 50;
 
 function PencilIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M12 20h9" />
       <path d="M16.5 3.5a2.12 2.12 0 1 1 3 3L7 19l-4 1 1-4Z" />
     </svg>
@@ -22,7 +31,16 @@ function PencilIcon({ className }: { className?: string }) {
 
 function Trash2Icon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
       <path d="M3 6h18" />
       <path d="M8 6V4h8v2" />
       <path d="M6 6l1 14h10l1-14" />
@@ -52,6 +70,26 @@ function getCurrentMonthDateRange() {
   };
 }
 
+// 조회 기간 과도 방지: 최대 maxDays까지로 자동 제한
+function clampRange(from: Date, to: Date, maxDays = 60) {
+  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
+    // 날짜 파싱이 이상하면 "그대로" (기본값이 들어가므로 실사용에선 거의 안 걸림)
+    return { from, to, wasClamped: false };
+  }
+
+  if (to < from) {
+    return { from, to: from, wasClamped: true };
+  }
+
+  const ms = maxDays * 24 * 60 * 60 * 1000;
+  const maxTo = new Date(from.getTime() + ms);
+  if (to > maxTo) {
+    return { from, to: maxTo, wasClamped: true };
+  }
+
+  return { from, to, wasClamped: false };
+}
+
 export default async function TripsPage({
   searchParams,
 }: {
@@ -71,8 +109,8 @@ export default async function TripsPage({
 
   const branchCode = (params?.branchCode || "").trim();
   const vehicleId = params?.vehicleId || "";
-  const fromParam = params?.from || currentMonth.from;
-  const toParam = params?.to || currentMonth.to;
+  const fromParamRaw = params?.from || currentMonth.from;
+  const toParamRaw = params?.to || currentMonth.to;
 
   const deleted = params?.deleted === "1";
   const deleteError = params?.deleteError || "";
@@ -81,8 +119,13 @@ export default async function TripsPage({
   const parsedPage = Number(params?.page || "1");
   const page = Number.isFinite(parsedPage) ? Math.max(1, Math.trunc(parsedPage)) : 1;
 
-  const from = new Date(fromParam + "T00:00:00");
-  const to = new Date(toParam + "T23:59:59");
+  const rawFrom = new Date(fromParamRaw + "T00:00:00");
+  const rawTo = new Date(toParamRaw + "T23:59:59");
+  const { from, to, wasClamped } = clampRange(rawFrom, rawTo, 60);
+
+  // 화면/링크에 반영될 "실제 적용" 날짜(클램프 결과)
+  const fromParam = from.toISOString().slice(0, 10);
+  const toParam = to.toISOString().slice(0, 10);
 
   const where: Prisma.TripWhereInput = {
     date: { gte: from, lte: to },
@@ -104,10 +147,10 @@ export default async function TripsPage({
       })
     : getVehiclesAll().then((vs) => vs.map(({ id, model, plate }) => ({ id, model, plate })));
 
-  const [branchName, vehicles, tripsRaw] = await Promise.all([
-    branchNamePromise,
-    vehiclesPromise,
-    prisma.trip.findMany({
+  // ✅ 성능 로그(운영에서만): DB 조회 ms
+  const tripsPromise = (async () => {
+    const t0 = Date.now();
+    const rows = await prisma.trip.findMany({
       where,
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       skip: (page - 1) * PAGE_SIZE,
@@ -120,8 +163,19 @@ export default async function TripsPage({
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
-    }),
-  ]);
+    });
+    const ms = Date.now() - t0;
+
+    if (process.env.NODE_ENV === "production") {
+      console.log(
+        `[trips] ms=${ms} branch=${branchCode || "ALL"} vehicleId=${vehicleId || "ALL"} from=${fromParam} to=${toParam} page=${page} size=${rows.length}`
+      );
+    }
+
+    return rows;
+  })();
+
+  const [branchName, vehicles, tripsRaw] = await Promise.all([branchNamePromise, vehiclesPromise, tripsPromise]);
 
   const hasNextPage = tripsRaw.length > PAGE_SIZE;
   const trips = hasNextPage ? tripsRaw.slice(0, PAGE_SIZE) : tripsRaw;
@@ -149,9 +203,7 @@ export default async function TripsPage({
     <main className="mx-auto w-full max-w-5xl p-4 sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-xl font-bold sm:text-2xl">
-            📋 {branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록"}
-          </h1>
+          <h1 className="text-xl font-bold sm:text-2xl">📋 {branchCode ? `${branchName} 운행일지` : "운행일지 전체 목록"}</h1>
           <Link className="inline-flex shrink-0 items-center rounded-lg border border-red-200 bg-white px-3 py-2 hover:text-red-600" href={homeHref}>
             🏠 홈으로
           </Link>
@@ -160,6 +212,12 @@ export default async function TripsPage({
         <UpdatedToast show={updated} />
         <DeletedToast show={deleted} />
         <DeleteErrorToast code={deleteError} />
+
+        {wasClamped ? (
+          <p className="mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
+            조회 기간이 길어 <b>최대 60일</b>로 자동 제한했어요. (적용: {fromParam} ~ {toParam})
+          </p>
+        ) : null}
 
         {/* 검색(필터) */}
         <form method="GET" className="mt-4 grid grid-cols-1 gap-2 rounded-2xl border border-red-100 bg-white/90 p-4 shadow-sm sm:flex sm:flex-wrap sm:gap-3">
@@ -204,9 +262,7 @@ export default async function TripsPage({
         </div>
 
         {trips.length === 0 ? (
-          <p className="mt-5 rounded-2xl border border-red-100 bg-red-50/40 px-4 py-6 text-center text-sm text-gray-600">
-            조회 조건에 해당하는 운행일지가 없습니다.
-          </p>
+          <p className="mt-5 rounded-2xl border border-red-100 bg-red-50/40 px-4 py-6 text-center text-sm text-gray-600">조회 조건에 해당하는 운행일지가 없습니다.</p>
         ) : (
           <>
             {/* 모바일 카드 */}
