@@ -16,6 +16,10 @@ type BranchOption = {
   name: string;
 };
 
+type Notice =
+  | { type: "success" | "error"; message: string }
+  | null;
+
 export default function BranchLogForm({
   initialBranchCode,
   vehicles,
@@ -52,24 +56,37 @@ export default function BranchLogForm({
   }, [initialBranchCode, safeBranches]);
 
   const [selectedBranchCode, setSelectedBranchCode] = useState(initialSafe);
-  const [branchPickerOpen, setBranchPickerOpen] = useState(true);
 
-  // ✅ 토스트(빨강 알림)
-  const [toast, setToast] = useState<string | null>(null);
+  // ✅ 핵심: 초기 소속이 있으면 "오므려진 카드(닫힘)"로 시작
+  const [branchPickerOpen, setBranchPickerOpen] = useState(!initialSafe);
+
+  // ✅ 성공/에러 알림(자동으로 사라짐)
+  const [notice, setNotice] = useState<Notice>(null);
 
   useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 1800);
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 1800);
     return () => clearTimeout(t);
-  }, [toast]);
+  }, [notice]);
+
+  // ✅ 저장 후(saved=1) 들어오면 '저장되었습니다'도 토스트처럼 잠깐 띄우고 사라짐
+  useEffect(() => {
+    if (!saved) return;
+    setNotice({ type: "success", message: "저장되었습니다." });
+    // 저장 직후 화면에서는 오므려진 카드 유지
+    if (initialSafe) setBranchPickerOpen(false);
+  }, [saved, initialSafe]);
 
   // ✅ initialBranchCode가 실제로 있을 때만 동기화(없으면 자동선택 금지)
   useEffect(() => {
     if (!initialSafe) return;
+
     if (initialSafe !== selectedBranchCode) {
       setSelectedBranchCode(initialSafe);
-      setBranchPickerOpen(false);
     }
+    // 초기 소속이 있으면 항상 닫힘 유지
+    setBranchPickerOpen(false);
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialSafe]);
 
@@ -104,15 +121,14 @@ export default function BranchLogForm({
     setBranchPickerOpen(false);
   };
 
-  // ✅ 운행목록 클릭 가드: 소속 미선택이면 토스트 띄우고 이동 막기
+  // ✅ 운행목록 클릭 가드: 소속 미선택이면 알림 띄우고 이동 막기
   const guardNeedBranch = (e: MouseEvent<HTMLAnchorElement>) => {
     if (selectedBranchCode) return;
     e.preventDefault();
-    setToast("먼저 소속을 선택해주세요");
+    setNotice({ type: "error", message: "먼저 소속을 선택해주세요" });
     setBranchPickerOpen(true);
   };
 
-  // ✅ 입력칸이 삐져나가지 않게: w-full + min-w-0 + max-w-full + box-border
   const FieldInput =
     "block w-full max-w-full box-border min-w-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
@@ -127,20 +143,21 @@ export default function BranchLogForm({
           <p className="mt-1 text-sm text-gray-500">오늘도 안전운전 하셨지요?</p>
         </div>
 
-        {saved ? (
-          <p className="mt-4 rounded-2xl border border-green-300 bg-green-50 px-3 py-2 text-sm text-green-800">
-            💾 저장되었습니다.
-          </p>
-        ) : null}
-
-        {/* ✅ 빨강 토스트(삭제 알림 느낌) */}
-        {toast ? (
-          <p className="mt-3 rounded-2xl border border-red-400 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
-            🚨 {toast}
-          </p>
+        {/* ✅ 저장/오류 알림: 둘 다 뜨고 자동으로 사라짐 */}
+        {notice ? (
+          notice.type === "success" ? (
+            <p className="mt-4 rounded-2xl border border-green-300 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
+              💾 {notice.message}
+            </p>
+          ) : (
+            <p className="mt-4 rounded-2xl border border-red-400 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700">
+              🚨 {notice.message}
+            </p>
+          )
         ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
+          {/* ✅ 운행안내는 그냥 보이게 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
             href="/guide"
@@ -148,10 +165,11 @@ export default function BranchLogForm({
             📢 운행안내
           </Link>
 
+          {/* ✅ 운행목록만 소속 선택 필수 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
             href={tripsHref}
-            onClick={guardNeedBranch} // ✅ 여기!
+            onClick={guardNeedBranch}
           >
             📚 운행목록
           </Link>
