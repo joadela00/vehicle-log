@@ -7,8 +7,11 @@ function toInt(raw: FormDataEntryValue | null): number {
   return Number(cleaned);
 }
 
-function redirectToEdit(req: Request, id: string, error: string) {
-  return NextResponse.redirect(new URL(`/trips/${id}?error=${error}`, req.url), 303);
+function redirectToEdit(req: Request, id: string, error: string, branchCode?: string) {
+  const url = new URL(`/trips/${id}`, req.url);
+  url.searchParams.set("error", error);
+  if (branchCode) url.searchParams.set("branchCode", branchCode);
+  return NextResponse.redirect(url, 303);
 }
 
 export async function POST(req: Request) {
@@ -19,17 +22,20 @@ export async function POST(req: Request) {
   const evRemainPct = Number(form.get("evRemainPct"));
   const hipassBalance = toInt(form.get("hipassBalance"));
 
+  const returnToRaw = String(form.get("returnTo") || "").trim();
+  const branchCode = String(form.get("branchCode") || "").trim();
+
   if (!id) {
     return NextResponse.json({ error: "id missing" }, { status: 400 });
   }
   if (!Number.isFinite(odoEnd) || odoEnd < 0) {
-    return redirectToEdit(req, id, "invalid_odo");
+    return redirectToEdit(req, id, "invalid_odo", branchCode);
   }
   if (![20, 40, 60, 80, 100].includes(evRemainPct)) {
-    return redirectToEdit(req, id, "invalid_ev");
+    return redirectToEdit(req, id, "invalid_ev", branchCode);
   }
   if (!Number.isFinite(hipassBalance) || hipassBalance < 0) {
-    return redirectToEdit(req, id, "invalid_hipass");
+    return redirectToEdit(req, id, "invalid_hipass", branchCode);
   }
 
   const current = await prisma.trip.findUnique({
@@ -45,7 +51,10 @@ export async function POST(req: Request) {
     prisma.trip.findFirst({
       where: {
         vehicleId: current.vehicleId,
-        OR: [{ date: { lt: current.date } }, { date: current.date, createdAt: { lt: current.createdAt } }],
+        OR: [
+          { date: { lt: current.date } },
+          { date: current.date, createdAt: { lt: current.createdAt } },
+        ],
       },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
       select: { odoEnd: true },
@@ -53,7 +62,10 @@ export async function POST(req: Request) {
     prisma.trip.findFirst({
       where: {
         vehicleId: current.vehicleId,
-        OR: [{ date: { gt: current.date } }, { date: current.date, createdAt: { gt: current.createdAt } }],
+        OR: [
+          { date: { gt: current.date } },
+          { date: current.date, createdAt: { gt: current.createdAt } },
+        ],
       },
       orderBy: [{ date: "asc" }, { createdAt: "asc" }],
       select: { odoEnd: true },
@@ -61,11 +73,11 @@ export async function POST(req: Request) {
   ]);
 
   if (prevTrip && odoEnd < prevTrip.odoEnd) {
-    return redirectToEdit(req, id, "prev_odo");
+    return redirectToEdit(req, id, "prev_odo", branchCode);
   }
 
   if (nextTrip && odoEnd > nextTrip.odoEnd) {
-    return redirectToEdit(req, id, "next_odo");
+    return redirectToEdit(req, id, "next_odo", branchCode);
   }
 
   await prisma.trip.update({
@@ -105,5 +117,11 @@ export async function POST(req: Request) {
     await prisma.$transaction(updates);
   }
 
-  return NextResponse.redirect(new URL(`/trips/${id}?updated=1`, req.url), 303);
+  // ✅ 저장 후: 목록으로 + updated=1 붙여서 토스트 트리거
+  // ✅ open redirect 방지: /trips 로 시작하는 상대경로만 허용
+  const safeReturnTo = returnToRaw.startsWith("/trips") ? returnToRaw : "/trips";
+  const url = new URL(safeReturnTo, req.url);
+  url.searchParams.set("updated", "1");
+
+  return NextResponse.redirect(url, 303);
 }
