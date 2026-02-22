@@ -6,6 +6,7 @@ import { formatNumber } from "@/lib/number";
 import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
 import UpdatedToast from "@/app/trips/updated-toast";
 import DeletedToast from "@/app/trips/deleted-toast";
+import DeleteErrorToast from "@/app/trips/delete-error-toast";
 
 function PencilIcon({ className }: { className?: string }) {
   return (
@@ -198,14 +199,7 @@ export default async function TripsPage({
         {/* ✅ 삭제 토스트(자동 사라짐) */}
         <DeletedToast show={deleted} message="삭제되었습니다." />
 
-        {/* ✅ 삭제 실패 메시지(원하면 이것도 토스트로 바꿔줄 수 있음) */}
-        {deleteError ? (
-          <p className="mt-3 rounded border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
-            {deleteError === "auth"
-              ? "관리자 비밀번호가 틀려 삭제할 수 없습니다."
-              : "서버 설정 오류로 삭제할 수 없습니다."}
-          </p>
-        ) : null}
+  <DeleteErrorToast code={deleteError} />
 
         <form
           method="GET"
