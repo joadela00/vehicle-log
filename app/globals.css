@@ -38,3 +38,11 @@ button:focus-visible {
   outline: 2px solid var(--point);
   outline-offset: 1px;
 }
+
+/* ✅ iOS Safari date input 텍스트 상단 붙는 현상 보정 */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: flex;
+  align-items: center;
+}
