@@ -85,7 +85,7 @@ export default async function AdminDashboard({
         ? { date: { gte: sevenDaysAgo } }
         : {};
 
-  // ✅ 이번달 totals
+  // ✅ 기간내 totals
   const totalsWhere = showAll
     ? { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive } }
     : { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive }, vehicle: { branchCode } };
@@ -103,7 +103,7 @@ export default async function AdminDashboard({
     orderBy: [{ branchCode: "asc" }, { plate: "asc" }],
   });
 
-  // ✅ 차량별(이번달 집계 + 최신 기록)
+  // ✅ 차량별(기간내 집계 + 최신 기록)
   const byVehicle = await Promise.all(
     vehicles.map(async (vehicle) => {
       const [agg, latest] = await Promise.all([
@@ -243,7 +243,7 @@ const homeHref = "/";
         <div className="text-lg font-semibold sm:text-xl">{title}</div>
         {showStats ? (
           <div className="mt-1 flex flex-wrap gap-2">
-            <span className={infoChip(false)}>이번달 {formatNumber(monthCount)}회</span>
+            <span className={infoChip(false)}>기간내 {formatNumber(monthCount)}회</span>
             <span className={infoChip(staleCount > 0)}>미기록 {formatNumber(staleCount)}대</span>
           </div>
         ) : null}
@@ -342,21 +342,21 @@ const homeHref = "/";
         {/* KPI */}
 <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 운행</div>
+    <div className="text-[11px] text-gray-500">기간내 운행</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._count)} 회
     </div>
   </div>
 
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 주행</div>
+    <div className="text-[11px] text-gray-500">기간내 주행</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._sum.distance)} km
     </div>
   </div>
 
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 통행료</div>
+    <div className="text-[11px] text-gray-500">기간내 통행료</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._sum.tollCost)} 원
     </div>
@@ -433,9 +433,8 @@ const homeHref = "/";
                     <tr className="border-b bg-[#f5f5f7]">
                       <th className="p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="p-2 pr-1 text-right whitespace-nowrap">이번달</th>
-                      <th className="p-2 pl-1 text-right whitespace-nowrap">미기록기간</th>
-                    </tr>
+                      <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                                          </tr>
                   </thead>
                   <tbody>
                     {byVehicle.map(({ v, agg, latest, staleDays }) => {
@@ -453,6 +452,7 @@ const homeHref = "/";
                             <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
                               최근: {lastDate ?? "기록 없음"}
                               {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
+                              {isStale ? " · ⚠️ 미기록 차량" : ""}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-500">
                               전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -467,9 +467,6 @@ const homeHref = "/";
                             </div>
                           </td>
 
-                          <td className={`p-2 text-right whitespace-nowrap ${isStale ? "text-red-600 font-semibold" : ""}`}>
-                            {typeof staleDays === "number" ? `${staleDays}일` : "-"}
-                          </td>
                         </tr>
                       );
                     })}
@@ -487,9 +484,8 @@ const homeHref = "/";
                   <tr className="border-b bg-[#f5f5f7]">
                     <th className="p-2 text-left whitespace-nowrap">소속</th>
                     <th className="p-2 text-left whitespace-nowrap">차량</th>
-                    <th className="p-2 pr-1 text-right whitespace-nowrap">이번달</th>
-                    <th className="p-2 pl-1 text-right whitespace-nowrap">미기록기간</th>
-                  </tr>
+                    <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                                      </tr>
                 </thead>
                 <tbody>
                   {byVehicle.map(({ v, agg, latest, staleDays }) => {
@@ -507,6 +503,7 @@ const homeHref = "/";
                           <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
                             최근: {lastDate ?? "기록 없음"}
                             {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
+                            {isStale ? " · ⚠️ 미기록 차량" : ""}
                           </div>
                           <div className="mt-0.5 text-xs text-gray-500">
                             전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -521,9 +518,6 @@ const homeHref = "/";
                           </div>
                         </td>
 
-                        <td className={`p-2 text-right whitespace-nowrap ${isStale ? "text-red-600 font-semibold" : ""}`}>
-                          {typeof staleDays === "number" ? `${staleDays}일` : "-"}
-                        </td>
                       </tr>
                     );
                   })}
@@ -541,7 +535,7 @@ const homeHref = "/";
               className={`rounded-xl border px-3 py-2 ${rt === "month" ? activeClass : normalClass}`}
               href={makeHref(adminPath, "month")}
             >
-              이번달
+              기간내
             </Link>
             <Link
               className={`rounded-xl border px-3 py-2 ${rt === "7d" ? activeClass : normalClass}`}
