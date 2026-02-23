@@ -160,6 +160,7 @@ export default async function TripsPage({
         date: true,
         distance: true,
         tollCost: true,
+        hipassCharge: true,
         note: true, // ✅ 추가
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
@@ -323,7 +324,14 @@ export default async function TripsPage({
                     </div>
                     <div className="grid grid-cols-[64px_1fr] items-start gap-2">
                       <dt className="whitespace-nowrap text-gray-500">통행료</dt>
-                      <dd className="leading-5">{formatNumber(t.tollCost)} 원</dd>
+                      <dd className="leading-5">
+                        {formatNumber(t.tollCost)} 원
+                        {typeof t.hipassCharge === "number" && t.hipassCharge > 0 ? (
+                          <span className="ml-1 text-xs" title={`충전 ${formatNumber(t.hipassCharge)}원`} aria-label="충전한 날">
+                            💸
+                          </span>
+                        ) : null}
+                      </dd>
                     </div>
                   </dl>
 
@@ -370,7 +378,14 @@ export default async function TripsPage({
                       <td className="whitespace-nowrap p-2">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
                       <td className="whitespace-nowrap p-2">{t.driver?.name ?? "-"}</td>
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>
-                      <td className="p-2 text-right">{formatNumber(t.tollCost)}</td>
+                      <td className="p-2 text-right">
+                        {formatNumber(t.tollCost)}
+                        {typeof t.hipassCharge === "number" && t.hipassCharge > 0 ? (
+                          <span className="ml-1 text-xs" title={`충전 ${formatNumber(t.hipassCharge)}원`} aria-label="충전한 날">
+                            💸
+                          </span>
+                        ) : null}
+                      </td>
                       <td className="p-2 text-right">
                         <Link href={makeEditHref(t.id)} className="text-red-900">
                           ✏️
