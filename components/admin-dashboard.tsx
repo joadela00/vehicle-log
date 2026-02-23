@@ -143,7 +143,7 @@ export default async function AdminDashboard({
     include: { vehicle: true, driver: true },
   });
 
-  // ✅ 전체 화면: 지사별 요약 + 미기록(30일+) 차량 수
+  // ✅ 전체 화면: 지사별 요약 + 운행저조(30일+) 차량 수
   const staleCutoff = new Date(now);
   staleCutoff.setDate(staleCutoff.getDate() - 30);
 
@@ -244,7 +244,7 @@ const homeHref = "/";
         {showStats ? (
           <div className="mt-1 flex flex-wrap gap-2">
             <span className={infoChip(false)}>기간내 {formatNumber(monthCount)}회</span>
-            <span className={infoChip(staleCount > 0)}>미기록 {formatNumber(staleCount)}대</span>
+            <span className={infoChip(staleCount > 0)}>운행저조 {formatNumber(staleCount)}대</span>
           </div>
         ) : null}
       </div>
@@ -372,7 +372,7 @@ const homeHref = "/";
 
             <div className="border-t border-red-100 p-4">
               <p className="mb-3 text-xs text-gray-500 sm:text-sm">
-                미기록(30일+) = 기록 없음 또는 최근 운행일이 30일 이상 지난 차량
+                운행저조(30일+) = 기록 없음 또는 최근 운행일이 30일 이상 지난 차량
               </p>
 
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
@@ -394,7 +394,7 @@ const homeHref = "/";
                               차량 {formatNumber(b.vehicleCount)}대
                             </div>
                           </div>
-                          <div className={infoChip(staleHot)}>미기록 {formatNumber(b.staleCount)}</div>
+                          <div className={infoChip(staleHot)}>운행저조 {formatNumber(b.staleCount)}</div>
                         </div>
 
                         <div className="mt-3 grid grid-cols-3 gap-2 text-sm">
@@ -452,7 +452,7 @@ const homeHref = "/";
                             <div className="mt-0.5 text-xs text-gray-500">
                               최근: {lastDate ?? "기록 없음"}
                               {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                              {isStale ? <span className="font-semibold text-red-600"> ⚠️ 미기록 차량</span> : null}
+                              {isStale ? <span className="font-semibold text-red-600"> ⚠️ 운행저조 </span> : null}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-500">
                               전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -503,7 +503,7 @@ const homeHref = "/";
                           <div className="mt-0.5 text-xs text-gray-500">
                             최근: {lastDate ?? "기록 없음"}
                             {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                            {isStale ? <span className="font-semibold text-red-600"> ⚠️ 미기록 차량</span> : null}
+                            {isStale ? <span className="font-semibold text-red-600"> ⚠️ 운행저조 </span> : null}
                           </div>
                           <div className="mt-0.5 text-xs text-gray-500">
                             전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
