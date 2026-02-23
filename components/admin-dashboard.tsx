@@ -433,7 +433,7 @@ const homeHref = "/";
                     <tr className="border-b bg-[#f5f5f7]">
                       <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="w-[100px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                      <th className="w-[84px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
                                           </tr>
                   </thead>
                   <tbody>
@@ -460,7 +460,7 @@ const homeHref = "/";
                             </div>
                           </td>
 
-                          <td className="p-2 text-right whitespace-nowrap">
+                          <td className="p-2 pl-1 text-right whitespace-nowrap">
                             <div className="font-semibold">{formatNumber(agg._count)}회</div>
                             <div className="text-xs text-gray-500">
                               {formatNumber(agg._sum.distance)}km · {formatNumber(agg._sum.tollCost)}원
@@ -484,7 +484,7 @@ const homeHref = "/";
                   <tr className="border-b bg-[#f5f5f7]">
                     <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                     <th className="p-2 text-left whitespace-nowrap">차량</th>
-                    <th className="w-[100px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                    <th className="w-[84px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
                                       </tr>
                 </thead>
                 <tbody>
@@ -511,7 +511,7 @@ const homeHref = "/";
                           </div>
                         </td>
 
-                        <td className="p-2 text-right whitespace-nowrap">
+                        <td className="p-2 pl-1 text-right whitespace-nowrap">
                           <div className="font-semibold">{formatNumber(agg._count)}회</div>
                           <div className="text-xs text-gray-500">
                             {formatNumber(agg._sum.distance)}km · {formatNumber(agg._sum.tollCost)}원
