@@ -145,7 +145,7 @@ export default function BranchLogForm({
   };
 
   const FieldInput =
-    "block w-full max-w-full box-border min-w-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
+    "block h-12 w-full max-w-full box-border min-w-0 appearance-none rounded-xl border border-red-200 bg-white px-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
   // ✅ 전기 잔여(%) 상태(선택값에 따라 뱃지 표시)
   const [evRemainPct, setEvRemainPct] = useState<string>("80");
@@ -226,11 +226,12 @@ export default function BranchLogForm({
     const input = odoEndInputRef.current;
     if (!input) return;
 
-    const numericValue = Number(value);
+    const normalizedValue = value.replaceAll(",", "").trim();
+    const numericValue = Number(normalizedValue);
     if (
       latestOdoEnd !== null &&
       Number.isFinite(numericValue) &&
-      value.trim() !== "" &&
+      normalizedValue !== "" &&
       numericValue < latestOdoEnd
     ) {
       input.setCustomValidity(`최종 주행거리는 이전 기록(${latestOdoEnd}km)보다 작을 수 없습니다.`);
@@ -353,7 +354,7 @@ const branchClosedButtonClass =
           }}
           className="mt-3 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
+          <input type="hidden" name="returnTo" value={selectedBranchCode ? `/?branch=${encodeURIComponent(selectedBranchCode)}` : "/"} />
 
           <label className="grid min-w-0 gap-1">
             <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
