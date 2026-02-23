@@ -203,7 +203,9 @@ export default function BranchLogForm({
           odoEnd: number | null;
         } = await res.json();
 
-        setHipassBalance(data.hipassBalance == null ? "" : String(data.hipassBalance));
+        setHipassBalance(
+          data.hipassBalance == null ? "" : String(data.hipassBalance),
+        );
         setOdoEnd(data.odoEnd == null ? "" : String(data.odoEnd));
         setLatestOdoEnd(data.odoEnd ?? null);
 
@@ -244,8 +246,10 @@ export default function BranchLogForm({
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="min-w-0">
-          <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
-          <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl text-red-600">
+          <p className="text-sm font-bold tracking-wide text-red-500">
+            🚘 DAILY LOG
+          </p>
+          <h1 className="mt-1 text-2xl font-extrabold text-red-600 sm:text-3xl">
             차량 운행일지
           </h1>
           <p className="mt-1 text-sm text-gray-500">{heroMessage}</p>
@@ -291,8 +295,8 @@ export default function BranchLogForm({
 
         {/* ✅ 지사 선택: 펼침/접힘 */}
         <div
-          className={`mt-4 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
-            branchPickerOpen ? "p-3" : "px-3 py-2 bg-white"
+          className={`mt-3 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
+            branchPickerOpen ? "p-3" : "px-3 py-3 bg-white"
           }`}
         >
           {branchPickerOpen ? (
@@ -306,7 +310,7 @@ export default function BranchLogForm({
                     onClick={() => chooseBranch(branch.code)}
                     className={`rounded-lg border px-3 py-1 transition ${
                       active
-                        ? "border-red-600 text-red-700 font-semibold"
+                        ? "border-2 border-red-600 bg-white font-semibold text-red-700"
                         : "border-red-200 bg-white hover:border-red-300 hover:bg-red-50 hover:text-red-600"
                     }`}
                   >
@@ -320,7 +324,7 @@ export default function BranchLogForm({
               <button
                 type="button"
                 onClick={() => setBranchPickerOpen(true)}
-                className="min-w-0 flex-1 truncate rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900 hover:border-red-400"
+                className="min-w-0 flex-1 truncate rounded-xl border border-red-300 bg-white px-3 py-3 text-left text-sm font-semibold text-gray-900 hover:border-red-400"
                 title={selectedBranchName}
               >
                 {selectedBranchName || "소속을 선택해주세요"}
@@ -329,7 +333,7 @@ export default function BranchLogForm({
               <button
                 type="button"
                 onClick={() => setBranchPickerOpen(true)}
-                className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
               >
                 변경
               </button>
@@ -348,9 +352,13 @@ export default function BranchLogForm({
           }}
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
+          <input
+            type="hidden"
+            name="returnTo"
+            value={`/?branch=${encodeURIComponent(selectedBranchCode)}`}
+          />
 
-          <label className="grid gap-1 min-w-0">
+          <label className="grid min-w-0 gap-1">
             <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
             <input
               name="date"
@@ -363,7 +371,7 @@ export default function BranchLogForm({
           </label>
 
           {/* ✅ 차량 */}
-          <div className="grid gap-2 min-w-0">
+          <div className="grid min-w-0 gap-2">
             <span className="text-sm font-semibold sm:text-base">🚗 차량</span>
 
             {!selectedBranchCode ? (
@@ -391,7 +399,9 @@ export default function BranchLogForm({
                       className="block w-full min-w-0 overflow-hidden rounded-xl border border-red-200 bg-white px-3 py-2 text-center text-sm text-gray-800 transition hover:bg-red-50
                                  peer-checked:border-red-600 peer-checked:border-2 peer-checked:font-semibold"
                     >
-                      <span className="block truncate text-[11px] opacity-70">{v.model}</span>
+                      <span className="block truncate text-[11px] opacity-70">
+                        {v.model}
+                      </span>
                       <span className="block truncate">{v.plate}</span>
                     </span>
                   </label>
@@ -400,14 +410,22 @@ export default function BranchLogForm({
             )}
           </div>
 
-          <label className="grid gap-1 min-w-0">
+          <label className="grid min-w-0 gap-1">
             <span className="text-sm font-semibold sm:text-base">🙋 운전자</span>
-            <input name="driverName" type="text" required placeholder="예: 정태훈" className={FieldInput} />
+            <input
+              name="driverName"
+              type="text"
+              required
+              placeholder="예: 정태훈"
+              className={FieldInput}
+            />
           </label>
 
           {/* ✅ 최종 주행거리 */}
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">📍 최종 주행거리(누적 km)</span>
+          <label className="grid min-w-0 gap-1">
+            <span className="text-sm font-semibold sm:text-base">
+              📍 최종 주행거리(누적 km)
+            </span>
             <input
               name="odoEnd"
               required
@@ -425,10 +443,14 @@ export default function BranchLogForm({
           </label>
 
           {/* ✅ 전기 잔여(%) */}
-          <label className="grid gap-1 min-w-0">
+          <label className="grid min-w-0 gap-1">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold sm:text-base">🔋 현재 전기 잔여(%)</span>
-              {evBadge ? <span className={evBadge.className}>{evBadge.text}</span> : null}
+              <span className="text-sm font-semibold sm:text-base">
+                🔋 현재 전기 잔여(%)
+              </span>
+              {evBadge ? (
+                <span className={evBadge.className}>{evBadge.text}</span>
+              ) : null}
             </div>
 
             <select
@@ -453,9 +475,11 @@ export default function BranchLogForm({
           </label>
 
           {/* ✅ 하이패스 잔액 + (컴팩트) 충전 체크 */}
-          <div className="grid gap-1 min-w-0">
+          <div className="grid min-w-0 gap-1">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-sm font-semibold sm:text-base">💳 최종 하이패스 잔액(원)</span>
+              <span className="text-sm font-semibold sm:text-base">
+                💳 최종 하이패스 잔액(원)
+              </span>
 
               <label className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-2 py-1 text-xs font-semibold text-gray-700">
                 <input
@@ -480,10 +504,14 @@ export default function BranchLogForm({
 
             {/* ✅ 체크하면 아래가 열림 */}
             {hipassCharged ? (
-              <div className="mt-2 rounded-xl border border-red-100 bg-red-50/30 p-3 space-y-2">
+              <div className="mt-2 space-y-2 rounded-xl border border-red-100 bg-red-50/30 p-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-gray-800">➕ 충전금액(원)</span>
-                  <span className="text-xs font-medium text-gray-500">충전한 날만</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    ➕ 충전금액(원)
+                  </span>
+                  <span className="text-xs font-medium text-gray-500">
+                    충전한 날만
+                  </span>
                 </div>
 
                 <input
@@ -499,9 +527,14 @@ export default function BranchLogForm({
             ) : null}
           </div>
 
-          <label className="grid gap-1 min-w-0">
+          <label className="grid min-w-0 gap-1">
             <span className="text-sm sm:text-base">📝 메모(선택)</span>
-            <input name="note" type="text" placeholder="예: 세차해주세요" className={FieldInput} />
+            <input
+              name="note"
+              type="text"
+              placeholder="예: 세차해주세요"
+              className={FieldInput}
+            />
           </label>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-700 sm:w-auto">
