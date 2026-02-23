@@ -324,8 +324,10 @@ export default async function TripsPage({
 
                   {t.note?.trim() ? (
   <div className="mt-3 rounded-xl border border-red-100 bg-red-50/30 px-3 py-2 text-sm text-gray-700">
-    <span className="mr-2 font-semibold text-gray-800">📝 </span>
-    <span className="break-words line-clamp-2">{t.note}</span>
+<div className="flex gap-2">
+  <span className="font-semibold text-gray-800 shrink-0">ㅇㅇ</span>
+  <span className="break-words line-clamp-2">{t.note}</span>
+</div>
   </div>
 ) : null}
                 </article>
