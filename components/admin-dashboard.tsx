@@ -433,7 +433,7 @@ const homeHref = "/";
                     <tr className="border-b bg-[#f5f5f7]">
                       <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="w-[70px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
+                      <th className="w-[76px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
                                           </tr>
                   </thead>
                   <tbody>
