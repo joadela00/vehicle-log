@@ -368,7 +368,7 @@ export default function BranchLogForm({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm sm:text-base">📝 메모(선택)</span>
-            <input name="note" type="text" required
+            <input name="note" type="text" 
               placeholder="예: 세차해주세요" className={FieldInput} />
           </label>
                    
