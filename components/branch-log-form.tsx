@@ -340,7 +340,8 @@ export default function BranchLogForm({
           </label>
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🔋 전기 잔여(%)</span>
+            <span className="text-sm font-semibold sm:text-base">🔋 현재 전기 잔여(%)</span>
+            <span className="text-sm sm:text-base">40%라면 충전을 시켜주세요</span>
             <select
               name="evRemainPct"
               required
