@@ -364,7 +364,6 @@ const branchClosedButtonClass =
               required
               defaultValue={today}
               className={FieldInput}
-              style={{ WebkitAppearance: "none", appearance: "none" }}
             />
           </label>
 
