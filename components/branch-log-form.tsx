@@ -243,10 +243,10 @@ export default function BranchLogForm({
 
   // ✅ 닫힘 상태에서 “선택된 후” 지사 버튼만 차량 선택처럼 굵은 빨간 테두리
 const branchClosedButtonClass =
-  "min-w-0 flex-1 truncate rounded-xl bg-white px-3 py-3 text-left text-sm text-gray-900 hover:bg-red-50 " +
+  "min-w-0 flex-1 truncate rounded-xl bg-white px-3 py-3 text-left text-sm hover:bg-red-50 " +
   (selectedBranchCode
-    ? "border border-red-200 border-2 border-red-600 font-semibold"
-    : "border border-red-200 font-semibold");
+    ? "border border-red-200 border-2 border-red-600 font-semibold text-gray-900"
+    : "border border-red-200 font-medium text-gray-500");
 
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
