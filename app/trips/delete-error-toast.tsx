@@ -10,7 +10,7 @@ function messageFor(code: string) {
 }
 
 export default function DeleteErrorToast({ code }: { code: string }) {
-  const [visible, setVisible] = useState(!!code);
+  const [visible, setVisible] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -23,7 +23,6 @@ export default function DeleteErrorToast({ code }: { code: string }) {
     const t = setTimeout(() => {
       setVisible(false);
 
-      // ✅ URL에서 deleteError 제거
       const next = new URLSearchParams(searchParams.toString());
       next.delete("deleteError");
       const qs = next.toString();
@@ -31,7 +30,6 @@ export default function DeleteErrorToast({ code }: { code: string }) {
     }, 1800);
 
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 
   if (!visible) return null;
