@@ -291,7 +291,7 @@ export default function BranchLogForm({
 
         {/* ✅ 지사 선택: 펼침/접힘 */}
         <div
-          className={`mt-4 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
+          className={`mt-3 rounded-2xl border border-red-100 bg-red-50/40 transition-all ${
             branchPickerOpen ? "p-3" : "px-3 py-2 bg-white"
           }`}
         >
@@ -320,7 +320,7 @@ export default function BranchLogForm({
               <button
                 type="button"
                 onClick={() => setBranchPickerOpen(true)}
-                className="min-w-0 flex-1 truncate rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900 hover:border-red-400"
+                className="min-w-0 flex-1 truncate rounded-xl border border-red-300 bg-white px-3 py-3 text-left text-sm font-semibold text-gray-900 hover:border-red-400"
                 title={selectedBranchName}
               >
                 {selectedBranchName || "소속을 선택해주세요"}
@@ -329,7 +329,7 @@ export default function BranchLogForm({
               <button
                 type="button"
                 onClick={() => setBranchPickerOpen(true)}
-                className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+                className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
               >
                 변경
               </button>
