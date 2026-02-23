@@ -368,9 +368,10 @@ export default function BranchLogForm({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm sm:text-base">📝 메모(선택)</span>
-            <input name="note" type="text" className={FieldInput} />
+            <input name="note" type="text" required
+              placeholder="예: 세차해주세요" className={FieldInput} />
           </label>
-
+                   
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-700 sm:w-auto">
             저장
           </button>
