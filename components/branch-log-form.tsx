@@ -235,9 +235,7 @@ export default function BranchLogForm({
       value.trim() !== "" &&
       numericValue < latestOdoEnd
     ) {
-      input.setCustomValidity(
-        `최종 주행거리는 이전 기록(${latestOdoEnd}km)보다 작을 수 없습니다.`,
-      );
+      input.setCustomValidity(`최종 주행거리는 이전 기록(${latestOdoEnd}km)보다 작을 수 없습니다.`);
       return;
     }
 
@@ -352,7 +350,7 @@ export default function BranchLogForm({
               e.preventDefault();
             }
           }}
-          className="mt-3 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
+          className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
           <input
             type="hidden"

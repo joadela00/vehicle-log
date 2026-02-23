@@ -130,7 +130,7 @@ export default async function AdminDashboard({
   );
 
   const totalStaleVehicles = byVehicle.filter(
-    ({ staleDays }) => typeof staleDays === "number" && staleDays >= 30,
+    ({ latest, staleDays }) => !latest?.date || (typeof staleDays === "number" && staleDays >= 30),
   ).length;
 
   // ✅ 최근 운행일지 20건
@@ -367,7 +367,7 @@ const homeHref = "/";
         {showAll ? (
           <details className="group mt-6 rounded-2xl border border-red-100 bg-white">
             <summary className="cursor-pointer list-none px-4 py-3">
-              {renderSummaryRow("🏢 지사별 이번달 요약", totals._count, totalStaleBranches)}
+              {renderSummaryRow("🏢 지사별 기간 요약", totals._count, totalStaleBranches)}
             </summary>
 
             <div className="border-t border-red-100 p-4">
@@ -428,17 +428,17 @@ const homeHref = "/";
 
             <div className="border-t border-red-100 p-4">
               <div className="overflow-x-auto rounded-2xl border border-red-100 bg-white">
-                <table className="w-full min-w-[640px] border-collapse text-sm sm:min-w-[820px] sm:text-base">
+                <table className="w-full min-w-[560px] border-collapse text-sm sm:min-w-[720px] sm:text-base">
                   <thead>
                     <tr className="border-b bg-[#f5f5f7]">
-                      <th className="p-2 text-left whitespace-nowrap">소속</th>
+                      <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                      <th className="w-[118px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
                                           </tr>
                   </thead>
                   <tbody>
                     {byVehicle.map(({ v, agg, latest, staleDays }) => {
-                      const isStale = typeof staleDays === "number" && staleDays >= 30;
+                      const isStale = !latest?.date || (typeof staleDays === "number" && staleDays >= 30);
                       const lastDate = latest?.date ? latest.date.toISOString().slice(0, 10) : null;
 
                       return (
@@ -479,17 +479,17 @@ const homeHref = "/";
           <>
             <h2 className="mt-6 text-lg font-semibold sm:text-xl">🚘 차량별 현황</h2>
             <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white">
-              <table className="w-full min-w-[640px] border-collapse text-sm sm:min-w-[820px] sm:text-base">
+              <table className="w-full min-w-[560px] border-collapse text-sm sm:min-w-[720px] sm:text-base">
                 <thead>
                   <tr className="border-b bg-[#f5f5f7]">
-                    <th className="p-2 text-left whitespace-nowrap">소속</th>
+                    <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                     <th className="p-2 text-left whitespace-nowrap">차량</th>
-                    <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                    <th className="w-[118px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
                                       </tr>
                 </thead>
                 <tbody>
                   {byVehicle.map(({ v, agg, latest, staleDays }) => {
-                    const isStale = typeof staleDays === "number" && staleDays >= 30;
+                    const isStale = !latest?.date || (typeof staleDays === "number" && staleDays >= 30);
                     const lastDate = latest?.date ? latest.date.toISOString().slice(0, 10) : null;
 
                     return (
