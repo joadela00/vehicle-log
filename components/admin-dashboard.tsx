@@ -23,9 +23,13 @@ function daysBetween(a: Date, b: Date) {
 export default async function AdminDashboard({
   branchCode,
   rt = "month",
+  startDate,
+  endDate,
 }: {
   branchCode: string;
   rt?: string; // "month" | "7d" | "all"
+  startDate?: string;
+  endDate?: string;
 }) {
   const cookieStore = await cookies();
   const authed = cookieStore.get("admin_ok")?.value === "1";
@@ -55,9 +59,20 @@ export default async function AdminDashboard({
       : currentName;
 
   const now = new Date();
-  const { start, end } = monthRange();
-  const periodStart = start.toISOString().slice(0, 10);
-  const periodEnd = new Date(end.getTime() - 1).toISOString().slice(0, 10);
+  const { start: monthStart, end: monthEnd } = monthRange();
+
+  const isValidDateString = (value?: string) =>
+    !!value && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(new Date(`${value}T00:00:00`).getTime());
+
+  const resolvedPeriodStart = isValidDateString(startDate)
+    ? new Date(`${startDate}T00:00:00`)
+    : monthStart;
+  const resolvedPeriodEndExclusive = isValidDateString(endDate)
+    ? new Date(new Date(`${endDate}T00:00:00`).getTime() + 24 * 60 * 60 * 1000)
+    : monthEnd;
+
+  const periodStart = resolvedPeriodStart.toISOString().slice(0, 10);
+  const periodEnd = new Date(resolvedPeriodEndExclusive.getTime() - 1).toISOString().slice(0, 10);
 
   // ✅ 최근 운행일지 필터(rt)
   const sevenDaysAgo = new Date(now);
@@ -65,15 +80,15 @@ export default async function AdminDashboard({
 
   const recentTripDateFilter =
     rt === "month"
-      ? { date: { gte: start, lt: end } }
+      ? { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive } }
       : rt === "7d"
         ? { date: { gte: sevenDaysAgo } }
         : {};
 
-  // ✅ 이번달 totals
+  // ✅ 기간내 totals
   const totalsWhere = showAll
-    ? { date: { gte: start, lt: end } }
-    : { date: { gte: start, lt: end }, vehicle: { branchCode } };
+    ? { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive } }
+    : { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive }, vehicle: { branchCode } };
 
   const totals = await prisma.trip.aggregate({
     where: totalsWhere,
@@ -88,12 +103,12 @@ export default async function AdminDashboard({
     orderBy: [{ branchCode: "asc" }, { plate: "asc" }],
   });
 
-  // ✅ 차량별(이번달 집계 + 최신 기록)
+  // ✅ 차량별(기간내 집계 + 최신 기록)
   const byVehicle = await Promise.all(
     vehicles.map(async (vehicle) => {
       const [agg, latest] = await Promise.all([
         prisma.trip.aggregate({
-          where: { vehicleId: vehicle.id, date: { gte: start, lt: end } },
+          where: { vehicleId: vehicle.id, date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive } },
           _sum: { distance: true, tollCost: true },
           _count: true,
         }),
@@ -136,7 +151,7 @@ export default async function AdminDashboard({
     ? await Promise.all(
         branches.map(async (b) => {
           const monthAgg = await prisma.trip.aggregate({
-            where: { date: { gte: start, lt: end }, vehicle: { branchCode: b.code } },
+            where: { date: { gte: resolvedPeriodStart, lt: resolvedPeriodEndExclusive }, vehicle: { branchCode: b.code } },
             _sum: { distance: true, tollCost: true },
             _count: true,
           });
@@ -187,10 +202,17 @@ export default async function AdminDashboard({
 
   const adminPath = showAll ? "/admin" : `/admin/${branchCode}`;
 
-  const makeHref = (base: string, nextRt?: string) => {
+  const makeHref = (base: string, nextRt?: string, overrides?: { start?: string; end?: string }) => {
     const p = new URLSearchParams();
     const nrt = (nextRt ?? rt ?? "month").trim();
     if (nrt && nrt !== "month") p.set("rt", nrt);
+
+    const nextStart = overrides?.start ?? periodStart;
+    const nextEnd = overrides?.end ?? periodEnd;
+
+    if (nextStart) p.set("start", nextStart);
+    if (nextEnd) p.set("end", nextEnd);
+
     const qs = p.toString();
     return qs ? `${base}?${qs}` : base;
   };
@@ -209,23 +231,22 @@ const homeHref = "/";
       danger ? "border-red-200 bg-red-50 text-red-700" : "border-gray-200 bg-gray-50 text-gray-700"
     }`;
 
-  // ✅ “전체 화면”에서만 접히는 섹션의 summary(아주 단순하게 작성)
-  const SummaryRow = ({
-    title,
-    monthCount,
-    staleCount,
-  }: {
-    title: string;
-    monthCount: number;
-    staleCount: number;
-  }) => (
+  // ✅ “전체 화면”에서만 접히는 섹션의 summary
+  const renderSummaryRow = (
+    title: string,
+    monthCount: number,
+    staleCount: number,
+    showStats = true,
+  ) => (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div>
         <div className="text-lg font-semibold sm:text-xl">{title}</div>
-        <div className="mt-1 flex flex-wrap gap-2">
-          <span className={infoChip(false)}>이번달 {formatNumber(monthCount)}회</span>
-          <span className={infoChip(staleCount > 0)}>미기록 {formatNumber(staleCount)}대</span>
-        </div>
+        {showStats ? (
+          <div className="mt-1 flex flex-wrap gap-2">
+            <span className={infoChip(false)}>기간내 {formatNumber(monthCount)}회</span>
+            <span className={infoChip(staleCount > 0)}>미기록 {formatNumber(staleCount)}대</span>
+          </div>
+        ) : null}
       </div>
       <span className={togglePill}>
         <span className="group-open:hidden">보기</span>
@@ -241,7 +262,7 @@ const homeHref = "/";
           <div className="min-w-0">
             <h1 className="text-xl font-bold sm:text-2xl">📊 관리자 대시보드</h1>
             <p className="mt-2 text-xs text-gray-500 sm:text-sm">
-              소속: {selectedLabel} · 기간: {periodStart} ~ {periodEnd}
+              기간: {periodStart} ~ {periodEnd}
             </p>
           </div>
 
@@ -252,6 +273,21 @@ const homeHref = "/";
             🏠 홈으로
           </Link>
         </div>
+
+        <form method="GET" className="mt-4 flex flex-wrap items-end gap-2 rounded-2xl border border-red-100 bg-white p-3">
+          <input type="hidden" name="rt" value={rt} />
+          <label className="grid gap-1 text-xs text-gray-600">
+            <span>시작일</span>
+            <input name="start" type="date" defaultValue={periodStart} className="rounded-lg border border-red-200 px-2 py-1.5 text-sm" />
+          </label>
+          <label className="grid gap-1 text-xs text-gray-600">
+            <span>종료일</span>
+            <input name="end" type="date" defaultValue={periodEnd} className="rounded-lg border border-red-200 px-2 py-1.5 text-sm" />
+          </label>
+          <button className="rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50" type="submit">
+            기간 적용
+          </button>
+        </form>
 
         {/* 지사 선택 */}
         <details className="group mt-4 rounded-2xl border border-red-100 bg-white">
@@ -306,21 +342,21 @@ const homeHref = "/";
         {/* KPI */}
 <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 운행</div>
+    <div className="text-[11px] text-gray-500">기간내 운행</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._count)} 회
     </div>
   </div>
 
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 주행</div>
+    <div className="text-[11px] text-gray-500">기간내 주행</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._sum.distance)} km
     </div>
   </div>
 
   <div className="rounded-2xl border border-red-100 bg-white px-3 py-2 shadow-sm">
-    <div className="text-[11px] text-gray-500">이번달 통행료</div>
+    <div className="text-[11px] text-gray-500">기간내 통행료</div>
     <div className="mt-0.5 text-base font-bold sm:text-lg">
       {formatNumber(totals._sum.tollCost)} 원
     </div>
@@ -331,7 +367,7 @@ const homeHref = "/";
         {showAll ? (
           <details className="group mt-6 rounded-2xl border border-red-100 bg-white">
             <summary className="cursor-pointer list-none px-4 py-3">
-              <SummaryRow title="🏢 지사별 이번달 요약" monthCount={totals._count} staleCount={totalStaleBranches} />
+              {renderSummaryRow("🏢 지사별 기간 요약", totals._count, totalStaleBranches)}
             </summary>
 
             <div className="border-t border-red-100 p-4">
@@ -387,19 +423,18 @@ const homeHref = "/";
         {showAll ? (
           <details className="group mt-6 rounded-2xl border border-red-100 bg-white">
             <summary className="cursor-pointer list-none px-4 py-3">
-              <SummaryRow title="🚘 차량별 현황" monthCount={totals._count} staleCount={totalStaleVehicles} />
+              {renderSummaryRow("🚘 차량별 현황", totals._count, totalStaleVehicles, false)}
             </summary>
 
             <div className="border-t border-red-100 p-4">
               <div className="overflow-x-auto rounded-2xl border border-red-100 bg-white">
-                <table className="w-full min-w-[820px] border-collapse text-sm sm:text-base">
+                <table className="w-full min-w-[640px] border-collapse text-sm sm:min-w-[820px] sm:text-base">
                   <thead>
                     <tr className="border-b bg-[#f5f5f7]">
                       <th className="p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="p-2 text-right whitespace-nowrap">이번달</th>
-                      <th className="p-2 text-right whitespace-nowrap">미기록</th>
-                    </tr>
+                      <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                                          </tr>
                   </thead>
                   <tbody>
                     {byVehicle.map(({ v, agg, latest, staleDays }) => {
@@ -417,6 +452,7 @@ const homeHref = "/";
                             <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
                               최근: {lastDate ?? "기록 없음"}
                               {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
+                              {isStale ? " · ⚠️ 미기록 차량" : ""}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-500">
                               전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -431,9 +467,6 @@ const homeHref = "/";
                             </div>
                           </td>
 
-                          <td className={`p-2 text-right whitespace-nowrap ${isStale ? "text-red-600 font-semibold" : ""}`}>
-                            {typeof staleDays === "number" ? `${staleDays}일` : "-"}
-                          </td>
                         </tr>
                       );
                     })}
@@ -446,14 +479,13 @@ const homeHref = "/";
           <>
             <h2 className="mt-6 text-lg font-semibold sm:text-xl">🚘 차량별 현황</h2>
             <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white">
-              <table className="w-full min-w-[820px] border-collapse text-sm sm:text-base">
+              <table className="w-full min-w-[640px] border-collapse text-sm sm:min-w-[820px] sm:text-base">
                 <thead>
                   <tr className="border-b bg-[#f5f5f7]">
                     <th className="p-2 text-left whitespace-nowrap">소속</th>
                     <th className="p-2 text-left whitespace-nowrap">차량</th>
-                    <th className="p-2 text-right whitespace-nowrap">이번달</th>
-                    <th className="p-2 text-right whitespace-nowrap">미기록</th>
-                  </tr>
+                    <th className="p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                                      </tr>
                 </thead>
                 <tbody>
                   {byVehicle.map(({ v, agg, latest, staleDays }) => {
@@ -471,6 +503,7 @@ const homeHref = "/";
                           <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
                             최근: {lastDate ?? "기록 없음"}
                             {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
+                            {isStale ? " · ⚠️ 미기록 차량" : ""}
                           </div>
                           <div className="mt-0.5 text-xs text-gray-500">
                             전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -485,9 +518,6 @@ const homeHref = "/";
                           </div>
                         </td>
 
-                        <td className={`p-2 text-right whitespace-nowrap ${isStale ? "text-red-600 font-semibold" : ""}`}>
-                          {typeof staleDays === "number" ? `${staleDays}일` : "-"}
-                        </td>
                       </tr>
                     );
                   })}
@@ -505,7 +535,7 @@ const homeHref = "/";
               className={`rounded-xl border px-3 py-2 ${rt === "month" ? activeClass : normalClass}`}
               href={makeHref(adminPath, "month")}
             >
-              이번달
+              기간내
             </Link>
             <Link
               className={`rounded-xl border px-3 py-2 ${rt === "7d" ? activeClass : normalClass}`}
@@ -523,7 +553,7 @@ const homeHref = "/";
         </div>
 
         <div className="mt-2 overflow-x-auto rounded-2xl border border-red-100 bg-white">
-          <table className="w-full min-w-[820px] border-collapse text-sm sm:text-base">
+          <table className="w-full min-w-[640px] border-collapse text-sm sm:min-w-[820px] sm:text-base">
             <thead>
               <tr className="border-b bg-[#f5f5f7]">
                 <th className="p-2 text-left whitespace-nowrap">날짜</th>

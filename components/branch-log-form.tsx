@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { MAIN_BRANCH_CODE } from "@/lib/branches";
 
 type VehicleOption = {
@@ -171,6 +171,8 @@ export default function BranchLogForm({
   // ✅ 최근값 자동 채움 (하이패스/최종주행거리)
   const [hipassBalance, setHipassBalance] = useState<string>("");
   const [odoEnd, setOdoEnd] = useState<string>("");
+  const [latestOdoEnd, setLatestOdoEnd] = useState<number | null>(null);
+  const odoEndInputRef = useRef<HTMLInputElement | null>(null);
 
   // ✅ (추가) 하이패스 충전: 체크 시에만 입력칸 노출 + 서버로 전송
   const [hipassCharged, setHipassCharged] = useState(false);
@@ -180,6 +182,7 @@ export default function BranchLogForm({
     if (!selectedBranchCode || !selectedVehicleId) {
       setHipassBalance("");
       setOdoEnd("");
+      setLatestOdoEnd(null);
       setHipassCharged(false);
       setHipassCharge("");
       return;
@@ -202,6 +205,7 @@ export default function BranchLogForm({
 
         setHipassBalance(data.hipassBalance == null ? "" : String(data.hipassBalance));
         setOdoEnd(data.odoEnd == null ? "" : String(data.odoEnd));
+        setLatestOdoEnd(data.odoEnd ?? null);
 
         // ✅ 차량/지사 바뀌어 최신값 로드되면 충전 입력은 기본 OFF
         setHipassCharged(false);
@@ -217,6 +221,24 @@ export default function BranchLogForm({
   useEffect(() => {
     if (!hipassCharged) setHipassCharge("");
   }, [hipassCharged]);
+
+  const validateOdoEnd = (value: string) => {
+    const input = odoEndInputRef.current;
+    if (!input) return;
+
+    const numericValue = Number(value);
+    if (
+      latestOdoEnd !== null &&
+      Number.isFinite(numericValue) &&
+      value.trim() !== "" &&
+      numericValue < latestOdoEnd
+    ) {
+      input.setCustomValidity(`최종 주행거리는 이전 기록(${latestOdoEnd}km)보다 작을 수 없습니다.`);
+      return;
+    }
+
+    input.setCustomValidity("");
+  };
 
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
@@ -260,7 +282,7 @@ export default function BranchLogForm({
           {showAdminButton ? (
             <Link
               className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
-              href={`/admin/${selectedBranchCode}`}
+              href="/admin"
             >
               🛠️ 관리자
             </Link>
@@ -318,6 +340,12 @@ export default function BranchLogForm({
         <form
           method="POST"
           action="/api/trips/create"
+          onSubmit={(e) => {
+            validateOdoEnd(odoEnd);
+            if (!e.currentTarget.reportValidity()) {
+              e.preventDefault();
+            }
+          }}
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
           <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
@@ -387,7 +415,12 @@ export default function BranchLogForm({
               inputMode="numeric"
               className={FieldInput}
               value={odoEnd}
-              onChange={(e) => setOdoEnd(e.target.value)}
+              ref={odoEndInputRef}
+              onChange={(e) => {
+                const nextValue = e.target.value;
+                setOdoEnd(nextValue);
+                validateOdoEnd(nextValue);
+              }}
             />
           </label>
 
