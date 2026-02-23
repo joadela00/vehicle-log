@@ -16,9 +16,7 @@ type BranchOption = {
   name: string;
 };
 
-type Notice =
-  | { type: "success" | "error"; message: string }
-  | null;
+type Notice = { type: "success" | "error"; message: string } | null;
 
 function pickOne(list: string[]) {
   if (list.length === 0) return "";
@@ -48,7 +46,7 @@ export default function BranchLogForm({
       "운행 후 차량 상태를 점검해주세요.",
       "차량 정리 후 마무리 부탁드립니다.",
     ],
-    []
+    [],
   );
   const [heroMessage] = useState(() => pickOne(HERO_MESSAGES));
 
@@ -151,11 +149,34 @@ export default function BranchLogForm({
   const FieldInput =
     "block w-full max-w-full box-border min-w-0 rounded-xl border border-red-200 bg-white px-3 py-3 text-base shadow-sm focus:border-red-500 focus:ring-2 focus:ring-red-100";
 
+  // ✅ 전기 잔여(%) 상태(선택값에 따라 뱃지 표시)
+  const [evRemainPct, setEvRemainPct] = useState<string>("80");
+
+  const evBadge = useMemo(() => {
+    if (evRemainPct === "20" || evRemainPct === "40") {
+      return {
+        text: "🚨 절대충전",
+        className:
+          "inline-flex items-center rounded-full border border-red-300 bg-red-100 px-2 py-0.5 text-xs font-extrabold text-red-800 shadow-sm",
+      };
+    }
+    if (evRemainPct === "60") {
+      return {
+        text: "⚡ 충전요망",
+        className:
+          "inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800",
+      };
+    }
+    return null;
+  }, [evRemainPct]);
+
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="min-w-0">
-          <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
+          <p className="text-sm font-bold tracking-wide text-red-500">
+            🚘 DAILY LOG
+          </p>
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl text-red-600">
             차량 운행일지
           </h1>
@@ -339,17 +360,33 @@ export default function BranchLogForm({
             />
           </label>
 
+          {/* ✅ 전기 잔여(%) - 60이면 "⚡ 충전", 40/20이면 "🚨 절대충전"(더 강렬) */}
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">🔋 현재 전기 잔여(%)</span>
-            <span className="text-sm sm:text-base">40%라면 충전을 시켜주세요</span>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold sm:text-base">
+                🔋 현재 전기 잔여(%)
+              </span>
+
+              {evBadge ? (
+                <span className={evBadge.className}>{evBadge.text}</span>
+              ) : null}
+            </div>
+
             <select
               name="evRemainPct"
               required
-              defaultValue="80"
-              className={FieldInput}
+              value={evRemainPct}
+              onChange={(e) => setEvRemainPct(e.target.value)}
+              className={
+                evRemainPct === "20" || evRemainPct === "40"
+                  ? `${FieldInput} border-red-400 focus:border-red-600 focus:ring-red-200`
+                  : evRemainPct === "60"
+                    ? `${FieldInput} border-amber-200 focus:border-amber-400 focus:ring-amber-100`
+                    : FieldInput
+              }
             >
               {[20, 40, 60, 80, 100].map((v) => (
-                <option key={v} value={v}>
+                <option key={v} value={String(v)}>
                   {v}%
                 </option>
               ))}
@@ -357,7 +394,9 @@ export default function BranchLogForm({
           </label>
 
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
+            <span className="text-sm font-semibold sm:text-base">
+              💳 하이패스 잔액(원)
+            </span>
             <input
               name="hipassBalance"
               required
@@ -369,10 +408,14 @@ export default function BranchLogForm({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm sm:text-base">📝 메모(선택)</span>
-            <input name="note" type="text" 
-              placeholder="예: 세차해주세요" className={FieldInput} />
+            <input
+              name="note"
+              type="text"
+              placeholder="예: 세차해주세요"
+              className={FieldInput}
+            />
           </label>
-                   
+
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-700 sm:w-auto">
             저장
           </button>
