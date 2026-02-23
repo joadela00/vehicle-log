@@ -284,7 +284,7 @@ const homeHref = "/";
             <span>종료일</span>
             <input name="end" type="date" defaultValue={periodEnd} className="rounded-lg border border-red-200 px-2 py-1.5 text-sm" />
           </label>
-          <button className="rounded-lg border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50" type="submit">
+          <button className="rounded-lg border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-red-50" type="submit">
             기간 적용
           </button>
         </form>
@@ -293,11 +293,11 @@ const homeHref = "/";
         <details className="group mt-4 rounded-2xl border border-red-100 bg-white">
          <summary className="cursor-pointer list-none px-3 py-3">
   <div className="flex items-center gap-2">
-    <div className="min-w-0 flex-1 rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900">
+    <div className="min-w-0 flex-1 rounded-xl border border-red-200 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900">
       <span className="block truncate">{selectedLabel}</span>
     </div>
 
-    <div className="inline-flex items-center rounded-xl border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
+    <div className="inline-flex items-center rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-semibold text-gray-900 transition hover:bg-red-50">
       <span className="group-open:hidden">변경</span>
       <span className="hidden group-open:inline">닫기</span>
     </div>
@@ -433,7 +433,7 @@ const homeHref = "/";
                     <tr className="border-b bg-[#f5f5f7]">
                       <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                       <th className="p-2 text-left whitespace-nowrap">차량</th>
-                      <th className="w-[118px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                      <th className="w-[100px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
                                           </tr>
                   </thead>
                   <tbody>
@@ -449,10 +449,10 @@ const homeHref = "/";
                             <div className="whitespace-nowrap">
                               <b>{v.model}</b> / {v.plate}
                             </div>
-                            <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
+                            <div className="mt-0.5 text-xs text-gray-500">
                               최근: {lastDate ?? "기록 없음"}
                               {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                              {isStale ? " · ⚠️ 미기록 차량" : ""}
+                              {isStale ? <span className="font-semibold text-red-600"> · ⚠️ 미기록 차량</span> : null}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-500">
                               전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -484,7 +484,7 @@ const homeHref = "/";
                   <tr className="border-b bg-[#f5f5f7]">
                     <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
                     <th className="p-2 text-left whitespace-nowrap">차량</th>
-                    <th className="w-[118px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
+                    <th className="w-[100px] p-2 pr-1 text-right whitespace-nowrap">기간내</th>
                                       </tr>
                 </thead>
                 <tbody>
@@ -500,10 +500,10 @@ const homeHref = "/";
                           <div className="whitespace-nowrap">
                             <b>{v.model}</b> / {v.plate}
                           </div>
-                          <div className={`mt-0.5 text-xs ${isStale ? "text-red-600 font-semibold" : "text-gray-500"}`}>
+                          <div className="mt-0.5 text-xs text-gray-500">
                             최근: {lastDate ?? "기록 없음"}
                             {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                            {isStale ? " · ⚠️ 미기록 차량" : ""}
+                            {isStale ? <span className="font-semibold text-red-600"> · ⚠️ 미기록 차량</span> : null}
                           </div>
                           <div className="mt-0.5 text-xs text-gray-500">
                             전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -561,7 +561,7 @@ const homeHref = "/";
                 <th className="p-2 text-left whitespace-nowrap">운전자</th>
                 <th className="p-2 text-right whitespace-nowrap">주행</th>
                 <th className="p-2 text-right whitespace-nowrap">통행료</th>
-                <th className="p-2 text-left whitespace-nowrap">메모</th>
+                <th className="p-2 text-right whitespace-nowrap">메모</th>
               </tr>
             </thead>
             <tbody>
@@ -577,8 +577,8 @@ const homeHref = "/";
                   <td className="p-2 whitespace-nowrap">{t.driver.name}</td>
                   <td className="p-2 text-right whitespace-nowrap">{formatNumber(t.distance)} km</td>
                   <td className="p-2 text-right whitespace-nowrap">{formatNumber(t.tollCost)} 원</td>
-                  <td className="p-2 max-w-[260px]">
-                    <div className="truncate" title={t.note ?? ""}>
+                  <td className="p-2 text-right max-w-[260px]">
+                    <div className="truncate text-right" title={t.note ?? ""}>
                       {t.note ?? ""}
                     </div>
                   </td>
