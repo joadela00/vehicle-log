@@ -352,7 +352,7 @@ export default function BranchLogForm({
               e.preventDefault();
             }
           }}
-          className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
+          className="mt-3 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
           <input
             type="hidden"
