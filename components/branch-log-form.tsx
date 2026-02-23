@@ -309,7 +309,7 @@ export default function BranchLogForm({
                 onClick={() => setBranchPickerOpen(true)}
                 className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
               >
-                소속 변경
+                변경
               </button>
             </div>
           )}
