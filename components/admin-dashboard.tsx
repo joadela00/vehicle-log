@@ -34,7 +34,7 @@ export default async function AdminDashboard({
   const showAll = branchCode === ALL_BRANCH_CODE;
 
   const branches = await getBranchOptions();
-  const mainBranchLabel = "전체";
+  const mainBranchLabel = "지역본부";
   const mainBranch = branches.find((b) => b.code === MAIN_BRANCH_CODE);
   const others = branches.filter((b) => b.code !== MAIN_BRANCH_CODE);
 
