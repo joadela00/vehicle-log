@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export default function UpdatedToast({
   show,
-  message = "💾 저장되었습니다.",
+  message = "저장되었습니다.",
 }: {
   show: boolean;
   message?: string;
