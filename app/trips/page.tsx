@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
-import DeleteConfirmScript from "@/app/trips/delete-confirm-script";
+import DeleteTripForm from "@/app/trips/delete-trip-form";
 import UpdatedToast from "@/app/trips/updated-toast";
 import DeletedToast from "@/app/trips/deleted-toast";
 import DeleteErrorToast from "@/app/trips/delete-error-toast";
@@ -287,19 +287,24 @@ export default async function TripsPage({
                         수정
                       </Link>
 
-                      <form method="POST" action="/api/trips/delete" data-confirm-delete="1" className="m-0">
-                        <input type="hidden" name="id" value={t.id} />
-                        <input type="hidden" name="returnTo" value={currentListHref} />
-                        <button
-                          type="submit"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition"
-                          aria-label="삭제"
-                          title="삭제"
-                        >
-                          <Trash2Icon className="h-4 w-4 pointer-events-none" />
-                          삭제
-                        </button>
-                      </form>
+<DeleteTripForm
+  id={t.id}
+  returnTo={currentListHref}
+  className="m-0"
+  button={
+    <button
+      type="submit"
+      className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-white px-3 py-2 text-sm text-gray-700 hover:text-red-600 transition"
+      aria-label="삭제"
+      title="삭제"
+    >
+      <Trash2Icon className="h-4 w-4 pointer-events-none" />
+      삭제
+    </button>
+  }
+/>
+
+                      
                     </div>
                   </div>
 
@@ -372,11 +377,12 @@ export default async function TripsPage({
                         </Link>
                       </td>
                       <td className="p-2 text-right">
-                        <form method="POST" action="/api/trips/delete" data-confirm-delete="1" className="m-0">
-                          <input type="hidden" name="id" value={t.id} />
-                          <input type="hidden" name="returnTo" value={currentListHref} />
-                          <button className="text-red-900">🗑️</button>
-                        </form>
+      <DeleteTripForm
+  id={t.id}
+  returnTo={currentListHref}
+  className="m-0"
+  button={<button type="submit" className="text-red-900">🗑️</button>}
+/>
                       </td>
                     </tr>
                   ))}
@@ -386,7 +392,6 @@ export default async function TripsPage({
           </>
         )}
 
-        <DeleteConfirmScript />
       </section>
     </main>
   );

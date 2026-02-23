@@ -367,7 +367,7 @@ const homeHref = "/";
         {showAll ? (
           <details className="group mt-6 rounded-2xl border border-red-100 bg-white">
             <summary className="cursor-pointer list-none px-4 py-3">
-              {renderSummaryRow("🏢 지사별 기간 요약", totals._count, totalStaleBranches)}
+              {renderSummaryRow("🏢 지사별 이번달 요약", totals._count, totalStaleBranches)}
             </summary>
 
             <div className="border-t border-red-100 p-4">
