@@ -39,6 +39,7 @@ model Trip {
 
   evRemainPct   Int
   hipassBalance Int
+  hipassCharge  Int?     // ✅ 추가
   tollCost      Int
 
   note          String?

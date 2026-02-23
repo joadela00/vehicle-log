@@ -27,22 +27,49 @@ export async function POST(req: Request) {
   const evRemainPct = Number(form.get("evRemainPct"));
   const hipassBalance = toInt(form.get("hipassBalance"));
 
+  // ✅ (추가) 하이패스 충전금액(선택) - 없으면 null
+  const hipassChargeRaw = form.get("hipassCharge");
+  const hipassCharge =
+    hipassChargeRaw === null || String(hipassChargeRaw).trim() === ""
+      ? null
+      : toInt(hipassChargeRaw);
+
   const note = String(form.get("note") || "").trim() || null;
 
   if (!dateStr || !vehicleId || !driverName) {
-    return NextResponse.json({ error: "필수값(날짜/차량/운전자)을 입력하세요." }, { status: 400 });
+    return NextResponse.json(
+      { error: "필수값(날짜/차량/운전자)을 입력하세요." },
+      { status: 400 },
+    );
   }
 
   if (!Number.isFinite(odoEnd) || odoEnd < 0) {
-    return NextResponse.json({ error: "최종 주행거리를 올바르게 입력하세요." }, { status: 400 });
+    return NextResponse.json(
+      { error: "최종 주행거리를 올바르게 입력하세요." },
+      { status: 400 },
+    );
   }
 
   if (![20, 40, 60, 80, 100].includes(evRemainPct)) {
-    return NextResponse.json({ error: "전기 잔여%는 20/40/60/80/100 중 선택하세요." }, { status: 400 });
+    return NextResponse.json(
+      { error: "전기 잔여%는 20/40/60/80/100 중 선택하세요." },
+      { status: 400 },
+    );
   }
 
   if (!Number.isFinite(hipassBalance) || hipassBalance < 0) {
-    return NextResponse.json({ error: "하이패스 잔액을 올바르게 입력하세요." }, { status: 400 });
+    return NextResponse.json(
+      { error: "하이패스 잔액을 올바르게 입력하세요." },
+      { status: 400 },
+    );
+  }
+
+  // ✅ (추가) 충전금액 검증(입력했을 때만)
+  if (hipassCharge !== null && (!Number.isFinite(hipassCharge) || hipassCharge < 0)) {
+    return NextResponse.json(
+      { error: "하이패스 충전금액을 올바르게 입력하세요." },
+      { status: 400 },
+    );
   }
 
   const driver = await prisma.driver.upsert({
@@ -63,11 +90,13 @@ export async function POST(req: Request) {
   if (prev && distance < 0) {
     return NextResponse.json(
       { error: `최종 주행거리가 이전 기록(${prev.odoEnd})보다 작습니다.` },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  const tollCostRaw = prev ? prev.hipassBalance - hipassBalance : 0;
+  // ✅ (수정) 통행료 = (이전잔액 + 충전금액) - 현재잔액
+  const charge = hipassCharge ?? 0;
+  const tollCostRaw = prev ? prev.hipassBalance + charge - hipassBalance : 0;
   const tollCost = tollCostRaw >= 0 ? tollCostRaw : 0;
 
   await prisma.trip.create({
@@ -80,6 +109,7 @@ export async function POST(req: Request) {
       distance,
       evRemainPct,
       hipassBalance,
+      hipassCharge, // ✅ 추가
       tollCost,
       note,
     },

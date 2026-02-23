@@ -160,6 +160,7 @@ export default async function TripsPage({
         date: true,
         distance: true,
         tollCost: true,
+        note: true, // ✅ 추가
         vehicle: { select: { model: true, plate: true } },
         driver: { select: { name: true } },
       },
@@ -320,6 +321,13 @@ export default async function TripsPage({
                       <dd className="leading-5">{formatNumber(t.tollCost)} 원</dd>
                     </div>
                   </dl>
+
+                  {t.note?.trim() ? (
+  <div className="mt-3 rounded-xl border border-red-100 bg-red-50/30 px-3 py-2 text-sm text-gray-700">
+    <span className="mr-2 font-semibold text-gray-800">📝 </span>
+    <span className="break-words line-clamp-2">{t.note}</span>
+  </div>
+) : null}
                 </article>
               ))}
             </div>
@@ -341,7 +349,17 @@ export default async function TripsPage({
                 <tbody>
                   {trips.map((t) => (
                     <tr key={t.id} className="border-b">
-                      <td className="whitespace-nowrap p-2">{t.date.toISOString().slice(0, 10)}</td>
+                      <td className="p-2 align-top">
+  <div className="whitespace-nowrap">
+    {t.date.toISOString().slice(0, 10)}
+  </div>
+
+  {t.note?.trim() ? (
+    <div className="mt-1 max-w-[360px] text-xs text-gray-500 line-clamp-1">
+      📝 {t.note}
+    </div>
+  ) : null}
+</td>
                       <td className="whitespace-nowrap p-2">{t.vehicle ? `${t.vehicle.model} / ${t.vehicle.plate}` : "-"}</td>
                       <td className="whitespace-nowrap p-2">{t.driver?.name ?? "-"}</td>
                       <td className="p-2 text-right">{formatNumber(t.distance)}</td>

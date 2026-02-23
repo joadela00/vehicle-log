@@ -74,8 +74,8 @@ export default function BranchLogForm({
 
   const [selectedBranchCode, setSelectedBranchCode] = useState(initialSafe);
 
-  // ✅ 핵심: 초기 소속이 있으면 "오므려진 카드(닫힘)"로 시작
-  const [branchPickerOpen, setBranchPickerOpen] = useState(!initialSafe);
+  // ✅ 첫 화면: 오므림(닫힘)
+  const [branchPickerOpen, setBranchPickerOpen] = useState(false);
 
   // ✅ 성공/에러 알림(자동으로 사라짐)
   const [notice, setNotice] = useState<Notice>(null);
@@ -90,9 +90,8 @@ export default function BranchLogForm({
   useEffect(() => {
     if (!saved) return;
     setNotice({ type: "success", message: "저장되었습니다." });
-    // 저장 직후 화면에서는 오므려진 카드 유지
-    if (initialSafe) setBranchPickerOpen(false);
-  }, [saved, initialSafe]);
+    setBranchPickerOpen(false);
+  }, [saved]);
 
   // ✅ initialBranchCode가 실제로 있을 때만 동기화(없으면 자동선택 금지)
   useEffect(() => {
@@ -101,7 +100,6 @@ export default function BranchLogForm({
     if (initialSafe !== selectedBranchCode) {
       setSelectedBranchCode(initialSafe);
     }
-    // 초기 소속이 있으면 항상 닫힘 유지
     setBranchPickerOpen(false);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -170,20 +168,67 @@ export default function BranchLogForm({
     return null;
   }, [evRemainPct]);
 
+  // ✅ 최근값 자동 채움 (하이패스/최종주행거리)
+  const [hipassBalance, setHipassBalance] = useState<string>("");
+  const [odoEnd, setOdoEnd] = useState<string>("");
+
+  // ✅ (추가) 하이패스 충전: 체크 시에만 입력칸 노출 + 서버로 전송
+  const [hipassCharged, setHipassCharged] = useState(false);
+  const [hipassCharge, setHipassCharge] = useState<string>("");
+
+  useEffect(() => {
+    if (!selectedBranchCode || !selectedVehicleId) {
+      setHipassBalance("");
+      setOdoEnd("");
+      setHipassCharged(false);
+      setHipassCharge("");
+      return;
+    }
+
+    const ac = new AbortController();
+
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/trips/latest?branchCode=${encodeURIComponent(selectedBranchCode)}&vehicleId=${encodeURIComponent(selectedVehicleId)}`,
+          { cache: "no-store", signal: ac.signal },
+        );
+        if (!res.ok) return;
+
+        const data: {
+          hipassBalance: number | null;
+          odoEnd: number | null;
+        } = await res.json();
+
+        setHipassBalance(data.hipassBalance == null ? "" : String(data.hipassBalance));
+        setOdoEnd(data.odoEnd == null ? "" : String(data.odoEnd));
+
+        // ✅ 차량/지사 바뀌어 최신값 로드되면 충전 입력은 기본 OFF
+        setHipassCharged(false);
+        setHipassCharge("");
+      } catch {
+        // ignore
+      }
+    })();
+
+    return () => ac.abort();
+  }, [selectedBranchCode, selectedVehicleId]);
+
+  useEffect(() => {
+    if (!hipassCharged) setHipassCharge("");
+  }, [hipassCharged]);
+
   return (
     <main className="mx-auto w-full max-w-3xl overflow-x-clip p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pr-[calc(1rem+env(safe-area-inset-right))] sm:p-6">
       <section className="rounded-3xl border border-red-100 bg-white/95 p-5 shadow-[0_12px_40px_rgba(220,38,38,0.08)] sm:p-7">
         <div className="min-w-0">
-          <p className="text-sm font-bold tracking-wide text-red-500">
-            🚘 DAILY LOG
-          </p>
+          <p className="text-sm font-bold tracking-wide text-red-500">🚘 DAILY LOG</p>
           <h1 className="mt-1 text-2xl font-extrabold sm:text-3xl text-red-600">
             차량 운행일지
           </h1>
           <p className="mt-1 text-sm text-gray-500">{heroMessage}</p>
         </div>
 
-        {/* ✅ 저장/오류 알림: 둘 다 뜨고 자동으로 사라짐 */}
         {notice ? (
           notice.type === "success" ? (
             <p className="mt-4 rounded-2xl border border-green-300 bg-green-50 px-3 py-2 text-sm font-semibold text-green-800">
@@ -197,7 +242,6 @@ export default function BranchLogForm({
         ) : null}
 
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
-          {/* ✅ 운행안내는 그냥 보이게 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
             href="/guide"
@@ -205,7 +249,6 @@ export default function BranchLogForm({
             📢 운행안내
           </Link>
 
-          {/* ✅ 운행목록만 소속 선택 필수 */}
           <Link
             className="rounded-xl border border-red-200 bg-white px-3 py-2 font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
             href={tripsHref}
@@ -266,7 +309,7 @@ export default function BranchLogForm({
                 onClick={() => setBranchPickerOpen(true)}
                 className="shrink-0 rounded-xl border border-red-200 bg-white px-3 py-2 text-sm font-medium hover:border-red-300 hover:bg-red-50 hover:text-red-600"
               >
-                지사 변경
+                소속 변경
               </button>
             </div>
           )}
@@ -277,11 +320,7 @@ export default function BranchLogForm({
           action="/api/trips/create"
           className="mt-6 grid gap-4 rounded-2xl border border-red-100 bg-white/90 p-5 shadow-sm"
         >
-          <input
-            type="hidden"
-            name="returnTo"
-            value={`/?branch=${encodeURIComponent(selectedBranchCode)}`}
-          />
+          <input type="hidden" name="returnTo" value={`/?branch=${encodeURIComponent(selectedBranchCode)}`} />
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">📅 날짜</span>
@@ -320,14 +359,11 @@ export default function BranchLogForm({
                       className="peer sr-only"
                       required={!!selectedBranchCode}
                     />
-
                     <span
                       className="block w-full min-w-0 overflow-hidden rounded-xl border border-red-200 bg-white px-3 py-2 text-center text-sm text-gray-800 transition hover:bg-red-50
                                  peer-checked:border-red-600 peer-checked:border-2 peer-checked:font-semibold"
                     >
-                      <span className="block truncate text-[11px] opacity-70">
-                        {v.model}
-                      </span>
+                      <span className="block truncate text-[11px] opacity-70">{v.model}</span>
                       <span className="block truncate">{v.plate}</span>
                     </span>
                   </label>
@@ -338,38 +374,28 @@ export default function BranchLogForm({
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm font-semibold sm:text-base">🙋 운전자</span>
-            <input
-              name="driverName"
-              type="text"
-              required
-              placeholder="예: 정태훈"
-              className={FieldInput}
-            />
+            <input name="driverName" type="text" required placeholder="예: 정태훈" className={FieldInput} />
           </label>
 
+          {/* ✅ 최종 주행거리 */}
           <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">
-              📍 최종 주행거리(누적 km)
-            </span>
+            <span className="text-sm font-semibold sm:text-base">📍 최종 주행거리(누적 km)</span>
             <input
               name="odoEnd"
               required
               placeholder="예: 12345"
               inputMode="numeric"
               className={FieldInput}
+              value={odoEnd}
+              onChange={(e) => setOdoEnd(e.target.value)}
             />
           </label>
 
-          {/* ✅ 전기 잔여(%) - 60이면 "⚡ 충전", 40/20이면 "🚨 절대충전"(더 강렬) */}
+          {/* ✅ 전기 잔여(%) */}
           <label className="grid gap-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold sm:text-base">
-                🔋 현재 전기 잔여(%)
-              </span>
-
-              {evBadge ? (
-                <span className={evBadge.className}>{evBadge.text}</span>
-              ) : null}
+              <span className="text-sm font-semibold sm:text-base">🔋 현재 전기 잔여(%)</span>
+              {evBadge ? <span className={evBadge.className}>{evBadge.text}</span> : null}
             </div>
 
             <select
@@ -393,27 +419,56 @@ export default function BranchLogForm({
             </select>
           </label>
 
-          <label className="grid gap-1 min-w-0">
-            <span className="text-sm font-semibold sm:text-base">
-              💳 하이패스 잔액(원)
-            </span>
+          {/* ✅ 하이패스 잔액 + (컴팩트) 충전 체크 */}
+          <div className="grid gap-1 min-w-0">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-sm font-semibold sm:text-base">💳 최종 하이패스 잔액(원)</span>
+
+              <label className="inline-flex items-center gap-1.5 rounded-full border border-red-200 bg-white px-2 py-1 text-xs font-semibold text-gray-700">
+                <input
+                  type="checkbox"
+                  checked={hipassCharged}
+                  onChange={(e) => setHipassCharged(e.target.checked)}
+                  className="h-4 w-4 accent-red-600"
+                />
+                💸충전
+              </label>
+            </div>
+
             <input
               name="hipassBalance"
               required
               placeholder="예: 35000"
               inputMode="numeric"
               className={FieldInput}
+              value={hipassBalance}
+              onChange={(e) => setHipassBalance(e.target.value)}
             />
-          </label>
+
+            {/* ✅ 체크하면 아래가 열림 */}
+            {hipassCharged ? (
+              <div className="mt-2 rounded-xl border border-red-100 bg-red-50/30 p-3 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-semibold text-gray-800">➕ 충전금액(원)</span>
+                  <span className="text-xs font-medium text-gray-500">충전한 날만</span>
+                </div>
+
+                <input
+                  name="hipassCharge"
+                  inputMode="numeric"
+                  placeholder="예: 27000"
+                  className={FieldInput}
+                  value={hipassCharge}
+                  onChange={(e) => setHipassCharge(e.target.value)}
+                  required
+                />
+              </div>
+            ) : null}
+          </div>
 
           <label className="grid gap-1 min-w-0">
             <span className="text-sm sm:text-base">📝 메모(선택)</span>
-            <input
-              name="note"
-              type="text"
-              placeholder="예: 세차해주세요"
-              className={FieldInput}
-            />
+            <input name="note" type="text" placeholder="예: 세차해주세요" className={FieldInput} />
           </label>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-700 sm:w-auto">

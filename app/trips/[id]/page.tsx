@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatNumber } from "@/lib/number";
+import HipassChargeField from "@/app/trips/[id]/hipass-charge-field";
 
 export const revalidate = 0;
 
@@ -13,6 +14,8 @@ function errorMessage(code: string) {
       return "전기 잔여(%) 값이 올바르지 않습니다.";
     case "invalid_hipass":
       return "하이패스 잔액 값이 올바르지 않습니다.";
+    case "invalid_hipass_charge":
+      return "하이패스 충전금액 값이 올바르지 않습니다.";
     case "prev_odo":
       return "주행거리가 이전 운행일지의 최종 주행거리보다 작을 수 없습니다.";
     case "next_odo":
@@ -43,6 +46,7 @@ export default async function TripEditPage({
       odoEnd: true,
       evRemainPct: true,
       hipassBalance: true,
+      hipassCharge: true, // ✅ 이미 추가되어 있음
       vehicle: { select: { model: true, plate: true, branchCode: true } },
       driver: { select: { name: true } },
     },
@@ -54,6 +58,9 @@ export default async function TripEditPage({
   const backHref = branchCode
     ? `/trips?branchCode=${encodeURIComponent(branchCode)}`
     : "/trips";
+
+  const FieldInput =
+    "w-full rounded-xl border bg-white px-3 py-3 text-base shadow-sm";
 
   return (
     <main className="mx-auto w-full max-w-2xl p-4 sm:p-6">
@@ -108,7 +115,7 @@ export default async function TripEditPage({
               required
               inputMode="numeric"
               defaultValue={trip.odoEnd}
-              className="w-full rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+              className={FieldInput}
             />
           </label>
 
@@ -118,7 +125,7 @@ export default async function TripEditPage({
               name="evRemainPct"
               required
               defaultValue={String(trip.evRemainPct)}
-              className="w-full rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
+              className={FieldInput}
             >
               {[20, 40, 60, 80, 100].map((v) => (
                 <option key={v} value={v}>
@@ -128,20 +135,22 @@ export default async function TripEditPage({
             </select>
           </label>
 
-          <label className="grid gap-1">
-            <span className="text-sm font-semibold sm:text-base">💳 하이패스 잔액(원)</span>
-            <input
-              name="hipassBalance"
-              required
-              inputMode="numeric"
-              defaultValue={trip.hipassBalance}
-              className="w-full rounded-xl border bg-white px-3 py-3 text-base shadow-sm"
-            />
-          </label>
+          {/* ✅ 하이패스 잔액(원) + 충전 체크(컴팩트) + 체크 시 충전금액 열림 */}
+          <HipassChargeField
+            fieldInputClass={FieldInput}
+            defaultHipassBalance={trip.hipassBalance}
+            defaultHipassCharge={trip.hipassCharge}
+          />
 
           <p className="text-xs text-gray-500 sm:text-sm">
             기존값: 주행거리 {formatNumber(trip.odoEnd)} km / 하이패스{" "}
             {formatNumber(trip.hipassBalance)} 원
+            {trip.hipassCharge ? (
+              <>
+                {" "}
+                / 충전 {formatNumber(trip.hipassCharge)} 원
+              </>
+            ) : null}
           </p>
 
           <button className="w-full rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white shadow-[0_10px_25px_rgba(220,38,38,0.35)] transition hover:bg-red-500 sm:w-auto">

@@ -25,6 +25,16 @@ export async function POST(req: Request) {
   const returnToRaw = String(form.get("returnTo") || "").trim();
   const branchCode = String(form.get("branchCode") || "").trim();
 
+  // ✅ (추가) 수정 폼에 hipassCharge가 "있는 경우에만" 반영 (없으면 기존 값 유지)
+  const hasHipassChargeField = form.has("hipassCharge");
+  const hipassChargeRaw = hasHipassChargeField ? form.get("hipassCharge") : null;
+  const hipassCharge =
+    !hasHipassChargeField
+      ? undefined
+      : hipassChargeRaw === null || String(hipassChargeRaw).trim() === ""
+        ? null
+        : toInt(hipassChargeRaw);
+
   if (!id) {
     return NextResponse.json({ error: "id missing" }, { status: 400 });
   }
@@ -36,6 +46,13 @@ export async function POST(req: Request) {
   }
   if (!Number.isFinite(hipassBalance) || hipassBalance < 0) {
     return redirectToEdit(req, id, "invalid_hipass", branchCode);
+  }
+
+  // ✅ (추가) 충전금액 검증(폼에 있을 때만)
+  if (hipassCharge !== undefined && hipassCharge !== null) {
+    if (!Number.isFinite(hipassCharge) || hipassCharge < 0) {
+      return redirectToEdit(req, id, "invalid_hipass_charge", branchCode);
+    }
   }
 
   const current = await prisma.trip.findUnique({
@@ -80,15 +97,27 @@ export async function POST(req: Request) {
     return redirectToEdit(req, id, "next_odo", branchCode);
   }
 
+  // ✅ (수정) hipassCharge는 "폼에 있을 때만" update data에 포함
+  const updateData: {
+    odoEnd: number;
+    evRemainPct: number;
+    hipassBalance: number;
+    hipassCharge?: number | null;
+  } = { odoEnd, evRemainPct, hipassBalance };
+
+  if (hipassCharge !== undefined) {
+    updateData.hipassCharge = hipassCharge; // null 가능
+  }
+
   await prisma.trip.update({
     where: { id },
-    data: { odoEnd, evRemainPct, hipassBalance },
+    data: updateData,
   });
 
   const allTrips = await prisma.trip.findMany({
     where: { vehicleId: current.vehicleId },
     orderBy: [{ date: "asc" }, { createdAt: "asc" }],
-    select: { id: true, odoEnd: true, hipassBalance: true },
+    select: { id: true, odoEnd: true, hipassBalance: true, hipassCharge: true }, // ✅ hipassCharge 추가
   });
 
   let prevOdo: number | null = null;
@@ -96,7 +125,11 @@ export async function POST(req: Request) {
 
   const updates = allTrips.map((trip) => {
     const distance = prevOdo === null ? 0 : Math.max(0, trip.odoEnd - prevOdo);
-    const tollCost = prevHipass === null ? 0 : Math.max(0, prevHipass - trip.hipassBalance);
+
+    // ✅ (수정) 통행료 = (이전잔액 + 충전금액) - 현재잔액
+    const charge = trip.hipassCharge ?? 0;
+    const tollCost =
+      prevHipass === null ? 0 : Math.max(0, prevHipass + charge - trip.hipassBalance);
 
     const data = {
       odoStart: prevOdo,
