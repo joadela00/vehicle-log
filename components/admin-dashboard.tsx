@@ -452,7 +452,7 @@ const homeHref = "/";
                             <div className="mt-0.5 text-xs text-gray-500">
                               최근: {lastDate ?? "기록 없음"}
                               {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                              {isStale ? <span className="font-semibold text-red-600"> · ⚠️ 미기록 차량</span> : null}
+                              {isStale ? <span className="font-semibold text-red-600"> ⚠️ 미기록 차량</span> : null}
                             </div>
                             <div className="mt-0.5 text-xs text-gray-500">
                               전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
@@ -503,7 +503,7 @@ const homeHref = "/";
                           <div className="mt-0.5 text-xs text-gray-500">
                             최근: {lastDate ?? "기록 없음"}
                             {typeof staleDays === "number" ? ` · ${staleDays}일 전` : ""}
-                            {isStale ? <span className="font-semibold text-red-600"> · ⚠️ 미기록 차량</span> : null}
+                            {isStale ? <span className="font-semibold text-red-600"> ⚠️ 미기록 차량</span> : null}
                           </div>
                           <div className="mt-0.5 text-xs text-gray-500">
                             전기 {formatNumber(latest?.evRemainPct)}% · 하이패스 {formatNumber(latest?.hipassBalance)}원 · 계기판{" "}
