@@ -429,17 +429,15 @@ const homeHref = "/";
             <div className="border-t border-red-100 p-4">
               <div className="overflow-x-auto rounded-2xl border border-red-100 bg-white">
                 <table className="w-full min-w-[560px] border-collapse text-sm sm:min-w-[720px] sm:text-base">
-                  <thead>
-                    <tr className="border-b bg-[#f5f5f7]">
-                      <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
-                      <th className="p-2 text-left whitespace-nowrap">차량</th>
-<<<<<<< codex/fix-date-text-alignment-issue-tk0eg7
-                      <th className="w-[84px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
-=======
-                      <th className="w-[76px] p-2 pl-1 pr-1 text-right whitespace-nowrap">기간내</th>
->>>>>>> main
-                                          </tr>
-                  </thead>
+<thead>
+  <tr className="border-b bg-[#f5f5f7]">
+    <th className="w-[88px] p-2 text-left whitespace-nowrap">소속</th>
+    <th className="p-2 text-left whitespace-nowrap">차량</th>
+    <th className="w-[64px] py-2 px-1 text-right whitespace-nowrap">
+      기간내
+    </th>
+  </tr>
+</thead>
                   <tbody>
                     {byVehicle.map(({ v, agg, latest, staleDays }) => {
                       const isStale = !latest?.date || (typeof staleDays === "number" && staleDays >= 30);
