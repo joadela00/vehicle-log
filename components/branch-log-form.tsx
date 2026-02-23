@@ -244,7 +244,7 @@ export default function BranchLogForm({
   const branchClosedButtonClass =
     "min-w-0 flex-1 truncate rounded-xl bg-white px-3 py-3 text-left text-sm text-gray-900 hover:border-red-400 " +
     (selectedBranchCode
-      ? "border-2 border-red-700 font-semibold"
+      ? "border-2 border-red-800 font-semibold"
       : "border border-red-300 font-semibold");
 
   return (
