@@ -255,17 +255,18 @@ const homeHref = "/";
 
         {/* 지사 선택 */}
         <details className="group mt-4 rounded-2xl border border-red-100 bg-white">
-          <summary className="cursor-pointer list-none px-3 py-3">
-            <div className="flex items-center gap-2">
-              <div className="min-w-0 flex-1 rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900">
-                <span className="block truncate">{selectedLabel}</span>
-              </div>
-              <div className={togglePill}>
-                <span className="group-open:hidden">지사변경</span>
-                <span className="hidden group-open:inline">닫기</span>
-              </div>
-            </div>
-          </summary>
+         <summary className="cursor-pointer list-none px-3 py-3">
+  <div className="flex items-center gap-2">
+    <div className="min-w-0 flex-1 rounded-xl border border-red-300 bg-white px-3 py-2 text-left text-sm font-semibold text-gray-900">
+      <span className="block truncate">{selectedLabel}</span>
+    </div>
+
+    <div className="inline-flex items-center rounded-xl border border-red-300 bg-white px-3 py-2 text-sm font-semibold text-red-600 transition hover:bg-red-50">
+      <span className="group-open:hidden">변경</span>
+      <span className="hidden group-open:inline">닫기</span>
+    </div>
+  </div>
+</summary>
 
           <div className="border-t border-red-100 p-3">
             <div className="flex flex-wrap gap-2 text-sm">
