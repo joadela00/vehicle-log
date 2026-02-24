@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";
+import AnalyticsWrapper from "./analytics-wrapper";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,14 +15,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="ko">
       <body className="antialiased">
         {children}
-        <Analytics />
+        <AnalyticsWrapper />   {/* ✅ 여기 */}
       </body>
     </html>
   );
