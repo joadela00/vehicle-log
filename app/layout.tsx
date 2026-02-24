@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Analytics } from "@vercel/analytics/next";   // ✅ 추가
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -22,7 +22,7 @@ export default function RootLayout({
     <html lang="ko">
       <body className="antialiased">
         {children}
-        <Analytics /> import { Analytics } from "@vercel/analytics/next"  {/* ✅ 여기 추가 */}
+        <Analytics />
       </body>
     </html>
   );
