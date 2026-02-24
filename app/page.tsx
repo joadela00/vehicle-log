@@ -2,7 +2,6 @@ import { unstable_cache } from "next/cache";
 import BranchLogForm from "@/components/branch-log-form";
 import { prisma } from "@/lib/prisma";
 import { getBranchOptions } from "@/lib/branches";
-import { Analytics } from "@vercel/analytics/next"
 
 export const dynamic = "force-dynamic";
 export const revalidate = 60;
